@@ -25,7 +25,7 @@ create table #__lrgallery_metadata
     photo_id    int(11) not null,
     meta_id     int(11) not null,
     value       varchar(4000),
-        primary key (photo_id, meta_id)
+        primary key (photo_id, meta_id),
         foreign key (photo_id) references #__lrgallery_photos (id),
         foreign key (meta_id) references #__lrgallery_meta (id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;

@@ -4,7 +4,7 @@
 
     jimport('joomla.application.component.controller');
 
-    $controller = JController::getInstance('lrplugin');
+    $controller = JController::getInstance('lrgallery');
     $controller->execute(JRequest::getCmd('task'));
     $controller->redirect();
 ?>
