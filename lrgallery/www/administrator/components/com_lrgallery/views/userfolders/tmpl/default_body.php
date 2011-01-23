@@ -11,10 +11,7 @@
             <?php echo $item->user_name; ?>
         </td>
         <td>
-            <?php echo $item->name; ?>
-        </td>
-        <td>
-            <?php echo $item->file_name; ?>
+            <?php echo $item->folder_name; ?>
         </td>
         <td>
             <?php echo $item->id; ?>

@@ -17,7 +17,7 @@
         </ul>
     </fieldset>
     <div>
-        <input type="hidden" name="task" value="дкпфддукн.edit" />
+        <input type="hidden" name="task" value="lrgallery.edit" />
         <? echo JHtml::_('form.token'); ?>
     </div>
 </form>

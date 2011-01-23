@@ -4,7 +4,7 @@
 
     jimport('joomla.application.component.view');
 
-    class LrgalleryViewPhoto extends JView
+    class LrgalleryViewUserfolder extends JView
     {
         public function display($tpl = null) 
         {
@@ -28,9 +28,9 @@
         {
                 JRequest::setVar('hidemainmenu', true);
                 $isNew = ($this->item->id == 0);
-                JToolBarHelper::title($isNew ? "Добавление фотографии" : "Редактирование фотографии");
-                JToolBarHelper::save('photo.save');
-                JToolBarHelper::cancel('photo.cancel');
+                JToolBarHelper::title($isNew ? "Добавление папки" : "Редактирование папки");
+                JToolBarHelper::save('userfolder.save');
+                JToolBarHelper::cancel('userfolder.cancel');
         }
     }
 ?>    

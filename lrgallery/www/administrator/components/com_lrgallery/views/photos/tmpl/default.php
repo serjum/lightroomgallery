@@ -21,4 +21,5 @@
     <input type="hidden" id="option" name="option" value="com_lrgallery" />
     <input type="hidden" id="task" name="task" value="" />
     <input type="hidden" id="boxchecked" name="boxchecked" value="" />
+    <? echo JHtml::_('form.token'); ?>
 </form>
