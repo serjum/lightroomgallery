@@ -4,13 +4,12 @@
 
     jimport('joomla.application.component.controlleradmin');
 
-    class LrgalleryControllerPhotos extends JControllerAdmin 
+    class LrgalleryControllerUserfolders extends JControllerAdmin
     {
-        public function getModel($name = 'photo', $prefix = 'lrgalleryModel') 
+        public function getModel($name = 'userfolder', $prefix = 'lrgalleryModel') 
         {
             $model = parent::getModel($name, $prefix, array('ignore_request' => true));
             return $model;
         }
     }
 ?>
-

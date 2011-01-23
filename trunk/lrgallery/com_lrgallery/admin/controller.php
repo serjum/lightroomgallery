@@ -8,7 +8,7 @@
     {
         function display($cachable = false) 
         {
-            JRequest::setVar('view', JRequest::getCmd('view', 'photos'));
+            JRequest::setVar('view', JRequest::getCmd('view', 'userfolders'));
             parent::display($cachable);
         }
     }
