@@ -4,7 +4,7 @@
 
     jimport('joomla.application.component.controllerform');
 
-    class lrgalleryControllermetas extends JControllerAdmin
+    class LrgalleryControllerMetas extends JControllerAdmin
     {
         
     }
