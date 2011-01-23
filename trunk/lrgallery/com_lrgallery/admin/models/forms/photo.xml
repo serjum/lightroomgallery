@@ -16,7 +16,7 @@
         />
         <field
             name="name"
-            type="list"
+            type="text"
             label="Название"
             description="Название фотографии"
             size="40"

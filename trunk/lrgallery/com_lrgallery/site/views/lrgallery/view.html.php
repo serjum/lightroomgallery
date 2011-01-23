@@ -4,7 +4,7 @@
  
     jimport('joomla.application.component.view');
  
-    class lrgalleryViewlrgallery extends JView
+    class LrgalleryViewLrgallery extends JView
     {
         function display($tpl = null) 
         {

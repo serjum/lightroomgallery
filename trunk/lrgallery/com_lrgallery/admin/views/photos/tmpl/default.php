@@ -17,4 +17,8 @@
             <?php echo $this->loadTemplate('foot');?>
         </tfoot>        
     </table>
+    
+    <input type="hidden" id="option" name="option" value="com_lrgallery" />
+    <input type="hidden" id="task" name="task" value="" />
+    <input type="hidden" id="boxchecked" name="boxchecked" value="" />
 </form>

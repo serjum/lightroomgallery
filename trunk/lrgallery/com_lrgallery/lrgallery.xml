@@ -37,7 +37,8 @@
             <folder>models</folder>
             <folder>views</folder>        
             <folder>controllers</folder>
-            <folder>sql</folder>
+            <folder>tables</folder>
+            <folder>sql</folder>            
         </files>
         <languages folder="admin">
             <language tag="en-GB">language/en-GB/en-GB.com_lrgallery.sys.ini</language>
