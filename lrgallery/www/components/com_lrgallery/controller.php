@@ -4,7 +4,7 @@
  
     jimport('joomla.application.component.controller');
  
-    class lrgalleryController extends JController
+    class LrgalleryController extends JController
     {
         
     }

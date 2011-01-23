@@ -4,7 +4,7 @@
 
     jimport('joomla.application.component.modellist');
 
-    class lrpgalleryModelphotos extends JModelList
+    class LrgalleryModelPhotos extends JModelList
     {
         protected function getListQuery()
         {

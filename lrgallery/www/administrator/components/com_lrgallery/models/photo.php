@@ -4,7 +4,7 @@
 
     jimport('joomla.application.component.modeladmin');
 
-    class lrgalleryModelphoto extends JModelAdmin
+    class LrgalleryModelPhoto extends JModelAdmin
     {            
         public function getTable($type = 'photo', $prefix = 'lrgalleryTable', $config = array()) 
         {
