@@ -4,7 +4,7 @@
 
     jimport('joomla.application.component.modelitem');
 
-    class lrgalleryModellrgallery extends JModelItem
+    class LrgalleryModelLrgallery extends JModelItem
     {
         protected $msg;
 

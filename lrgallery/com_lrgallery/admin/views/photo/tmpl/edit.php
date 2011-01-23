@@ -3,7 +3,7 @@
     JHtml::_('behavior.tooltip');
 ?>
 
-<form action="<? echo JRoute::_('index.php?option=com_lrplugn&layout=edit&id=' . (int) $this->item->id); ?>" method="post" name="adminForm" id="editPhotoForm">
+<form action="<? echo JRoute::_('index.php?option=com_lrgallery&layout=edit&id=' . (int) $this->item->id); ?>" method="post" name="adminForm" id="editPhotoForm">
     <fieldset class="adminform">
         <legend>
             Фотография

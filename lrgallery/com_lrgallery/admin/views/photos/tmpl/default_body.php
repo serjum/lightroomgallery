@@ -4,7 +4,7 @@
 
 <?php foreach ($this->items as $i => $item): ?>
     <tr class="row<?php echo $i % 2; ?>">
-        <td>
+        <td align="center">
             <?php echo JHtml::_('grid.id', $i, $item->id); ?>
         </td>
         <td>
@@ -16,7 +16,7 @@
         <td>
             <?php echo $item->file_name; ?>
         </td>
-        <td>
+        <td align="center">
             <?php echo $item->id; ?>
         </td>                
     </tr>
