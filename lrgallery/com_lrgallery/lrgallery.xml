@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="1.6.0" method="upgrade"> 
-    <name>Lightroom Gallery</name>
+    <name>Lr Gallery</name>
 
     <creationDate>January, 2011</creationDate>
-    <author>Art Kuznetsov</author>
+    <author>Artyom Kuznetsov</author>
     <authorEmail>artyomkuznetsov@ya.ru</authorEmail>
-    <version>0.0.1</version>
+    <version>1.0</version>
     <description>Lightroom gallery web service</description>
 
     <install>
@@ -18,11 +18,6 @@
             <file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
         </sql>
     </uninstall>
-    <update>
-        <schemas>
-            <schemapath type="mysql">sql/updates/mysql</schemapath>
-        </schemas>
-    </update>
 
     <files folder="site">
         <filename>index.html</filename>
@@ -34,15 +29,18 @@
     </files>
 
     <administration>
-        <menu>Lightroom Gallery</menu>		
+        <menu>COM_LRGALLERY</menu>		
         <files folder="admin">
             <filename>index.html</filename>
             <filename>lrgallery.php</filename>
-            <filename>controller.php</filename>
-            <folder>sql</folder>
+            <filename>controller.php</filename>            
             <folder>models</folder>
             <folder>views</folder>        
             <folder>controllers</folder>
+            <folder>sql</folder>
         </files>
+        <languages folder="admin">
+            <language tag="en-GB">language/en-GB/en-GB.com_lrgallery.sys.ini</language>
+        </languages>
     </administration> 
 </extension>

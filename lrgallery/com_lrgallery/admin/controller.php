@@ -4,7 +4,7 @@
 
     jimport('joomla.application.component.controller');
     
-    class lrpluginController extends JController
+    class lrgalleryController extends JController
     {
         function display($cachable = false) 
         {
