@@ -30,7 +30,7 @@
                 $isNew = ($this->item->id == 0);
                 JToolBarHelper::title($isNew ? "Добавление фотографии" : "Редактирование фотографии");
                 JToolBarHelper::save('photo.save');
-                JToolBarHelper::cancel('photo.cancel', $isNew ? 'Отмена' : 'Сохранить');
+                JToolBarHelper::cancel('photo.cancel');
         }
     }
 ?>    
