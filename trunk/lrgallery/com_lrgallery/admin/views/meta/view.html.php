@@ -29,7 +29,7 @@
                 JRequest::setVar('hidemainmenu', true);
                 $isNew = ($this->item->id == 0);
                 JToolBarHelper::title($isNew ? "Добавление поля метаданных" : 
-                    "Редактирование поля метаданных");
+                    "Редактирование поля метаданных", 'meta');
                 JToolBarHelper::save('meta.save');
                 JToolBarHelper::cancel('meta.cancel');
         }

@@ -17,7 +17,7 @@ create table #__lrgallery_meta
 (
     id          int(11) not null AUTO_INCREMENT,
     name        varchar(100) not null,
-    desc        varchar(100),
+    `desc`        varchar(100),
         primary key (id)
 ) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 

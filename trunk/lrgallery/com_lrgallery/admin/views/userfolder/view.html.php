@@ -28,7 +28,8 @@
         {
                 JRequest::setVar('hidemainmenu', true);
                 $isNew = ($this->item->id == 0);
-                JToolBarHelper::title($isNew ? "Добавление папки" : "Редактирование папки");
+                JToolBarHelper::title($isNew ? "Добавление папки" : 
+                    "Редактирование папки", 'userfolder');
                 JToolBarHelper::save('userfolder.save');
                 JToolBarHelper::cancel('userfolder.cancel');
         }

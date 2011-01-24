@@ -26,7 +26,7 @@
         
         protected function addToolBar() 
         {
-            JToolBarHelper::title("Поля метаданных");
+            JToolBarHelper::title("Поля метаданных", 'meta');
             JToolBarHelper::deleteListX('Вы уверены в удалении выбранных полей метаданных?', 'metas.delete');
             JToolBarHelper::editListX('meta.edit');
             JToolBarHelper::addNewX('meta.add');

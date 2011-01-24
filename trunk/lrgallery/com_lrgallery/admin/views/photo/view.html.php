@@ -28,7 +28,8 @@
         {
                 JRequest::setVar('hidemainmenu', true);
                 $isNew = ($this->item->id == 0);
-                JToolBarHelper::title($isNew ? "Добавление фотографии" : "Редактирование фотографии");
+                JToolBarHelper::title($isNew ? "Добавление фотографии" : 
+                    "Редактирование фотографии", 'photo');
                 JToolBarHelper::save('photo.save');
                 JToolBarHelper::cancel('photo.cancel');
         }

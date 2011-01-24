@@ -8,8 +8,9 @@
     {
         function display($cachable = false) 
         {
-            JRequest::setVar('view', JRequest::getCmd('view', 'metas'));
-            parent::display($cachable);
+            JRequest::setVar('view', JRequest::getCmd('view', 'photos'));
+            parent::display($cachable);            
+            HelloWorldHelper::addSubmenu('photos');
         }
     }
 
