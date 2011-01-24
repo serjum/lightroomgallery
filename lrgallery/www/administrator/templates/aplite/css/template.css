@@ -1223,3 +1223,7 @@ display:none;
 #folderview iframe#folderframe{
 border:1px solid #DDD;
 }
+
+#component-list li.parent.ia\2F com_lrgallery\2F images\2F lr16\.png{
+background:url(../../../../media/com_lrgallery/images/lr48.png) no-repeat 5px 0;
+}
