@@ -27,7 +27,7 @@
         protected function addToolBar() 
         {
             JToolBarHelper::title("Папки пользователей");
-            JToolBarHelper::deleteListX('', 'userfolders.delete');
+            JToolBarHelper::deleteListX('Вы уверены в удалении выбранных папок?', 'userfolders.delete');
             JToolBarHelper::editListX('userfolder.edit');
             JToolBarHelper::addNewX('userfolder.add');
         }
