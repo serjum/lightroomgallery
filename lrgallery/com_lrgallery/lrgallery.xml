@@ -28,8 +28,13 @@
         <folder>controllers</folder>
     </files>
 
+    <media destination="com_lrgallery" folder="media">
+        <filename>index.html</filename>
+        <folder>images</folder>
+    </media>
+
     <administration>
-        <menu>COM_LRGALLERY</menu>		
+        <menu img="../media/com_lrgallery/images/lr16.png">COM_LRGALLERY</menu>		
         <files folder="admin">
             <filename>index.html</filename>
             <filename>lrgallery.php</filename>

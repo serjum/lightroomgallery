@@ -26,7 +26,7 @@
         
         protected function addToolBar() 
         {
-            JToolBarHelper::title("Фотографии");
+            JToolBarHelper::title("Фотографии", 'photo');
             JToolBarHelper::deleteListX('Вы уверены в удалении выбранных фотографий?', 'photos.delete');
             JToolBarHelper::editListX('photo.edit');
             JToolBarHelper::addNewX('photo.add');
