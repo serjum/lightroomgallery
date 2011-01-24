@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset>
+        <field
+            name="id"
+            type="hidden"
+        />
+        <field
+            name="name"
+            type="text"
+            label="Название"
+            description="Название поля метаданных"
+            size="40"
+            class="inputbox"
+            default=""
+        />        
+        <field
+            name="desc"
+            type="text"
+            label="Описание"
+            description="Описание поля метаданных"
+            size="40"
+            class="inputbox"
+            default=""
+        />        
+    </fieldset>
+</form>
