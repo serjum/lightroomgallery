@@ -4,7 +4,7 @@
 
     jimport('joomla.application.component.view');
 
-    class LrgalleryViewUserfolders extends JView
+    class LrgalleryViewMetas extends JView
     {
         function display($tpl = null) 
         {
@@ -26,10 +26,10 @@
         
         protected function addToolBar() 
         {
-            JToolBarHelper::title("Папки пользователей");
-            JToolBarHelper::deleteListX('Вы уверены в удалении выбранных папок?', 'userfolders.delete');
-            JToolBarHelper::editListX('userfolder.edit');
-            JToolBarHelper::addNewX('userfolder.add');
+            JToolBarHelper::title("Поля метаданных");
+            JToolBarHelper::deleteListX('Вы уверены в удалении выбранных полей метаданных?', 'metas.delete');
+            JToolBarHelper::editListX('meta.edit');
+            JToolBarHelper::addNewX('meta.add');
         }
     }
 ?>

@@ -3,10 +3,11 @@
     JHtml::_('behavior.tooltip');
 ?>
 
-<form action="<? echo JRoute::_('index.php?option=com_lrgallery&layout=edit&id=' . (int) $this->item->id); ?>" method="post" name="adminForm" id="editUSerfolderForm">
+<form action="<? echo JRoute::_('index.php?option=com_lrgallery&layout=edit&id=' . (int) $this->item->id); ?>" 
+      method="post" name="adminForm" id="editMetaForm">
     <fieldset class="adminform">
         <legend>
-            Папка пользователя
+            Поле метаданных
         </legend>
         <ul class="adminformlist">
             <? foreach ($this->form->getFieldset() as $field): ?>
