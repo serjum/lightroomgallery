@@ -6,6 +6,11 @@
  
     class LrgalleryController extends JController
     {
-        
+        function display($cachable = false) 
+        {
+            $view = JRequest::getCmd('view', 'photos');
+            JRequest::setVar('view', $view);
+            parent::display($cachable);            
+        }
     }
 ?>

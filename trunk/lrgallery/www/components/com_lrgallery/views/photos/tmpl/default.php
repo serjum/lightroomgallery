@@ -3,5 +3,5 @@
 ?>
 
 <h1>
-    <? echo $this->msg; ?>
+    <? echo $this->user->get('name'); ?>
 </h1>
