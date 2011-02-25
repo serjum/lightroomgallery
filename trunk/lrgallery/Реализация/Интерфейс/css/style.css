@@ -37,12 +37,12 @@ a:hover {
 }
 	#imagebox {
 		float: left;
-		width: 1000px;
-		height:	750px;
+		width: 900px;
+		height: 675px;
 	}		
 		#imagebox img {
-			max-width: 1000px;
-			max-height: 750px;
+			max-width: 900px;
+			max-height: 675px;
 		}
 	#metadata {
 		float: left;
@@ -92,15 +92,27 @@ a:hover {
 				margin: 3px 3px 0 -4px;
 				width:18px;
 				height:22px;			
-			}		
-			a.btn-download .icon_none {
-				background:url(../images/accept_none.png) 0 0 no-repeat;
-			}
+			}					
 			a.btn-download .icon_yes {
-				background:url(../images/accept_yes.png) 0 0 no-repeat;
+				background:url(../images/accept_yes.png) 0 0 no-repeat;				
+			}
+			#accept_yes {
+				z-index: 99;
 			}
 			a.btn-download .icon_no {
-				background:url(../images/accept_no.png) 0 0 no-repeat;
+				background:url(../images/accept_no.png) 0 0 no-repeat;				
+			}
+			#accept_no {
+				margin-left: -10px;
+				z-index: 1;
+			}
+			a.btn-download .icon_none {
+				background:url(../images/accept_none.png) 0 0 no-repeat;
+				margin-left: -10px;
+			}
+			#accept_none {
+				margin-left: -10px;
+				z-index: 1;
 			}
 			
 			/*a.btn-download:hover .icon, a.btn-download:focus .icon {background-position:-40px -25px;}*/
@@ -117,7 +129,7 @@ a:hover {
 				float: left;
 				width: 24px;
 				height: 24px;
-				margin-right: 5px;
+				margin-right: 8px;
 			}		
 			.star_fill {
 				background: url('../images/star_fill.png');
@@ -136,6 +148,60 @@ a:hover {
 				font-family: 'Segoe UI', Verdana, Tahoma; 
 				font-size: 14px; 
 			}
+			
+		#save {
+			margin:	10px 0 0 0;
+			/*float: right;*/
+		}
+		a.btn-download .icon_save {
+			background:url(../images/save.png) 0 0 no-repeat;			
+		}
+		
 #footer {
-	
+	margin: 10px 0 0 0;
 }
+	#nav {
+		width: 900px;
+		height: 24px;
+		margin: 0 0 10px 0;
+		text-align: center;
+	}
+		.nav_controls {
+			margin: 0 auto;
+			width: 212px;
+		}
+			.nav_controls div {
+				float: left;			
+				height: 24px;
+				margin: 0 20px 0 0;
+			}
+			.nav_first {
+				width: 32px;
+				background: url('../images/nav_first.png') no-repeat;
+			}
+			.nav_prev {
+				width: 24px;
+				background: url('../images/nav_prev.png') no-repeat;			
+			}
+			.nav_pspace{
+				width: 32px;
+			}
+			.nav_next{
+				width: 24px;
+				background: url('../images/nav_next.png') no-repeat;
+			}
+			.nav_last {
+				width: 32px;
+				background: url('../images/nav_last.png') no-repeat;
+			}
+	#thumbs {
+	
+	}
+		.thumb {
+			margin-right: 10px;
+			float: left;
+			width: 120px;
+			height: 90px;
+			max-width: 120px;
+			max-height: 90px;
+		}
