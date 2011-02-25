@@ -18,7 +18,19 @@ a:hover {
 
 #header {
 	
-}
+}	
+	#caption_title {
+		text-align: left;
+		float: left;
+		font-size: 22px;
+		padding: 0 0 5px 0;
+	}
+	#caption_date {
+		text-align: left;
+		float: left;
+		font-size: 12px;
+		padding: 11px 0 0 10px;
+	}
 
 #content {
 	
@@ -35,74 +47,95 @@ a:hover {
 	#metadata {
 		float: left;
 		margin: 0 0 0 20px;
-	}
-		#caption {
-			margin: 0 0 20px 0;
+	}			
+		.acceptbox_caption {
+			margin: 0 0 4px 0;
 		}
-			.caption_title {
-				font-weight: bold;
-				margin-bottom: 5px;
+		#acceptbox {
+			
+		}
+			/* button basics */
+			a.minibutton {
+				display:inline-block;
+				height:23px;
+				padding:0 0 0 3px;
+				font-size:11px;
+				color:#333;
+				text-shadow:1px 1px 0 #fff; 
+				background:url(http://github.com/images/modules/buttons/minibutton_matrix.png) 0 0 no-repeat;
+				white-space:nowrap;
+				border:none;
+				overflow:visible;
+				cursor:pointer;
+				text-decoration:none;
 			}
-			.caption_date {
-				font-size: 12px;
+			a.minibutton>span {
+				display:block;
+				height:23px;
+				padding:0 10px 0 8px;
+				line-height:23px;
+				background:url(http://github.com/images/modules/buttons/minibutton_matrix.png) 100% 0 no-repeat;
 			}
-	#acceptbox {
-	
-	}
-		/* button basics */
-		a.minibutton {
-			display:inline-block;
-			height:23px;
-			padding:0 0 0 3px;
-			font-size:11px;
-			color:#333;
-			text-shadow:1px 1px 0 #fff; 
-			background:url(http://github.com/images/modules/buttons/minibutton_matrix.png) 0 0 no-repeat;
-			white-space:nowrap;
-			border:none;
-			overflow:visible;
-			cursor:pointer;
-			text-decoration:none;
-		}
+			a.minibutton:hover, a.minibutton:focus {
+				color:#fff;
+				text-decoration:none;
+				text-shadow:-1px -1px 0 rgba(0,0,0,0.3);
+				background-position:0 -30px;
+			}
+			a.minibutton:hover>span, a.minibutton:focus>span {background-position:100% -30px;}
+			a.minibutton.mousedown{background-position:0 -60px; }
+			a.minibutton.mousedown>span{background-position:100% -60px; }
 
-		a.minibutton>span {
-			display:block;
-			height:23px;
-			padding:0 10px 0 8px;
-			line-height:23px;
-			background:url(http://github.com/images/modules/buttons/minibutton_matrix.png) 100% 0 no-repeat;
-		}
-
-		a.minibutton:hover, a.minibutton:focus {
-			color:#fff;
-			text-decoration:none;
-			text-shadow:-1px -1px 0 rgba(0,0,0,0.3);
-			background-position:0 -30px;
-		}
-		a.minibutton:hover>span, a.minibutton:focus>span {background-position:100% -30px;}
-
-		a.minibutton.mousedown{background-position:0 -60px; }
-		a.minibutton.mousedown>span{background-position:100% -60px; }
-
-		/* with icon */
-		a.btn-download .icon {
-			float:left;
-			margin: 3px 3px 0 -4px;
-			width:18px;
-			height:22px;			
-		}		
-		a.btn-download .icon_none {
-			background:url(../images/accept_none.png) 0 0 no-repeat;
-		}
-		a.btn-download .icon_yes {
-			background:url(../images/accept_yes.png) 0 0 no-repeat;
-		}
-		a.btn-download .icon_no {
-			background:url(../images/accept_no.png) 0 0 no-repeat;
-		}
+			/* with icon */
+			a.btn-download .icon {
+				float:left;
+				margin: 3px 3px 0 -4px;
+				width:18px;
+				height:22px;			
+			}		
+			a.btn-download .icon_none {
+				background:url(../images/accept_none.png) 0 0 no-repeat;
+			}
+			a.btn-download .icon_yes {
+				background:url(../images/accept_yes.png) 0 0 no-repeat;
+			}
+			a.btn-download .icon_no {
+				background:url(../images/accept_no.png) 0 0 no-repeat;
+			}
+			
+			/*a.btn-download:hover .icon, a.btn-download:focus .icon {background-position:-40px -25px;}*/
 		
-		/*a.btn-download:hover .icon, a.btn-download:focus .icon {background-position:-40px -25px;}*/
+		.ratingbox_caption {
+			margin: 20px 0 4px 0;
+		}
+		#ratingbox {
+			/*background: url('../images/rating_background.png') no-repeat;*/
+			width: 180px;
+			height: 24px;		
+		}
+			.star {			
+				float: left;
+				width: 24px;
+				height: 24px;
+				margin-right: 5px;
+			}		
+			.star_fill {
+				background: url('../images/star_fill.png');
+			}		
+			.star_empty{
+				background: url('../images/star_empty.png');
+			}
 
+		.commentbox_caption {
+			margin: 20px 0 4px 0;
+		}	
+		#commentbox {
+			
+		}
+			textarea {
+				font-family: 'Segoe UI', Verdana, Tahoma; 
+				font-size: 14px; 
+			}
 #footer {
 	
 }
