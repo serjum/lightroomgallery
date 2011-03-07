@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension type="library" version="1.6" method="upgrade">
+	<name>PHPXMLRPC Library</name>
+	<libraryname>phpxmlrpc</libraryname>
+	<creationDate>January 3, 2011</creationDate>
+	<author>Edd Dumbill, G. Giunta (Repackaged for Joomla! 1.6 by Rob Porter, CartaNova Design)</author>
+	<authorUrl>http://www.cartanova.ca/code-labs/</authorUrl>
+	<copyright>Copyright (c) 1999,2000,2002 Edd Dumbill</copyright>
+	<license>GPL v2 Compatible</license>
+	<version>3.0.1 (beta)</version>
+	<files>
+		<file>xmlrpc.php</file>
+		<file>xmlrpcs.php</file>
+		<file>xmlrpc_wrappers.php</file>	
+	</files>
+</extension>

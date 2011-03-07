@@ -1,0 +1,558 @@
+/*======================================================================*\
+|| #################################################################### ||
+|| # Package - Joomla Template based on YJSimplemetal Framework          ||
+|| # Copyright (C) 2010  Youjoomla LLC. All Rights Reserved.            ||
+|| # license - PHP files are licensed under  GNU/GPL V2                 ||
+|| # license - CSS  - JS - IMAGE files  are Copyrighted material        ||
+|| # bound by Proprietary License of Youjoomla LLC                      ||
+|| # for more information visit http://www.youjoomla.com/license.html   ||
+|| # Redistribution and  modification of this software                  ||
+|| # is bounded by its licenses                                         ||
+|| # websites - http://www.youjoomla.com | http://www.yjsimplemetal.com  ||
+|| #################################################################### ||
+\*======================================================================*/
+/*BODY ID'S USED FOR CSS FONT STYLES AND BASE SITE BODY STYLING */
+body#stylef1, body#stylef2, body#stylef3, body#stylef4, body#stylef5, body#stylef6, body#stylef7, body#stylef8, body#stylef9, body#stylef10, body#stylef11, body#stylef12, body#stylef13, body#stylef14, body#stylef15, body#stylef16 {
+	background:#E8E8E8 url(../images/metal/background.jpg) no-repeat center top;
+	color:#555;
+}
+/* ADDITIONAL  FOR ADVERT INTRO */
+h1.hadv{
+	text-shadow:1px 1px #fff;
+	color:#3d3d3d;
+	font-size:200%;
+}
+p.padv{
+	text-shadow:1px 1px #eee;
+	color:#121212;
+}
+/* BOTTOM PART OF THE SITE LAYOUT. BASE WRAP */
+#centerbottom {
+	background:#fff;
+}
+/*GRIDS STYLING CAN BE USED TO STYLE EACH metal DIFFERENTLY */
+#yjsg1 {
+	background:#292929;
+	color:#efefef;
+}
+
+#header {
+	background:#212121 url(../images/metal/header_bg.jpg) no-repeat left top;
+}
+
+#logo {
+	background:url(../images/metal/logo.png) no-repeat 0px 0px;
+}
+
+#yjsgheadergrid {
+	color:#efefef;
+}
+
+#yjsg2 {
+	background:#d9d9d9 url(../images/metal/yjsg2_bg.jpg) repeat-x left bottom;	
+}
+
+#yjsg3 {
+	background:#fff;
+}
+
+#yjsg4 {
+	background:#d9d9d9;
+}
+
+#yjsg5 {
+	background:#e1e1e1;
+}
+
+#pathway {
+	background:#292929;
+	color:#efefef;
+}
+#pathway .yjsg_breadcrumbs a.pathway{
+	background: url(../images/arrow.png) no-repeat right center;
+}
+#yjsg6 {
+	background:#f2f2f2;
+}
+
+#yjsg7 {
+	background:#292929;
+	color:#efefef;
+}
+
+#footer {
+	background:#121212 url(../images/metal/footer.jpg) no-repeat right top;
+	color:#3C3C3C;
+}
+
+#joomlacredit {
+	background:#1F1F1F;
+	color:#474646;
+}
+
+/*TEMPLATE CSS 
+--------------------- */
+/* SITE LINKS */
+a:link, a:visited{
+	text-decoration: none;
+	color:#121212;
+}
+/* SITE HOVERS */
+a:focus, a:hover {
+	color:#525252;
+	text-decoration: none;
+}
+/*DIFFERENT STYLE FOR  LINKS ON DARK BG
+--------------------- */
+#footmod .yjplain a, #footmod .yjplain a:visited, #cp a, #cp a:visited, #joomlacredit a, #joomlacredit a:visited, #pathway a, #pathway a:visited, #yjsg1 a, #yjsg1 a:visited, #yjsg7 a, #yjsg7 a:visited, #yjsgheadergrid a,#yjsgheadergrid a:visited{
+	color:#727272;
+}
+#footmod .yjplain a:hover, #footmod .yjplain a:focus, #cp a:focus, #cp a:hover, #joomlacredit a:focus, #joomlacredit a:hover, #pathway a:focus, #pathway a:hover, #yjsg1 a:focus, #yjsg1 a:hover, #yjsg7 a:focus, #yjsg7 a:hover, #yjsgheadergrid a:focus,#yjsgheadergrid a:hover {
+	color:#525252;
+}
+/* SITE HEADINGS */
+h1, h2, h3, h4, h5, h6 {
+	color:#727272;
+}
+
+.small, .createdate, .modifydate, .createby {
+	text-transform: uppercase;
+	color:#ccc;
+	font-size:10px;
+}
+/* SITE TITLE, NEWS ITEM TITLE, MORE ARTICLES */
+.pagetitle, div.title h1, div.title h2, .yjsg-morearticles h3 {
+	color:#222222;
+	border-bottom:1px dashed #222222;
+}
+
+.yjsg-morearticles h3 {
+	border:none;
+}
+/* NEWS ITEM TITLE WITH LINK*/
+div.title h1 a:link, div.title h1 a:visited, div.title h2 a:link, div.title h2 a:visited {
+	color:#222222;
+}
+
+div.title h1 a:hover, div.title h1 a:focus, div.title h2 a:hover, div.title h2 a:focus {
+	color:#727272;
+}
+
+/* FORM ELEMENTS */
+/* ARTICLE TABLE OF CONTENTS */
+fieldset, .toclink {
+	border:1px solid #c8c8c8;
+}
+/* FIELDSET IN MODULES */
+.yjsquare_in fieldset, .yjround_in fieldset {
+	border:none;
+}
+/* INPUTBOXES */
+.inputbox, #userreminder .required {
+	background: #FFFFFF;
+	border: 1px solid #c8c8c8;
+}
+
+.inputbox:hover, .inputbox:focus, #userreminder .required:hover, #userreminder .required:focus {
+	background: #F7F7F7;
+	border: 1px solid #525252;
+}
+
+/*BUTTONS
+--------------------- */
+.button {
+	color:#fff;
+}
+
+.button, .validate {
+	background:#c8c8c8;
+	border:1px solid #727272;
+	color:#121212;
+}
+
+a.button:link, a.button:visited, a.button:focus {
+	color:#fff;
+	padding:3px;
+}
+
+.back_button a:hover, .back_button a:active {
+	color: #000;
+	text-decoration: none;
+}
+
+a.pagenav, .pagenav_prev a, .pagenav_next a, .pagenavbar a, .back_button a {
+	background:#c8c8c8;
+	border:1px solid #727272;
+	color:#121212;
+}
+
+a.readon:link, a.readon:visited {
+	background:#c8c8c8;
+	border:1px solid #727272;
+	color:#121212;
+}
+
+/* ADDITIONAL SPAN READON CLASS FOR ROUND CORNERS */
+.readon span {
+	background:#c8c8c8;
+}
+
+a.readon:hover, .pagenavbar a:hover {
+	color:#727272;
+}
+
+/* THIS TEMPLATE IS EQUIPED WITH  ROUND AND SQUARE CORNERS
+TO SEE ROUND CORNERS SIMPLY CHANGE THE MODULE metal STYLE IN TEMPLATE MANAGER
+UNDER ACCORDION ADVANCED OPTIONS. SEE ALSO rounded.css FILE".
+
+/* ROUND MODULES STYLING
+--------------------- */
+/* ROUND IMAGE. YOU CAN CHANGE TO YOUR OWN. 1 IMAGE TECHNIQUE USED */
+.yjround .content, .yjround .t, .yjround .b, .yjround .b div {
+	background:url(../images/metal/rounded.png);
+	bac\kground:url(../images/metal/rounded_ie.gif);
+}
+
+.yjround h4 {
+	color:#222222;
+	border-bottom:1px dashed #222222;
+}
+/* TITLE SPANS FOR SECOND PART OF THE TITLE COLOR */
+.yjround h4 span {
+	color:#222222;
+}
+/* SPECIFIC TEXT AND TITLE COLOR FOR GRIDS WITH DARK BACGROUND*/
+#yjsg1 .yjround .content, #yjsgheadergrid .yjround .content, #yjsg7 .yjround .content {
+	color:#222222;
+}
+.yjround_in {
+}
+
+/*SQUARE MODULES STYLE
+--------------------- */
+.yjsquare h4 {
+	color:#222222;
+	border-bottom:1px dashed #222222;
+}
+/* SPAN COLOR SHOWS FIRST */
+.yjsquare h4 span {
+	color:#222222;
+}
+.yjsquare {}
+.yjsquare_in {}
+/* ADDITIONAL MODULE STYLES */
+/* _yj1 */
+.yjsquare_yj1 h4 {}
+.yjsquare_yj1 h4 span {}
+.yjsquare_yj1 {}
+.yjsquare_yj1 .yjsquare_in {}
+/* _yj2 */
+.yjsquare_yj2 h4 {}
+.yjsquare_yj2 h4 span {}
+.yjsquare_yj2 {}
+.yjsquare_yj2 .yjsquare_in {}
+/*  SPECIFIC TEXT AND TITLE COLOR FOR GRIDS WITH DARK BACGROUND */
+#yjsg1 .yjsquare h4, #yjsg7 .yjsquare h4, #yjsgheadergrid .yjsquare h4 {
+	color:#ccc;
+	border-bottom:1px dashed #ccc;
+}
+/* TITLE SPANS FOR SECOND PART OF THE TITLE COLOR*/
+#yjsg1 .yjsquare h4 span, #yjsg7 .yjsquare h4 span, #yjsgheadergrid .yjsquare h4 span {
+	color:#ccc;
+}
+
+/*SEARCH INPUTBOX STYLING. CURRENTLY USING DEFAULT INPUT STYLE
+--------------------- */
+.search {}
+.search .inputbox {}
+/*LOGIN MODULE INPUTBOX CURRENTLY USING DEFAULT INPUT STYLE
+--------------------- */
+#modlgn_passwd, #modlgn_username {}
+#modlgn_passwd {}
+#modlgn_username {}
+#mod_login_remember {
+	border: none;
+	padding: 0!important;
+}
+
+/*TOP MENU STYLE FOR SPLIT MENU, CSS DROPDOWN AND SMOOTH DROPDOWN
+--------------------- */
+.horiznav {
+	background: url(../images/metal/topmenu/horiz_bg.png) repeat-x 0 top;
+
+}
+/* MENU OVERRIDES */
+.YJSG_listContainer{
+	background:none;
+}
+/* NORMAL SUBTITLE */
+.horiznav ul li a span.yjm_desc {
+	color:#8b8b8b;
+}
+/*ACTIVE AND HOVER SUBTITLE*/
+.horiznav ul li.active a span.yjm_desc, 
+.horiznav ul li a:hover span.yjm_desc, 
+.horiznav ul li.sfHover a span.yjm_desc {
+	color:#4F4F4F;
+	text-shadow:1px 1px #efefef;
+}
+/* NORMAL TOP LINKS */
+.horiznav ul li {
+	background: url(../images/metal/topmenu/normal_l.png) no-repeat left center;
+}
+.horiznav ul li a,.horiznav ul li a:visited {
+	color: #efefef;
+	background: url(../images/metal/topmenu/normal_r.png) no-repeat right center;
+}
+/* NORMAL TOP LINKS WITH CHILD ELEMENT */
+.horiznav ul li.haschild {
+	background: url(../images/metal/topmenu/normal_l_haschild.png) no-repeat left center;
+}
+/* TOP LINKS HOVER */
+.horiznav ul li:hover, .horiznav ul li.sfHover{
+	background: url(../images/metal/topmenu/hover_l.png) no-repeat left center;
+}
+.horiznav ul li a:hover, .horiznav ul li:hover a, .horiznav ul li.sfHover a,
+ .horiznav ul li.sfHoverHas a {
+	color: #121212;
+	background: url(../images/metal/topmenu/hover_r.png) no-repeat right center;
+}
+/* TOP LINKS HOVER WITH CHILD ELEMENT */
+.horiznav ul li.haschild:hover{
+	background: url(../images/metal/topmenu/hover_l_haschild.png) no-repeat left center;
+}
+.horiznav ul li.haschild a:hover{
+	color: #6c6c6c;
+}
+/* ACTIVE TOP LINKS  */
+.horiznav li#current,.horiznav li.active{
+	background: url(../images/metal/topmenu/active_l.png) no-repeat left center;
+}
+.horiznav li#current a , .horiznav li.active a,.horiznav li.active a:visited,.horiznav li.active.sfHover a:visited,
+.horiznav li.active.sfHoverHas a:visited{
+	color: #121212;
+	background: url(../images/metal/topmenu/active_r.png) no-repeat right center;
+}
+/* ACTIVE TOP LINKS WITH CHILD ELEMENT */
+.horiznav li#current.haschild, .horiznav li.haschild,.horiznav ul li.haschild.active,
+.horiznav ul li.sfHoverHas{
+	background: url(../images/metal/topmenu/active_l_haschild.png) no-repeat left center;
+}
+
+/* ACTIVE TOP LINKS HOVER */
+.horiznav li#current:hover, .horiznav li#current.sfHover,
+.horiznav li.active:hover, .horiznav li.active.sfHover {
+	background: url(../images/metal/topmenu/active_l.png) no-repeat left center;
+}
+.horiznav li#current a:hover,.horiznav li#current.sfHover a:hover,
+.horiznav li.active a:hover{
+	color: #6c6c6c;
+	background: url(../images/metal/topmenu/active_r.png) no-repeat right center;
+}
+/* ACTIVE TOP LINKS HOVER WITH CHILD ELEMENT */
+.horiznav li#current.haschild:hover,.horiznav li#current.haschild.sfHoverHas,.horiznav li#current.active.sfHover{
+	background: url(../images/metal/topmenu/active_l_haschild.png) no-repeat left center;
+}
+/* MAIN SUB UL AND MODULE BG */
+ul.subul_main.group_holder,
+.subul_main li.has_modpoz div.yj_menu_module_holder,
+.subul_main li.has_module div.yj_menu_module_holder,
+.subul_main li.haschild div.yj_menu_module_holder,
+.horiznav ul ul.subul_main.dropline{
+	background:#DEDDDD;
+}
+/* end drpline extra */
+.horiznav  ul ul.subul_main.dropline ul a,
+.horiznav  ul ul.subul_main.dropline ul a:hover,
+ul.subul_main.dropline div.yj_menu_module_holder{
+	border-bottom: 1px solid #c7c5c5!important;
+}
+/*--- end dropline extra ---*/
+
+/* MAIN SUB ITEM*/
+.top_menu ul.subul_main li a{
+	background:#DEDDDD;
+	border-bottom: 1px solid #c7c5c5;
+	color: #121212;
+}
+.top_menu ul.subul_main li a:visited{
+	color: #121212;
+	background:#DEDDDD;
+}
+/*MAIN SUB ITEM HOVER*/
+.top_menu ul.subul_main li a:hover {
+	background:#d5d5d5;
+	color: #121212;
+}
+.top_menu ul.subul_main li,
+.top_menu ul.subul_main li.active,
+.top_menu ul.subul_main li.active:visited,
+.top_menu ul.subul_main li.active:hover,
+.top_menu ul.subul_main li:hover,
+.top_menu ul.subul_main li:visited,
+.top_menu ul.subul_main li#current,
+.top_menu ul.subul_main li#current:hover{
+	border:none;
+	background:none;
+}
+/*MAIN SUB ACTIVE UL A ITEMS*/
+.top_menu li#current ul.subul_main li a,
+.top_menu li.active ul.subul_main li a{
+	background:#DEDDDD;
+	color: #121212;
+}
+/*MAIN SUB ACTIVE UL ITEMS A HOVER*/
+.top_menu li#current ul.subul_main li a:hover,
+.top_menu li.active ul.subul_main li a:hover,
+.top_menu li#current.sfHover ul.subul_main li a:hover,
+.top_menu li.active.sfHover ul.subul_main li a:hover {
+	background:#d5d5d5;
+	color: #121212;
+}
+/*MAIN SUB UL ACTIVE LI A ITEM*/
+.top_menu ul.subul_main li#current a{
+	background:#d5d5d5;
+	color: #121212;
+}
+/*MAIN SUB UL ACTIVE LI A ITEM HOVER*/
+.top_menu ul.subul_main li#current a:hover,
+.top_menu ul.subul_main li#current.sfHover{
+	background:#ccc;
+	color: #121212;
+}
+
+/*SUB LEVEL PARENT ITEM ARROWS*/
+ul.subul_main li.haschild span.child a,
+ul.subul_main ul.subul_main li.haschild span.child a,
+ul.subul_main ul.subul_main ul.subul_main li.haschild span.child a,
+ul.subul_main ul.subul_main ul.subul_main ul.subul_main li.haschild span.child a{
+	background-image:url(../images/metal/topmenu/arrow_right.gif)!important;
+	background-repeat:no-repeat!important;
+	background-position:95% 50%!important;
+}
+ul.subul_main li.haschild span.child a:hover,
+ul.subul_main ul.subul_main li.haschild span.child a:hover,
+ul.subul_main ul.subul_main ul.subul_main li.haschild span.child a:hover,
+ul.subul_main ul.subul_main ul.subul_main ul.subul_main li.haschild span.child a:hover{
+	background-image:url(../images/metal/topmenu/arrow_down.gif)!important;
+	background-repeat:no-repeat!important;
+	background-position:95% 50%!important;
+}
+/* IE6 SPECIFIC */
+.horiznav li li.sfHover ul,
+.horiznav li li.sfHoverHas ul,
+.top_menu ul.subul_main.isie{
+background:#292929;
+}
+
+/********************** CORNERS FOR MENU UL'S ***************************/
+/*TOP LEFT*/
+.horiznav li.tl, .horiznav li.tl:hover{
+	background:transparent url(../images/metal/topmenu/corners/tl.png)!important;
+}
+/* TOP RIGHT*/
+.horiznav li.tr, .horiznav li.tr:hover {
+	background:transparent url(../images/metal/topmenu/corners/tr.png) no-repeat right top!important;
+}
+/* BOTTOM RIGHT*/
+.horiznav li.br, .horiznav li.br:hover{
+	background:transparent url(../images/metal/topmenu/corners/br.png) no-repeat right bottom!important;
+}
+/* BOTTOM LEFT*/
+.horiznav li.bl, .horiznav li.bl:hover {
+	background:transparent url(../images/metal/topmenu/corners/bl.png) no-repeat left bottom!important;
+}
+/* RIGHT MIDDLE */
+.horiznav li.right, .horiznav li.right:hover {
+	background:transparent url(../images/metal/topmenu/corners/right.png) no-repeat right bottom!important;
+}
+/********************** YJSG MEGA MENU STYLE ***************************/
+/* Group holder title*/
+.top_menu .horiznav .group_holder li.haschild a,
+.top_menu .horiznav .group_holder li.haschild .group_holder li.haschild a{
+	color: #888;
+	border:none;
+	background:none;
+}
+.top_menu .horiznav .group_holder li.haschild a:hover,
+.top_menu .horiznav .group_holder li.haschild .group_holder li.haschild a:hover{
+	color: #121212;
+	background:none;
+}
+/* Group holder items title*/
+.top_menu .horiznav .group_holder li.haschild li a,
+.top_menu .horiznav .group_holder li.haschild .group_holder li.haschild li a{
+	color: #121212;
+	border-bottom: 1px solid #c7c5c5;
+	background:#DEDDDD;
+}
+.top_menu .horiznav .group_holder li.haschild li a:hover,
+.top_menu .horiznav .group_holder li.haschild .group_holder li.haschild li a:hover{
+	color: #121212;
+	background:#d5d5d5;
+	
+}
+span.separator{
+	background:#DEDDDD;
+	border-bottom: 1px solid #c7c5c5;
+	color: #121212;
+}
+/*Menu module links*/
+div.yj_menu_module_holder .yjsquare_in a:link,
+div.yj_menu_module_holder .yjsquare_in a:visited{
+	color:#121212!important;
+}
+
+div.yj_menu_module_holder .yjsquare_in a:focus,
+div.yj_menu_module_holder .yjsquare_in a:hover{
+	color:#525252!important;
+}
+/*SIDE MENU MODULE
+--------------------- */
+/* MENU NORMAL LINKS COLOR */
+#mainlevel li a, .menu li a, a.mainlevel {
+	background: url(../images/metal/mainlevel.gif) no-repeat left top;/* LINKS BG IMAGE */
+	color:#727272;
+}
+/* HOVER AND ACTIVE LINKS BG IMAGE */
+#mainlevel li a:hover, #mainlevel a#active_menu:link, #mainlevel a#active_menu:visited, a.mainlevel:hover, a.mainlevel#active_menu, #mainlevel li a:hover, #mainlevel a#active_menu:link, #mainlevel a#active_menu:visited, .menu li a:hover, .menu li.active a {
+	background: url(../images/metal/mainlevel.gif) no-repeat left bottom;
+}
+ /* SUB LEVELS LI IMAGE */
+a.sublevel {
+	background: url(../images/metal/bodyli.gif) no-repeat 5px 9px;
+}
+
+a.sublevel:hover {
+	text-decoration:underline;
+}
+/*HOVER AND ACTIVE LINK COLOR */
+#footmod a.mainlevel:hover, #footmod a.mainlevel:active, #footmod a.mainlevel:focus, #mainlevel li a:hover, #mainlevel a#active_menu:link, #mainlevel a#active_menu:visited, a.mainlevel#active_menu, a.sublevel, a.sublevel:hover, a.sublevel:active, a.sublevel:focus, #active_menu, a.mainlevel:hover, a.mainlevel:active, a.mainlevel:focus, ul li a:hover, li.active a, li.parent a {
+	color:#525252;
+}
+/* MENU LI A AND MENU SUB LEVELS LINK COLOR */
+li.active ul li a, a.sublevel#active_menu {
+	color:#525252; 
+}
+  /* MENU LI A HOVER AND ACTIVE LINK COLOR AND BG */
+li.active ul li a:hover, li.active ul li.active a {
+	color:#525252;
+	background: url(../images/metal/mainlevel.gif) no-repeat left top;
+}
+/* SITES LI IMAGE */
+ul li {
+	background: url(../images/metal/bodyli.gif) no-repeat 0px 5px;
+}
+
+/*USER PAGES STYLE */
+#userlogin, #userlogout, #userregister, #userreminder {
+	background:#e7e7e7;
+}
+/* IMAGE CAPTIONS */
+p.img_caption {
+	background:#efefef;
+	border:1px solid #ccc;
+	text-shadow:1px 1px #fff;
+	text-transform:uppercase;
+	color:#5F5F5F;
+}
