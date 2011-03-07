@@ -28,9 +28,10 @@
         <folder>controllers</folder>
     </files>
 
-    <media destination="com_lrgallery" folder="media">
+    <media destination="lrgallery" folder="media">
         <filename>index.html</filename>
         <folder>images</folder>
+        <folder>css</folder>
     </media>
 
     <administration>
