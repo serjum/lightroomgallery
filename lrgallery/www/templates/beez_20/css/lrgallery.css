@@ -1,0 +1,207 @@
+body {
+	background-color: #202020;
+	font-family: 'Segoe UI', Verdana, Tahoma;
+	font-size: 18px;
+	color:	#CFCFCF;
+}
+
+.clear {
+	clear: both;
+}
+
+a {
+	color: #5388ff;
+}
+a:hover {
+	color: #73a8ff;
+}
+
+#header {
+	
+}	
+	#caption_title {
+		text-align: left;
+		float: left;
+		font-size: 22px;
+		padding: 0 0 5px 0;
+	}
+	#caption_date {
+		text-align: left;
+		float: left;
+		font-size: 12px;
+		padding: 11px 0 0 10px;
+	}
+
+#content {
+	
+}
+	#imagebox {
+		float: left;
+		width: 900px;
+		height: 675px;
+	}		
+		#imagebox img {
+			max-width: 900px;
+			max-height: 675px;
+		}
+	#metadata {
+		float: left;
+		margin: 0 0 0 20px;
+	}			
+		.acceptbox_caption {
+			margin: 0 0 4px 0;
+		}
+		#acceptbox {
+			
+		}
+			/* button basics */
+			a.minibutton {
+				display:inline-block;
+				height:23px;
+				padding:0 0 0 3px;
+				font-size:11px;
+				color:#333;
+				text-shadow:1px 1px 0 #fff; 
+				background:url(http://github.com/images/modules/buttons/minibutton_matrix.png) 0 0 no-repeat;
+				white-space:nowrap;
+				border:none;
+				overflow:visible;
+				cursor:pointer;
+				text-decoration:none;
+			}
+			a.minibutton>span {
+				display:block;
+				height:23px;
+				padding:0 10px 0 8px;
+				line-height:23px;
+				background:url(http://github.com/images/modules/buttons/minibutton_matrix.png) 100% 0 no-repeat;
+			}
+			a.minibutton:hover, a.minibutton:focus {
+				color:#fff;
+				text-decoration:none;
+				text-shadow:-1px -1px 0 rgba(0,0,0,0.3);
+				background-position:0 -30px;
+			}
+			a.minibutton:hover>span, a.minibutton:focus>span {background-position:100% -30px;}
+			a.minibutton.mousedown{background-position:0 -60px; }
+			a.minibutton.mousedown>span{background-position:100% -60px; }
+
+			/* with icon */
+			a.btn-download .icon {
+				float:left;
+				margin: 3px 3px 0 -4px;
+				width:18px;
+				height:22px;			
+			}					
+			a.btn-download .icon_yes {
+				background:url(../images/accept_yes.png) 0 0 no-repeat;				
+			}
+			#accept_yes {
+				z-index: 99;
+			}
+			a.btn-download .icon_no {
+				background:url(../images/accept_no.png) 0 0 no-repeat;				
+			}
+			#accept_no {
+				margin-left: -10px;
+				z-index: 1;
+			}
+			a.btn-download .icon_none {
+				background:url(../images/accept_none.png) 0 0 no-repeat;
+				margin-left: -10px;
+			}
+			#accept_none {
+				margin-left: -10px;
+				z-index: 1;
+			}
+			
+			/*a.btn-download:hover .icon, a.btn-download:focus .icon {background-position:-40px -25px;}*/
+		
+		.ratingbox_caption {
+			margin: 20px 0 4px 0;
+		}
+		#ratingbox {
+			/*background: url('../images/rating_background.png') no-repeat;*/
+			width: 180px;
+			height: 24px;		
+		}
+			.star {			
+				float: left;
+				width: 24px;
+				height: 24px;
+				margin-right: 8px;
+			}		
+			.star_fill {
+				background: url('../images/star_fill.png');
+			}		
+			.star_empty{
+				background: url('../images/star_empty.png');
+			}
+
+		.commentbox_caption {
+			margin: 20px 0 4px 0;
+		}	
+		#commentbox {
+			
+		}
+			textarea {
+				font-family: 'Segoe UI', Verdana, Tahoma; 
+				font-size: 14px; 
+			}
+			
+		#save {
+			margin:	10px 0 0 0;
+			/*float: right;*/
+		}
+		a.btn-download .icon_save {
+			background:url(../images/save.png) 0 0 no-repeat;			
+		}
+		
+#footer {
+	margin: 10px 0 0 0;
+}
+	#nav {
+		width: 900px;
+		height: 24px;
+		margin: 0 0 10px 0;
+		text-align: center;
+	}
+		.nav_controls {
+			margin: 0 auto;
+			width: 212px;
+		}
+			.nav_controls div {
+				float: left;			
+				height: 24px;
+				margin: 0 20px 0 0;
+			}
+			.nav_first {
+				width: 32px;
+				background: url('../images/nav_first.png') no-repeat;
+			}
+			.nav_prev {
+				width: 24px;
+				background: url('../images/nav_prev.png') no-repeat;			
+			}
+			.nav_pspace{
+				width: 32px;
+			}
+			.nav_next{
+				width: 24px;
+				background: url('../images/nav_next.png') no-repeat;
+			}
+			.nav_last {
+				width: 32px;
+				background: url('../images/nav_last.png') no-repeat;
+			}
+	#thumbs {
+	
+	}
+		.thumb {
+			margin-right: 10px;
+			float: left;
+			width: 120px;
+			height: 90px;
+			max-width: 120px;
+			max-height: 90px;
+		}
