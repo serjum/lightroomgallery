@@ -1,25 +1,5 @@
-<?
+<?php
     defined('_JEXEC') or die('Restricted access');
-    
-    $user = $this->user;
-    $photos = $this->photos;
-    $metadata = $this->metadata;
-            
-    // Отобразим выбранную фотографию, либо по умолчанию первую
-    $id = JRequest::getInt('id');
-    if (!empty($id))
-    {
-        foreach ($photos as $photo)
-        {
-            if ($photo->id == $id)
-            {
-                $currPhoto = $photo;
-                break;
-            }
-        }
-    }
-    if (empty($currPhoto))
-        $currPhoto = $photos[0];
 ?>
 
 <html lang="ru">
@@ -32,17 +12,17 @@
     <body>
         <div id="header">
             <div id="caption_title">
-                Отдых в Швейцарии
+				Отдых в Швейцарии
             </div>
             <div id="caption_date">
-                (08.01.2011 11:03:47)
+				(08.01.2011 11:03:47)
             </div>
         </div>
         <div class="clear"></div>
 
         <div id="content">
             <div id="imagebox">
-                <img src="<? echo $currPhoto->base . "/" . $currPhoto->file_name; ?>" />
+                <img src="images/photo.jpg" />
             </div>
             <div id="metadata">												
                 <div class="acceptbox_caption">					
@@ -115,16 +95,30 @@
             <div class="clear"></div>
 
             <div id="thumbs">
-<?
-            foreach ($photos as $photo)
-            {
-?>
                 <div class="thumb">
-                    <img src="<? echo $photo->base . "/" . $photo->file_name; ?>" />
+                    <img src="images/thumb1.jpg" />
                 </div>
-<?
-            }
-?>                                               
+                <div class="thumb">
+                    <img src="images/thumb2.jpg" />
+                </div>
+                <div class="thumb">
+                    <img src="images/thumb1.jpg" />
+                </div>
+                <div class="thumb">
+                    <img src="images/thumb2.jpg" />
+                </div>
+                <div class="thumb">
+                    <img src="images/thumb1.jpg" />
+                </div>
+                <div class="thumb">
+                    <img src="images/thumb2.jpg" />
+                </div>
+                <div class="thumb">
+                    <img src="images/thumb1.jpg" />
+                </div>
+                <div class="thumb">
+                    <img src="images/thumb1.jpg" />
+                </div>
             </div>
         </div>
         <div class="clear"></div>
