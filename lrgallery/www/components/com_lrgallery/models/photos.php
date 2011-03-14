@@ -41,7 +41,7 @@
                     $db->setQuery('SELECT folder_name
                                      FROM #__lrgallery_userfolders
                                     WHERE user_id = ' . $this->user->get('id'));
-                    $user->folderName = $db->loadResult();
+                    $this->user->folderName = $db->loadResult();
                 }
             }
             
@@ -64,6 +64,11 @@
                                  FROM #__lrgallery_photos
                                 WHERE user_id = ' . $this->user->get('id'));
                 $this->photos = $db->loadObjectList();
+            }
+            
+            for ($i = 0; $i < count($this->photos); $i++)
+            {
+                $this->photos[$i]->base = $this::folderBase . "/" . $this->user->folderName;
             }
             
             return $this->photos;
