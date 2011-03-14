@@ -11,6 +11,7 @@ body {
 
 a {
 	color: #5388ff;
+        outline: 0;
 }
 a:hover {
 	color: #73a8ff;
@@ -35,6 +36,13 @@ a:hover {
 #content {
 	
 }
+        .loader {
+            width: 16px;
+            height: 11px;
+            background: url('../images/loader.gif') no-repeat;
+            visibility: hidden;
+        }
+        
 	#imagebox {
 		float: left;
 		width: 900px;
@@ -52,8 +60,12 @@ a:hover {
 			margin: 0 0 4px 0;
 		}
 		#acceptbox {
-			
+                    float: left;
 		}
+                #accept_loader {
+                    float: left;
+                    margin: 10px;
+                }
 			/* button basics */
 			a.minibutton {
 				display:inline-block;
@@ -67,7 +79,7 @@ a:hover {
 				border:none;
 				overflow:visible;
 				cursor:pointer;
-				text-decoration:none;
+				text-decoration:none;                                
 			}
 			a.minibutton>span {
 				display:block;
@@ -115,6 +127,28 @@ a:hover {
 				z-index: 1;
 			}
 			
+                        /* Selected */ 
+                        a.minibutton_selected {
+				display:inline-block;
+				height:23px;
+				padding:0 0 0 3px;
+				font-size:11px;
+				color:#333;
+				text-shadow:1px 1px 0 #fff; 
+				background:url(http://github.com/images/modules/buttons/minibutton_matrix.png) 0 -30px no-repeat;
+				white-space:nowrap;
+				border:none;
+				overflow:visible;
+				cursor:pointer;
+				text-decoration:none;
+			}
+			a.minibutton_selected>span {
+				display:block;
+				height:23px;
+				padding:0 10px 0 8px;
+				line-height:23px;
+				background:url(http://github.com/images/modules/buttons/minibutton_matrix.png) 100% -30px no-repeat;
+			}
 			/*a.btn-download:hover .icon, a.btn-download:focus .icon {background-position:-40px -25px;}*/
 		
 		.ratingbox_caption {

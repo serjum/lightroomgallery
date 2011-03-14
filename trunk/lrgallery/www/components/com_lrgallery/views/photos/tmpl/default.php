@@ -4,6 +4,7 @@
     $user = $this->user;
     $photos = $this->photos;
     $metadata = $this->metadata;
+    var_dump($metadata);
             
     // Отобразим выбранную фотографию, либо по умолчанию первую
     $id = JRequest::getInt('id');
@@ -26,8 +27,70 @@
     <head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8">
         <title>Веб-галерея Софтлит</title>
-
+        
         <link rel="stylesheet" type="text/css" href="media/lrgallery/css/lrgallery.css" />
+        
+        <script type="text/javascript" src="media/system/js/mootools-core.js"></script>
+        <script type="text/javascript" src="media/system/js/mootools-more.js"></script>
+        <script type="text/javascript">
+            
+            window.addEvent('domready', function() {
+                // Установим обработчики кнопок принятия
+                $('accept_yes').addEvent('click', setAcceptedFlag.pass('yes'));
+                $('accept_no').addEvent('click', setAcceptedFlag.pass('no'));
+                $('accept_none').addEvent('click', setAcceptedFlag.pass('none'));
+                
+                // Подсветим флаг принятия
+                
+            });
+            
+            function trimStr (s) {
+                s = s.replace(/^\s+/, '');
+                for (var i = s.length - 1; i >= 0; i--) {
+                    if (/\S/.test(s.charAt(i))) {
+			s = s.substring(0, i + 1);
+			break;
+                    }
+                }
+                return s;
+            }
+            
+            /* Установка флага принятия для текущей фотографии */
+            function setAcceptedFlag(flag) {
+                var id = $('id').value;
+                if (id == '') {
+                    alert('Пожалуйста, выберите фотографию!');
+                    return;
+                }                                        
+                
+                var req = new Request({
+                    url: 'index.php?option=com_lrgallery&task=photos.setAcceptedFlag',
+                    onRequest: function() {
+                        // Во время обработки запроса покажем анимацию
+                        $('accept_loader').setStyle('visibility', 'visible');
+                    },
+                    onSuccess: function(result) {
+                        // Скроем анимацию
+                        $('accept_loader').setStyle('visibility', 'hidden');
+                        
+                        // Разберем ответ в формате JSON
+                        var response = JSON.decode(result);
+                        if (!response.error) {
+                            // Если всё ок, подсветим выбранную кнопку
+                            var flag = response.flag;
+                            $$('a[id^=accept_]').removeClass('minibutton_selected');
+                            $('accept_' + flag).addClass('minibutton_selected');
+                        }
+                        else {
+                            alert('При установке флага произошла ошибка. Пожалуйста, обратитесь к администратору');
+                        }
+                    }
+                });
+                
+                req.send('id=' + id + '&flag=' + flag + "&format=json");                
+            }
+        </script>
+        
     </head>
     <body>
         <div id="header">
@@ -69,6 +132,7 @@
                     </span>
                     </a>
                 </div>
+                <div class="loader" id="accept_loader"></div>
                 <div class="clear"></div>
 
                 <div class="ratingbox_caption">
@@ -128,5 +192,7 @@
             </div>
         </div>
         <div class="clear"></div>
+        
+        <input type="hidden" name="id" id="id" value="<? echo $currPhoto->id; ?>">
     </body>
 </html>
