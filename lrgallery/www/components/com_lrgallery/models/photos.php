@@ -93,7 +93,7 @@
                                       #__lrgallery_metadata data
                                 WHERE meta.id = data.meta_id 
                                   AND data.photo_id IN ('$photoFilter')");
-                $this->metadata = $db->loadAssocList('photo_id');
+                $this->metadata = $db->loadAssocList();
             }
             
             return $this->metadata;
