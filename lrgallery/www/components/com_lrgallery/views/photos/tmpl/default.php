@@ -118,6 +118,9 @@
                 
                 // Заполним звёзды рейтинга                
                 fillStars();
+                
+                // Установим обработчик кнопки сохранения комментариев
+                $('save').addEvent('click', setComments);
             });                        
             
             /* Установка флага принятия для текущей фотографии */
@@ -164,6 +167,7 @@
                 req.send('id=' + id + '&flag=' + flag);                
             }
             
+            /* Установка рейтинга текущей фотографии */
             function setRating(rating) {
                 var id = $('id').value;
                 if (id == '') {
@@ -204,6 +208,39 @@
                 });
                 
                 req.send('id=' + id + '&rating=' + rating);
+            }
+            
+            /* Запись комментариев текущей фотографии */
+            function setComments() {
+                var id = $('id').value;
+                if (id == '') {
+                    alert('Пожалуйста, выберите фотографию!');
+                    return;
+                }                                        
+                
+                var req = new Request({
+                    url: 'index.php?option=com_lrgallery&task=photos.setComments&format=json',
+                    onRequest: function() {
+                        // Во время обработки запроса покажем анимацию
+                        $('comments_loader').setStyle('visibility', 'visible');
+                    },
+                    onSuccess: function(result) {
+                        // Скроем анимацию
+                        $('comments_loader').setStyle('visibility', 'hidden');
+                        
+                        // Разберем ответ в формате JSON
+                        var response = JSON.decode(result);
+                        if (!response.error) {
+                            
+                        }
+                        else {
+                            alert('При записи комментариев произошла ошибка. Пожалуйста, обратитесь к администратору');
+                        }
+                    }
+                });
+                
+                var comments = $('comments').value;
+                req.send('id=' + id + '&comments=' + comments);
             }
             
         </script>
@@ -270,16 +307,18 @@
 					Комментарии:
                 </div>
                 <div id="commentbox">
-                    <textarea cols="20" rows="20"></textarea>
-                </div>
+                    <textarea id="comments" cols="20" rows="20"><? echo $currPhoto->metadata['comments']; ?></textarea>
+                </div>                
                 <div class="clear"></div>
 
                 <a id="save" href="javascript:;" class="minibutton btn-download">
-                <span>
-                    <span class="icon icon_save"></span>
-						Сохранить
-                </span>
+                    <span>
+                        <span class="icon icon_save"></span>
+                                                    Сохранить
+                    </span>
                 </a>
+                <div class="loader" id="comments_loader"></div>
+                <div class="clear"></div>
             </div>
         </div>
         <div class="clear"></div>
