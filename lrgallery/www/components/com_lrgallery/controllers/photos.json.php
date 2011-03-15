@@ -35,7 +35,7 @@
             
             // Проверим, есть ли уже значение этих метаданных
             $db->setQuery("SELECT meta_id
-                             FROM #__metadata
+                             FROM #__lrgallery_metadata
                             WHERE photo_id = $id
                               AND meta_id = (
                                     SELECT id
