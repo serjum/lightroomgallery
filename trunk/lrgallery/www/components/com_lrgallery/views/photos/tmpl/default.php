@@ -4,7 +4,6 @@
     $user = $this->user;
     $photos = $this->photos;
     $metadata = $this->metadata;
-    var_dump($metadata);
             
     // Отобразим выбранную фотографию, либо по умолчанию первую
     $id = JRequest::getInt('id');
@@ -21,11 +20,20 @@
     }
     if (empty($currPhoto))
         $currPhoto = $photos[0];
+    
+    // Для удобства пихнем метаданные в текущуюю фотографию
+    foreach ($metadata as $md_item)
+    {
+        if ($md_item['photo_id'] == $currPhoto->id)
+        {
+            $currPhoto->metadata[$md_item['name']] = $md_item['value'];
+        }
+    }        
 ?>
 
 <html lang="ru">
     <head>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <title>Веб-галерея Софтлит</title>
         
         <link rel="stylesheet" type="text/css" href="media/lrgallery/css/lrgallery.css" />
@@ -41,7 +49,11 @@
                 $('accept_none').addEvent('click', setAcceptedFlag.pass('none'));
                 
                 // Подсветим флаг принятия
-                
+                if ($('metadata_accepted') != null) {
+                    var metadata_accepted = $('metadata_accepted').value;
+                    $$('a[id^=accept_]').removeClass('minibutton_selected');
+                    $('accept_' + metadata_accepted).addClass('minibutton_selected');
+                }
             });
             
             function trimStr (s) {
@@ -194,5 +206,14 @@
         <div class="clear"></div>
         
         <input type="hidden" name="id" id="id" value="<? echo $currPhoto->id; ?>">
+<?
+    // Выведем данные со всеми метаданными текущей фотографии
+    foreach ($currPhoto->metadata as $key => $value)
+    {
+?>
+        <input type="hidden" name="metadata_<? echo $key; ?>" id="metadata_<? echo $key; ?>" value="<? echo $value; ?>" />
+<?        
+    }
+?>        
     </body>
 </html>
