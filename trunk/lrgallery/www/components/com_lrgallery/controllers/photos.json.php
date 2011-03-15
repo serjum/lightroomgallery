@@ -22,18 +22,12 @@
         const metaComments = "comments";
         
         /*
-         * Установление флага принятия для фотографии
+         * Проверка, проставлено ли уже значение поля метаданных у фотографии
          */
-        public function setAcceptedFlag()
+        private function checkMetadata($id, $metaName)
         {
-            $id = JRequest::getInt('id');
-            $flag = JRequest::getString('flag', 'none');
-            
             $db =& JFactory::getDBO();
-            $flagQ = $db->quote($flag);
-            $metaNameQ = $db->quote(self::metaAccepted);
-            
-            // Проверим, есть ли уже значение этих метаданных
+            $metaNameQ = $db->quote($metaName);
             $db->setQuery("SELECT meta_id
                              FROM #__lrgallery_metadata
                             WHERE photo_id = $id
@@ -41,28 +35,57 @@
                                     SELECT id
                                       FROM #__lrgallery_meta
                                      WHERE name = $metaNameQ)");
-            $metaId = $db->loadResult();
-            
-            if ($metaId)
-            {
-                $db->setQuery("UPDATE #__lrgallery_metadata
-                                  SET value = $flagQ
-                                WHERE photo_id = $id
-                                  AND meta_id = $metaId");
-            }
-            else
-            {
-                $db->setQuery("INSERT INTO #__lrgallery_metadata
+            return $db->loadResult();
+        }
+        
+        /*
+         * Вставка нового значения поля метаданных
+         */
+        private function insertMetadata($id, $metaName, $data)
+        {
+            $db =& JFactory::getDBO();
+            $metaNameQ = $db->quote($metaName);
+            $dataQ = $db->quote($data);
+            $db->setQuery("INSERT INTO #__lrgallery_metadata
                                 (photo_id, meta_id, value)
                                VALUES
                                 ($id, (SELECT id
                                          FROM #__lrgallery_meta
-                                        WHERE name = $metaNameQ), $flagQ)");
-            }
-                
+                                        WHERE name = $metaNameQ), $dataQ)");
             $result = $db->query();
+            return Array('Error' => !$result, 'Message' => $db->stderr());
+        }
+        
+        /*
+         * Обновление значения поля метаданных
+         */
+        private function updateMetadata($id, $metaId, $data)
+        {
+            $db =& JFactory::getDBO();
+            $dataQ = $db->quote($data);
+            $db->setQuery("UPDATE #__lrgallery_metadata
+                                  SET value = $dataQ
+                                WHERE photo_id = $id
+                                  AND meta_id = $metaId");
+            $result = $db->query();
+            return Array('Error' => !$result, 'Message' => $db->stderr());
+        }
+        
+        /*
+         * Установка флага принятия для фотографии
+         */
+        public function setAcceptedFlag()
+        {
+            $id = JRequest::getInt('id');
+            $flag = JRequest::getString('flag', 'none');
             
-            $response = Array('Error' => !$result, 'Message' => $result, 'flag' => $flag);
+            $metaId = $this->checkMetadata($id, self::metaAccepted);
+            if ($metaId)
+                $result = $this->updateMetadata ($id, $metaId, $flag);
+            else
+                $result = $this->insertMetadata ($id, self::metaAccepted, $flag);
+            
+            $response = Array($result['Error'], 'Message' => $result['Message'], 'meta' => $flag);
             $document =& JFactory::getDocument();
             $document->setMimeEncoding( 'application/json' );
             JResponse::setHeader( 'Content-Disposition', 'attachment; filename="'.$this->getName().'.json"' );
@@ -74,7 +97,20 @@
          */
         public function setRating()
         {
+            $id = JRequest::getInt('id');
+            $rating = JRequest::getString('rating', 'none');
             
+            $metaId = $this->checkMetadata($id, self::metaRating);
+            if ($metaId)
+                $result = $this->updateMetadata ($id, $metaId, $rating);
+            else
+                $result = $this->insertMetadata ($id, self::metaRating, $rating);
+            
+            $response = Array($result['Error'], 'Message' => $result['Message'], 'meta' => $rating);
+            $document =& JFactory::getDocument();
+            $document->setMimeEncoding( 'application/json' );
+            JResponse::setHeader( 'Content-Disposition', 'attachment; filename="'.$this->getName().'.json"' );
+            echo json_encode($response);
         }
         
         /*
