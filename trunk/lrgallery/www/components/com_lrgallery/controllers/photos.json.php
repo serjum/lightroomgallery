@@ -72,6 +72,19 @@
         }
         
         /*
+         * Вывод ответа в формате JSON
+         */
+        private function echoResponse($result, $meta)
+        {
+            $response = Array($result['Error'], 'Message' => $result['Message'], 'meta' => $meta);
+            $document =& JFactory::getDocument();
+            $document->setMimeEncoding( 'application/json' );
+            JResponse::setHeader( 'Content-Disposition', 'attachment; filename="' . 
+                    $this->getName() . '.json"' );
+            echo json_encode($response);
+        }
+        
+        /*
          * Установка флага принятия для фотографии
          */
         public function setAcceptedFlag()
@@ -85,11 +98,7 @@
             else
                 $result = $this->insertMetadata ($id, self::metaAccepted, $flag);
             
-            $response = Array($result['Error'], 'Message' => $result['Message'], 'meta' => $flag);
-            $document =& JFactory::getDocument();
-            $document->setMimeEncoding( 'application/json' );
-            JResponse::setHeader( 'Content-Disposition', 'attachment; filename="'.$this->getName().'.json"' );
-            echo json_encode($response);
+            $this->echoResponse($result, $flag);            
         }
         
         /*
@@ -98,7 +107,7 @@
         public function setRating()
         {
             $id = JRequest::getInt('id');
-            $rating = JRequest::getString('rating', 'none');
+            $rating = JRequest::getInt('rating', 0);
             
             $metaId = $this->checkMetadata($id, self::metaRating);
             if ($metaId)
@@ -106,11 +115,7 @@
             else
                 $result = $this->insertMetadata ($id, self::metaRating, $rating);
             
-            $response = Array($result['Error'], 'Message' => $result['Message'], 'meta' => $rating);
-            $document =& JFactory::getDocument();
-            $document->setMimeEncoding( 'application/json' );
-            JResponse::setHeader( 'Content-Disposition', 'attachment; filename="'.$this->getName().'.json"' );
-            echo json_encode($response);
+            $this->echoResponse($result, $rating);
         }
         
         /*
@@ -118,7 +123,16 @@
          */
         public function setComments()
         {
+            $id = JRequest::getInt('id');
+            $comments = JRequest::getString('comments', '');
             
-        }        
+            $metaId = $this->checkMetadata($id, self::metaComments);
+            if ($metaId)
+                $result = $this->updateMetadata ($id, $metaId, $comments);
+            else
+                $result = $this->insertMetadata ($id, self::metaComments, $comments);
+            
+            $this->echoResponse($result, $comments);
+        }
     }
 ?>    
