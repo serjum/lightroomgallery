@@ -11,6 +11,7 @@ body {
 
 a {
 	color: #5388ff;
+        outline: 0;
 }
 a:hover {
 	color: #73a8ff;
@@ -35,6 +36,13 @@ a:hover {
 #content {
 	
 }
+        .loader {
+            width: 16px;
+            height: 11px;
+            background: url('../images/loader.gif') no-repeat;
+            visibility: hidden;
+        }
+        
 	#imagebox {
 		float: left;
 		width: 900px;
@@ -52,8 +60,12 @@ a:hover {
 			margin: 0 0 4px 0;
 		}
 		#acceptbox {
-			
+                    float: left;
 		}
+                #accept_loader {
+                    float: left;
+                    margin: 10px;
+                }
 			/* button basics */
 			a.minibutton {
 				display:inline-block;
@@ -67,7 +79,7 @@ a:hover {
 				border:none;
 				overflow:visible;
 				cursor:pointer;
-				text-decoration:none;
+				text-decoration:none;                                
 			}
 			a.minibutton>span {
 				display:block;
@@ -115,6 +127,28 @@ a:hover {
 				z-index: 1;
 			}
 			
+                        /* Selected */ 
+                        a.minibutton_selected {
+				display:inline-block;
+				height:23px;
+				padding:0 0 0 3px;
+				font-size:11px;
+				color:#333;
+				text-shadow:1px 1px 0 #fff; 
+				background:url(http://github.com/images/modules/buttons/minibutton_matrix.png) 0 -30px no-repeat;
+				white-space:nowrap;
+				border:none;
+				overflow:visible;
+				cursor:pointer;
+				text-decoration:none;
+			}
+			a.minibutton_selected>span {
+				display:block;
+				height:23px;
+				padding:0 10px 0 8px;
+				line-height:23px;
+				background:url(http://github.com/images/modules/buttons/minibutton_matrix.png) 100% -30px no-repeat;
+			}
 			/*a.btn-download:hover .icon, a.btn-download:focus .icon {background-position:-40px -25px;}*/
 		
 		.ratingbox_caption {
@@ -123,19 +157,31 @@ a:hover {
 		#ratingbox {
 			/*background: url('../images/rating_background.png') no-repeat;*/
 			width: 180px;
-			height: 24px;		
+			height: 24px;
+                        float: left;
 		}
+                #rating_loader {
+                    float: left;
+                    margin: 8px 0 0 3px;
+                }
 			.star {			
 				float: left;
 				width: 24px;
 				height: 24px;
-				margin-right: 8px;
+				padding-right: 8px;
+                                cursor: pointer;
 			}		
 			.star_fill {
-				background: url('../images/star_fill.png');
+				background: url('../images/star_fill.png') no-repeat;
+			}		
+                        .star_was_fill {
+				background: url('../images/star_fill.png') no-repeat;
 			}		
 			.star_empty{
-				background: url('../images/star_empty.png');
+				background: url('../images/star_empty.png') no-repeat;
+			}
+                        .star_was_empty{
+				background: url('../images/star_empty.png') no-repeat;
 			}
 
 		.commentbox_caption {
@@ -151,11 +197,15 @@ a:hover {
 			
 		#save {
 			margin:	10px 0 0 0;
-			/*float: right;*/
+			float: left;
 		}
 		a.btn-download .icon_save {
 			background:url(../images/save.png) 0 0 no-repeat;			
 		}
+                #comments_loader {
+                    float: left;
+                    margin: 15px 0 0 15px;
+                }
 		
 #footer {
 	margin: 10px 0 0 0;
@@ -201,7 +251,9 @@ a:hover {
 			margin-right: 10px;
 			float: left;
 			width: 120px;
-			height: 90px;
-			max-width: 120px;
-			max-height: 90px;
+			height: 90px;			
 		}
+                    .thumb img {
+                        max-width: 120px;
+			max-height: 90px;
+                    }

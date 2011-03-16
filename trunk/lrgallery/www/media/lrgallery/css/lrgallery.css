@@ -157,19 +157,31 @@ a:hover {
 		#ratingbox {
 			/*background: url('../images/rating_background.png') no-repeat;*/
 			width: 180px;
-			height: 24px;		
+			height: 24px;
+                        float: left;
 		}
+                #rating_loader {
+                    float: left;
+                    margin: 8px 0 0 3px;
+                }
 			.star {			
 				float: left;
 				width: 24px;
 				height: 24px;
-				margin-right: 8px;
+				padding-right: 8px;
+                                cursor: pointer;
 			}		
 			.star_fill {
-				background: url('../images/star_fill.png');
+				background: url('../images/star_fill.png') no-repeat;
+			}		
+                        .star_was_fill {
+				background: url('../images/star_fill.png') no-repeat;
 			}		
 			.star_empty{
-				background: url('../images/star_empty.png');
+				background: url('../images/star_empty.png') no-repeat;
+			}
+                        .star_was_empty{
+				background: url('../images/star_empty.png') no-repeat;
 			}
 
 		.commentbox_caption {
@@ -185,11 +197,15 @@ a:hover {
 			
 		#save {
 			margin:	10px 0 0 0;
-			/*float: right;*/
+			float: left;
 		}
 		a.btn-download .icon_save {
 			background:url(../images/save.png) 0 0 no-repeat;			
 		}
+                #comments_loader {
+                    float: left;
+                    margin: 15px 0 0 15px;
+                }
 		
 #footer {
 	margin: 10px 0 0 0;
