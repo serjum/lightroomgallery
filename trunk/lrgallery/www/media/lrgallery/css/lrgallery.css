@@ -251,7 +251,8 @@ a:hover {
 			margin-right: 10px;
 			float: left;
 			width: 120px;
-			height: 90px;			
+			height: 90px;
+                        cursor: pointer;
 		}
                     .thumb img {
                         max-width: 120px;
