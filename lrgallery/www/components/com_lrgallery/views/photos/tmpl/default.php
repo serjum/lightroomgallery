@@ -41,6 +41,7 @@
         
         <script type="text/javascript" src="media/system/js/mootools-core.js"></script>
         <script type="text/javascript" src="media/system/js/mootools-more.js"></script>
+        <script type="text/javascript" src="media/lrgallery/js/slide.js"></script>
         <script type="text/javascript">
             
             /* Удаление лишних пробелов и др. из строки */
@@ -121,7 +122,70 @@
                 
                 // Установим обработчик кнопки сохранения комментариев
                 $('save').addEvent('click', setComments);
-            });                        
+                
+                // Установим обработчики для превью фотографий
+                $$('div[id^=thumb_]').forEach(function(thumb) {
+                    var thumbId = thumb.id.toString();
+                    var photoId = thumbId.substr('thumb_'.length, thumbId.length - 'thumb_'.length);
+                    thumb.addEvent('click', setCurrPhoto.pass(photoId));
+                });
+                
+                // Добавим слайдер
+                
+                });                        
+            
+            /* Получение флага принятия для фотографии */
+            function getAcceptedFlag(id) {
+                
+            }
+            
+            /* Получение рейтинга для фотографии */
+            function getRating(id) {
+                var id = $('id').value;
+                if (id == '') {
+                    alert('Пожалуйста, выберите фотографию!');
+                    return;
+                }                                        
+                
+                var req = new Request({
+                    url: 'index.php?option=com_lrgallery&task=photos.getAcceptedFlag&format=json',
+                    onRequest: function() {
+                        // Во время обработки запроса покажем анимацию
+                        //$('accept_loader').setStyle('visibility', 'visible');
+                    },
+                    onSuccess: function(result) {
+                        // Скроем анимацию
+                        //$('accept_loader').setStyle('visibility', 'hidden');
+                        
+                        // Разберем ответ в формате JSON
+                        var response = JSON.decode(result);
+                        if (!response.error) {
+                            // Если всё ок, подсветим выбранную кнопку
+                            var rating = response.meta;
+                            if ($('metadata_rating') == null) {
+                                var rating_input = new Element('input', {
+                                    'type': 'hidden',
+                                    'id':   'metadata_rating',
+                                    'name': 'metadata_rating'
+                                });
+                                $(document.body).adopt(rating_input);
+                            }
+                            $('metadata_rating').value = rating;
+                            fillStars();
+                        }
+                        else {
+                            alert('При установке флага произошла ошибка. Пожалуйста, обратитесь к администратору');
+                        }
+                    }
+                });
+                
+                req.send('id=' + id + '&flag=' + flag);
+            }
+            
+            /* Получение комментариев для фотографии */
+            function getComments(id) {
+                
+            }
             
             /* Установка флага принятия для текущей фотографии */
             function setAcceptedFlag(flag) {
@@ -164,9 +228,9 @@
                     }
                 });
                 
-                req.send('id=' + id + '&flag=' + flag);                
+                req.send('id=' + id + '&flag=' + flag);
             }
-            
+                        
             /* Установка рейтинга текущей фотографии */
             function setRating(rating) {
                 var id = $('id').value;
@@ -242,7 +306,14 @@
                 var comments = $('comments').value;
                 req.send('id=' + id + '&comments=' + comments);
             }
-            
+        
+            /* Устанавливает текущую фотографию */
+            function setCurrPhoto(id) {
+                var photoSrc = $('photoBase').value + "/" + $('thumb_' + id).getAttribute('rel');
+                $('currPhoto').src = photoSrc;
+                $('id').value = id;
+                fillStars();
+            }
         </script>
         
     </head>
@@ -259,7 +330,7 @@
 
         <div id="content">
             <div id="imagebox">
-                <img src="<? echo $currPhoto->base . "/" . $currPhoto->file_name; ?>" />
+                <img id="currPhoto" src="<? echo $currPhoto->base . "/" . $currPhoto->file_name; ?>" />
             </div>
             <div id="metadata">												
                 <div class="acceptbox_caption">					
@@ -340,7 +411,7 @@
             foreach ($photos as $photo)
             {
 ?>
-                <div class="thumb">
+                <div class="thumb" id ="thumb_<? echo $photo->id; ?>" rel="<? echo $photo->file_name; ?>">
                     <img src="<? echo $photo->base . "/" . $photo->file_name; ?>" />
                 </div>
 <?
@@ -350,6 +421,7 @@
         </div>
         <div class="clear"></div>
         
+        <input type="hidden" name="photoBase" id="photoBase" value="<? echo $currPhoto->base; ?>">
         <input type="hidden" name="id" id="id" value="<? echo $currPhoto->id; ?>">
 <?
     // Выведем все метаданные текущей фотографии

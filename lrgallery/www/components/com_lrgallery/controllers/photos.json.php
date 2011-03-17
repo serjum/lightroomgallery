@@ -39,6 +39,25 @@
         }
         
         /*
+         * Получение значения поля метаданных фотографии
+         */
+        private function getMetadata($id, $metaName)
+        {
+            $db =& JFactory::getDBO();
+            $metaNameQ = $db->quote($metaName);
+            $db->setQuery("SELECT value
+                             FROM #__lrgallery_metadata
+                            WHERE photo_id = $id
+                              AND meta_id = (
+                                    SELECT id
+                                      FROM #__lrgallery_meta
+                                     WHERE name = $metaNameQ)");
+            $result = $db->loadResult();
+            $response = Array('Error' => !$result, 'Message' => $db->stderr(), 'Meta' => $result);
+            return $response;
+        }
+        
+        /*
          * Вставка нового значения поля метаданных
          */
         private function insertMetadata($id, $metaName, $data)
@@ -82,6 +101,36 @@
             JResponse::setHeader( 'Content-Disposition', 'attachment; filename="' . 
                     $this->getName() . '.json"' );
             echo json_encode($response);
+        }
+        
+        /*
+         * Получение флага принятия для фотографии
+         */
+        public function getAcceptedFlag()
+        {
+            $id = JRequest::getInt('id');
+            $flag = $this->getMetadata($id, self::metaAccepted);
+            $this->echoResponse($flag, $flag['Meta']);
+        }
+        
+        /*
+         * Получение рейтинга для фотографии
+         */
+        public function getRating()
+        {
+            $id = JRequest::getInt('id');
+            $rating = $this->getMetadata($id, self::metaRating);
+            $this->echoResponse($rating, $rating['Meta']);
+        }
+        
+        /*
+         * Получение комментариев для фотографии
+         */
+        public function getComments()
+        {
+            $id = JRequest::getInt('id');
+            $comments = $this->getMetadata($id, self::metaComments);
+            $this->echoResponse($comments, $comments['Meta']);
         }
         
         /*
@@ -133,6 +182,21 @@
                 $result = $this->insertMetadata ($id, self::metaComments, $comments);
             
             $this->echoResponse($result, $comments);
+        }
+        
+        /*
+         * Получение имени файла с фотографией по её ID
+         */
+        public function getPhotoFileName()
+        {
+            $id = JRequest::getInt('id', -1);
+            $db =& JFactory::getDBO();            
+            $db->setQuery("SELECT file_name
+                             FROM #__lrgallery_photos
+                            WHERE id = $id");
+            $result = $db->loadResult();
+            $response = Array('Error' => !$result, 'Message' => $db->stderr());
+            $this->echoResponse($response, $result);
         }
     }
 ?>    
