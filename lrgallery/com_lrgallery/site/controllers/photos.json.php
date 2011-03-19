@@ -39,6 +39,25 @@
         }
         
         /*
+         * Получение значения поля метаданных фотографии
+         */
+        private function getMetadata($id, $metaName)
+        {
+            $db =& JFactory::getDBO();
+            $metaNameQ = $db->quote($metaName);
+            $db->setQuery("SELECT value
+                             FROM #__lrgallery_metadata
+                            WHERE photo_id = $id
+                              AND meta_id = (
+                                    SELECT id
+                                      FROM #__lrgallery_meta
+                                     WHERE name = $metaNameQ)");
+            $result = $db->loadResult();
+            $response = Array('Error' => !$result, 'Message' => $db->stderr(), 'Meta' => $result);
+            return $response;
+        }
+        
+        /*
          * Вставка нового значения поля метаданных
          */
         private function insertMetadata($id, $metaName, $data)
@@ -85,54 +104,47 @@
         }
         
         /*
-         * Установка флага принятия для фотографии
+         * Получение значения поля метаданных фотографии
          */
-        public function setAcceptedFlag()
+        public function getMetaValue()
         {
             $id = JRequest::getInt('id');
-            $flag = JRequest::getString('flag', 'none');
-            
-            $metaId = $this->checkMetadata($id, self::metaAccepted);
-            if ($metaId)
-                $result = $this->updateMetadata ($id, $metaId, $flag);
-            else
-                $result = $this->insertMetadata ($id, self::metaAccepted, $flag);
-            
-            $this->echoResponse($result, $flag);            
+            $meta = JRequest::getString('meta');
+            $result = $this->getMetadata($id, $meta);
+            $this->echoResponse($result, $result['Meta']);
         }
         
         /*
-         * Установка рейтинга фотографии
+         * Установка значения поля метаданных фотографии
          */
-        public function setRating()
+        public function setMetaValue()
         {
             $id = JRequest::getInt('id');
-            $rating = JRequest::getInt('rating', 0);
+            $meta = JRequest::getString('meta');
+            $value = JRequest::getString('value');
             
-            $metaId = $this->checkMetadata($id, self::metaRating);
+            $metaId = $this->checkMetadata($id, $meta);
             if ($metaId)
-                $result = $this->updateMetadata ($id, $metaId, $rating);
+                $result = $this->updateMetadata ($id, $metaId, $value);
             else
-                $result = $this->insertMetadata ($id, self::metaRating, $rating);
+                $result = $this->insertMetadata ($id, $meta, $value);
             
-            $this->echoResponse($result, $rating);
-        }
+            $this->echoResponse($result, $value);
+        }               
         
         /*
-         * Установка комментариев фотографии
+         * Получение имени файла с фотографией по её ID
          */
-        public function setComments()
+        public function getPhotoFileName()
         {
-            $id = JRequest::getInt('id');
-            $comments = JRequest::getString('comments', '');
-            
-            $metaId = $this->checkMetadata($id, self::metaComments);
-            if ($metaId)
-                $result = $this->updateMetadata ($id, $metaId, $comments);
-            else
-                $result = $this->insertMetadata ($id, self::metaComments, $comments);
-            
-            $this->echoResponse($result, $comments);
+            $id = JRequest::getInt('id', -1);
+            $db =& JFactory::getDBO();            
+            $db->setQuery("SELECT file_name
+                             FROM #__lrgallery_photos
+                            WHERE id = $id");
+            $result = $db->loadResult();
+            $response = Array('Error' => !$result, 'Message' => $db->stderr());
+            $this->echoResponse($response, $result);
         }
     }
 ?>    
