@@ -68,7 +68,7 @@
             
             for ($i = 0; $i < count($this->photos); $i++)
             {
-                $this->photos[$i]->base = $this::folderBase . "/" . $this->user->folderName;
+                $this->photos[$i]->base = self::folderBase . "/" . $this->user->folderName;
             }
             
             return $this->photos;
