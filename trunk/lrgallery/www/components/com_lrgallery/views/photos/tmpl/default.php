@@ -56,25 +56,6 @@
                 return s;
             }
             
-            /* Заполняет звёзды рейтинга */ 
-            function fillStars() {
-                var stars = $$('div[id^=star]');
-                if ($('metadata_rating') != null) {                    
-                    var rating = $('metadata_rating').value;                    
-                    stars.removeClass('star_fill');
-                    stars.removeClass('star_empty');
-                    stars.forEach(function(el) {
-                        if (el.id.toString().substr('star'.length, 1) <= rating)
-                            el.addClass('star_was_fill');
-                        else
-                            el.addClass('star_was_empty');
-                    });
-                }
-                else {
-                    stars.addClass('star_empty');
-                }
-            }
-            
             window.addEvent('domready', function() {                
                 // Установим обработчики кнопок принятия
                 $('accept_yes').addEvent('click', setAcceptedFlag.pass('yes'));
@@ -112,13 +93,13 @@
                     el.addEvent('mouseleave', function(maxStar) {
                         stars.removeClass('star_fill');
                         stars.removeClass('star_empty');
-                        fillStars();
+                        displayRating();
                     });
                     el.addEvent('click', setRating.pass(el.id.toString().substr('star'.length, 1)));
                 });
                 
                 // Заполним звёзды рейтинга                
-                fillStars();
+                displayRating();
                 
                 // Установим обработчик кнопки сохранения комментариев
                 $('save').addEvent('click', setComments);
@@ -132,105 +113,150 @@
                 
                 // Добавим слайдер
                 
-                });                        
+            });
             
-            /* Получение флага принятия для фотографии */
-            function getAcceptedFlag(id) {
-                
+            /* Получение значения поля метаданных фотографии */
+            function getMetadata(id, meta, loader, callback) {
+                if (id == '') {
+                    alert('Пожалуйста, выберите фотографию!');
+                    return;
+                }                                                        
+                var req = new Request({
+                    url: 'index.php?option=com_lrgallery&task=photos.getMetaValue&format=json',
+                    onRequest: loader,
+                    onSuccess: function(result) {
+                        var response = JSON.decode(result);
+                        callback(response);
+                    }
+                }).send('id=' + id + '&meta=' + meta);
             }
             
-            /* Получение рейтинга для фотографии */
-            function getRating(id) {
+            /* Установка значения поля метаданных фотографии */
+            function setMetadata(id, meta, value, loader, callback) {
+                if (id == '') {
+                    alert('Пожалуйста, выберите фотографию!');
+                    return;
+                }                                                        
+                var req = new Request({
+                    url: 'index.php?option=com_lrgallery&task=photos.setMetaValue&format=json',
+                    onRequest: loader,
+                    onSuccess: function(result) {                       
+                        var response = JSON.decode(result);
+                        callback(response);
+                    }
+                }).send('id=' + id + '&meta=' + meta + '&value=' + value);
+            }
+            
+            /* Получение флага принятия для фотографии */
+            function getAcceptedFlag() {
                 var id = $('id').value;
                 if (id == '') {
                     alert('Пожалуйста, выберите фотографию!');
                     return;
-                }                                        
-                
-                var req = new Request({
-                    url: 'index.php?option=com_lrgallery&task=photos.getAcceptedFlag&format=json',
-                    onRequest: function() {
-                        // Во время обработки запроса покажем анимацию
-                        //$('accept_loader').setStyle('visibility', 'visible');
-                    },
-                    onSuccess: function(result) {
-                        // Скроем анимацию
-                        //$('accept_loader').setStyle('visibility', 'hidden');
-                        
-                        // Разберем ответ в формате JSON
-                        var response = JSON.decode(result);
-                        if (!response.error) {
-                            // Если всё ок, подсветим выбранную кнопку
-                            var rating = response.meta;
-                            if ($('metadata_rating') == null) {
-                                var rating_input = new Element('input', {
-                                    'type': 'hidden',
-                                    'id':   'metadata_rating',
-                                    'name': 'metadata_rating'
-                                });
-                                $(document.body).adopt(rating_input);
-                            }
-                            $('metadata_rating').value = rating;
-                            fillStars();
-                        }
-                        else {
-                            alert('При установке флага произошла ошибка. Пожалуйста, обратитесь к администратору');
-                        }
+                }
+                getMetadata(id, 'accepted', null, function(response) {
+                    if (!response.error) {
+                        displayAcceptedFlag(response.meta);
+                    }
+                    else {
+                        alert('При получении флага произошла ошибка. Пожалуйста, обратитесь к администратору');
                     }
                 });
-                
-                req.send('id=' + id + '&flag=' + flag);
             }
             
-            /* Получение комментариев для фотографии */
-            function getComments(id) {
+            /* Отображение флага принятия */ 
+            function displayAcceptedFlag(flag) {
+                if ($('metadata_accepted') == null) {
+                    var accepted_input = new Element('input', {
+                        'type':     'hidden',
+                        'id':       'metadata_accepted',
+                        'name':     'metadata_accepted',
+                        'value':    flag
+                    });
+                    $(document.body).adopt(accepted_input);
+                }
+                else if($('metadata_accepted').value != flag) {
+                    $('metadata_accepted').value = flag;
+                }
+                flag = $('metadata_accepted').value;
                 
+                $$('a[id^=accept_]').removeClass('minibutton_selected');
+                $('accept_' + flag).addClass('minibutton_selected');                
             }
             
             /* Установка флага принятия для текущей фотографии */
             function setAcceptedFlag(flag) {
                 var id = $('id').value;
-                if (id == '') {
-                    alert('Пожалуйста, выберите фотографию!');
-                    return;
-                }                                        
-                
-                var req = new Request({
-                    url: 'index.php?option=com_lrgallery&task=photos.setAcceptedFlag&format=json',
-                    onRequest: function() {
+                setMetadata(id, 'accepted', flag, 
+                    function(){
                         // Во время обработки запроса покажем анимацию
                         $('accept_loader').setStyle('visibility', 'visible');
                     },
-                    onSuccess: function(result) {
+                    function(response) {
                         // Скроем анимацию
                         $('accept_loader').setStyle('visibility', 'hidden');
                         
-                        // Разберем ответ в формате JSON
-                        var response = JSON.decode(result);
                         if (!response.error) {
                             // Если всё ок, подсветим выбранную кнопку
-                            var flag = response.meta;
-                            $$('a[id^=accept_]').removeClass('minibutton_selected');
-                            $('accept_' + flag).addClass('minibutton_selected');
-                            
-                            if ($('metadata_accepted') == null) {
-                                var accepted_input = new Element('input', {
-                                    'type': 'hidden',
-                                    'id':   'metadata_accepted',
-                                    'name': 'metadata_accepted'
-                                });
-                                $(document.body).adopt(accepted_input);
-                            }
+                            //var flag = response.meta;
+                            displayAcceptedFlag(flag);
                         }
                         else {
                             alert('При установке флага произошла ошибка. Пожалуйста, обратитесь к администратору');
                         }
                     }
-                });
-                
-                req.send('id=' + id + '&flag=' + flag);
+                );                                
             }
+            
+            /* Получение рейтинга для фотографии */
+            function getRating() {
+                var id = $('id').value;
+                if (id == '') {
+                    alert('Пожалуйста, выберите фотографию!');
+                    return;
+                }
+                
+                getMetadata(id, 'rating', null, function(response) {
+                    if (!response.error) {
+                        // Если всё ок, подсветим выбранную кнопку
+                        var rating = response.meta;
                         
+                    }
+                    else {
+                        alert('При получении рейтинга произошла ошибка. Пожалуйста, обратитесь к администратору');
+                    } 
+                });                
+            }
+            
+            /* Отображение рейтинга */ 
+            function displayRating(rating) {
+                if ($('metadata_rating') == null) {
+                    var rating_input = new Element('input', {
+                        'type':     'hidden',
+                        'id':       'metadata_rating',
+                        'name':     'metadata_rating',
+                        'value':    rating
+                    });
+                    $(document.body).adopt(rating_input);
+                }
+                rating = $('metadata_rating').value;
+                
+                var stars = $$('div[id^=star]');
+                if (rating != null) {
+                    stars.removeClass('star_fill');
+                    stars.removeClass('star_empty');
+                    stars.forEach(function(el) {
+                        if (el.id.toString().substr('star'.length, 1) <= rating)
+                            el.addClass('star_was_fill');
+                        else
+                            el.addClass('star_was_empty');
+                    });
+                }
+                else {
+                    stars.addClass('star_empty');
+                }                                    
+            }
+            
             /* Установка рейтинга текущей фотографии */
             function setRating(rating) {
                 var id = $('id').value;
@@ -263,7 +289,7 @@
                                 $(document.body).adopt(rating_input);
                             }
                             $('metadata_rating').value = rating;
-                            fillStars();
+                            displayRating(rating);
                         }
                         else {
                             alert('При установке рейтинга произошла ошибка. Пожалуйста, обратитесь к администратору');
@@ -274,6 +300,28 @@
                 req.send('id=' + id + '&rating=' + rating);
             }
             
+            /* Получение комментариев для фотографии */
+            function getComments() {
+                var id = $('id').value;
+                if (id == '') {
+                    alert('Пожалуйста, выберите фотографию!');
+                    return;
+                }
+                getMetadata(id, 'comments', null, function(response) {
+                    if (!response.error) {
+                        displayComments(response.meta);
+                    }
+                    else {
+                        alert('При получении комментариев произошла ошибка. Пожалуйста, обратитесь к администратору');
+                    }
+                });
+            }
+                                                            
+            /* Отображение комментариев для фотографии */
+            function displayComments(comments) {
+                $('comments').value = comments;
+            }
+            
             /* Запись комментариев текущей фотографии */
             function setComments() {
                 var id = $('id').value;
@@ -282,13 +330,13 @@
                     return;
                 }                                        
                 
-                var req = new Request({
-                    url: 'index.php?option=com_lrgallery&task=photos.setComments&format=json',
-                    onRequest: function() {
+                var comments = $('comments').value;
+                setMetadata(id, 'comments', comments, 
+                    function(){
                         // Во время обработки запроса покажем анимацию
                         $('comments_loader').setStyle('visibility', 'visible');
                     },
-                    onSuccess: function(result) {
+                    function(response) {
                         // Скроем анимацию
                         $('comments_loader').setStyle('visibility', 'hidden');
                         
@@ -301,10 +349,7 @@
                             alert('При записи комментариев произошла ошибка. Пожалуйста, обратитесь к администратору');
                         }
                     }
-                });
-                
-                var comments = $('comments').value;
-                req.send('id=' + id + '&comments=' + comments);
+                );                                
             }
         
             /* Устанавливает текущую фотографию */
@@ -312,7 +357,6 @@
                 var photoSrc = $('photoBase').value + "/" + $('thumb_' + id).getAttribute('rel');
                 $('currPhoto').src = photoSrc;
                 $('id').value = id;
-                fillStars();
             }
         </script>
         
