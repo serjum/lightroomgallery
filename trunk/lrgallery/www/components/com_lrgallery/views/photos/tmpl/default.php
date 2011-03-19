@@ -98,8 +98,10 @@
                     el.addEvent('click', setRating.pass(el.id.toString().substr('star'.length, 1)));
                 });
                 
-                // Заполним звёзды рейтинга                
-                displayRating($('metadata_rating').value);
+                // Заполним звёзды рейтинга
+				if ($('metadata_rating') != null) {
+					displayRating($('metadata_rating').value);
+				}                
                 
                 // Установим обработчик кнопки сохранения комментариев
                 $('save').addEvent('click', setComments);
