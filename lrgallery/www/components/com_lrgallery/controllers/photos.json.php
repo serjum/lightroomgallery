@@ -129,89 +129,10 @@
             else
                 $result = $this->insertMetadata ($id, $meta, $value);
             
-            $this->echoResponse($result, $meta);
+            $this->echoResponse($result, $value);
         }
         
-        /*
-         * Получение флага принятия для фотографии
-         */
-        public function getAcceptedFlag()
-        {
-            $id = JRequest::getInt('id');
-            $flag = $this->getMetadata($id, self::metaAccepted);
-            $this->echoResponse($flag, $flag['Meta']);
-        }
         
-        /*
-         * Получение рейтинга для фотографии
-         */
-        public function getRating()
-        {
-            $id = JRequest::getInt('id');
-            $rating = $this->getMetadata($id, self::metaRating);
-            $this->echoResponse($rating, $rating['Meta']);
-        }
-        
-        /*
-         * Получение комментариев для фотографии
-         */
-        public function getComments()
-        {
-            $id = JRequest::getInt('id');
-            $comments = $this->getMetadata($id, self::metaComments);
-            $this->echoResponse($comments, $comments['Meta']);
-        }
-        
-        /*
-         * Установка флага принятия для фотографии
-         */
-        public function setAcceptedFlag()
-        {
-            $id = JRequest::getInt('id');
-            $flag = JRequest::getString('flag', 'none');
-            
-            $metaId = $this->checkMetadata($id, self::metaAccepted);
-            if ($metaId)
-                $result = $this->updateMetadata ($id, $metaId, $flag);
-            else
-                $result = $this->insertMetadata ($id, self::metaAccepted, $flag);
-            
-            $this->echoResponse($result, $flag);            
-        }
-        
-        /*
-         * Установка рейтинга фотографии
-         */
-        public function setRating()
-        {
-            $id = JRequest::getInt('id');
-            $rating = JRequest::getInt('rating', 0);
-            
-            $metaId = $this->checkMetadata($id, self::metaRating);
-            if ($metaId)
-                $result = $this->updateMetadata ($id, $metaId, $rating);
-            else
-                $result = $this->insertMetadata ($id, self::metaRating, $rating);
-            
-            $this->echoResponse($result, $rating);
-        }
-        
-        /*
-         * Установка комментариев фотографии
-         */
-        public function setComments()
-        {
-            $id = JRequest::getInt('id');
-            $comments = JRequest::getString('comments', '');
-            
-            $metaId = $this->checkMetadata($id, self::metaComments);
-            if ($metaId)
-                $result = $this->updateMetadata ($id, $metaId, $comments);
-            else
-                $result = $this->insertMetadata ($id, self::metaComments, $comments);
-            
-            $this->echoResponse($result, $comments);
-        }
         
         /*
          * Получение имени файла с фотографией по её ID

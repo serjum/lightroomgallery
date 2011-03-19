@@ -93,13 +93,13 @@
                     el.addEvent('mouseleave', function(maxStar) {
                         stars.removeClass('star_fill');
                         stars.removeClass('star_empty');
-                        displayRating();
+                        displayRating($('metadata_rating').value);
                     });
                     el.addEvent('click', setRating.pass(el.id.toString().substr('star'.length, 1)));
                 });
                 
                 // Заполним звёзды рейтинга                
-                displayRating();
+                displayRating($('metadata_rating').value);
                 
                 // Установим обработчик кнопки сохранения комментариев
                 $('save').addEvent('click', setComments);
@@ -156,7 +156,8 @@
                 }
                 getMetadata(id, 'accepted', null, function(response) {
                     if (!response.error) {
-                        displayAcceptedFlag(response.meta);
+                        var flag = response.meta;
+                        displayAcceptedFlag(flag);
                     }
                     else {
                         alert('При получении флага произошла ошибка. Пожалуйста, обратитесь к администратору');
@@ -198,7 +199,7 @@
                         
                         if (!response.error) {
                             // Если всё ок, подсветим выбранную кнопку
-                            //var flag = response.meta;
+                            var flag = response.meta;
                             displayAcceptedFlag(flag);
                         }
                         else {
@@ -220,7 +221,7 @@
                     if (!response.error) {
                         // Если всё ок, подсветим выбранную кнопку
                         var rating = response.meta;
-                        
+                        displayRating(rating);
                     }
                     else {
                         alert('При получении рейтинга произошла ошибка. Пожалуйста, обратитесь к администратору');
@@ -238,6 +239,9 @@
                         'value':    rating
                     });
                     $(document.body).adopt(rating_input);
+                }
+                else if ($('metadata_rating').value != rating) {
+                    $('metadata_rating').value = rating;
                 }
                 rating = $('metadata_rating').value;
                 
@@ -265,39 +269,25 @@
                     return;
                 }                                        
                 
-                var req = new Request({
-                    url: 'index.php?option=com_lrgallery&task=photos.setRating&format=json',
-                    onRequest: function() {
+                setMetadata(id, 'rating', rating, 
+                    function(){
                         // Во время обработки запроса покажем анимацию
                         $('rating_loader').setStyle('visibility', 'visible');
                     },
-                    onSuccess: function(result) {
+                    function(response) {
                         // Скроем анимацию
                         $('rating_loader').setStyle('visibility', 'hidden');
                         
-                        // Разберем ответ в формате JSON
-                        var response = JSON.decode(result);
                         if (!response.error) {
                             // Если всё ок, заполним звёзды
                             var rating = response.meta;
-                            if ($('metadata_rating') == null) {
-                                var rating_input = new Element('input', {
-                                    'type': 'hidden',
-                                    'id':   'metadata_rating',
-                                    'name': 'metadata_rating'
-                                });
-                                $(document.body).adopt(rating_input);
-                            }
-                            $('metadata_rating').value = rating;
                             displayRating(rating);
                         }
                         else {
                             alert('При установке рейтинга произошла ошибка. Пожалуйста, обратитесь к администратору');
                         }
                     }
-                });
-                
-                req.send('id=' + id + '&rating=' + rating);
+                );                                 
             }
             
             /* Получение комментариев для фотографии */
