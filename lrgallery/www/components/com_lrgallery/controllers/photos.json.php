@@ -130,9 +130,7 @@
                 $result = $this->insertMetadata ($id, $meta, $value);
             
             $this->echoResponse($result, $value);
-        }
-        
-        
+        }               
         
         /*
          * Получение имени файла с фотографией по её ID
