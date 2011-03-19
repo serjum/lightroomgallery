@@ -104,6 +104,35 @@
         }
         
         /*
+         * Получение значения поля метаданных фотографии
+         */
+        public function getMetaValue()
+        {
+            $id = JRequest::getInt('id');
+            $meta = JRequest::getString('meta');
+            $result = $this->getMetadata($id, $meta);
+            $this->echoResponse($result, $result['Meta']);
+        }
+        
+        /*
+         * Установка значения поля метаданных фотографии
+         */
+        public function setMetaValue()
+        {
+            $id = JRequest::getInt('id');
+            $meta = JRequest::getString('meta');
+            $value = JRequest::getString('value');
+            
+            $metaId = $this->checkMetadata($id, $meta);
+            if ($metaId)
+                $result = $this->updateMetadata ($id, $metaId, $value);
+            else
+                $result = $this->insertMetadata ($id, $meta, $value);
+            
+            $this->echoResponse($result, $meta);
+        }
+        
+        /*
          * Получение флага принятия для фотографии
          */
         public function getAcceptedFlag()
