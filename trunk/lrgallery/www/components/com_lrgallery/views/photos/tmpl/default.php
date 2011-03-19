@@ -249,11 +249,15 @@
                 if (rating != null) {
                     stars.removeClass('star_fill');
                     stars.removeClass('star_empty');
+                    stars.removeClass('star_was_fill');
+                    stars.removeClass('star_was_empty');
                     stars.forEach(function(el) {
-                        if (el.id.toString().substr('star'.length, 1) <= rating)
-                            el.addClass('star_was_fill');
-                        else
+                        if (el.id.toString().substr('star'.length, 1) <= rating) {
+                            el.addClass('star_was_fill');   
+                        }                            
+                        else {
                             el.addClass('star_was_empty');
+                        }
                     });
                 }
                 else {
@@ -347,6 +351,12 @@
                 var photoSrc = $('photoBase').value + "/" + $('thumb_' + id).getAttribute('rel');
                 $('currPhoto').src = photoSrc;
                 $('id').value = id;
+                getAcceptedFlag();
+                getRating();
+                getComments();
+                /*displayAcceptedFlag();
+                displayRating();
+                displayComments();*/
             }
         </script>
         
