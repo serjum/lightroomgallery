@@ -95,9 +95,9 @@ local function trim( s )
 end
 
 -- Show username and password dialog
-function LrGalleryAPI.showPasswordDialog( message )
+function LrGalleryAPI.showCredentialsDialog( message )
 
-	LrFunctionContext.callWithContext( 'LrGalleryAPI.showPasswordDialog', function( context )
+	LrFunctionContext.callWithContext( 'LrGalleryAPI.showCredentialsDialog', function( context )
 
 		local f = LrView.osFactory()
 	
@@ -112,7 +112,7 @@ function LrGalleryAPI.showPasswordDialog( message )
 			fill = 1,
 	
 			f:static_text {
-				title = LOC "$$$/LrGallery/PasswordDialog/Message=Please enter LrGallery username and password here",
+				title = LOC "$$$/LrGallery/CredentialsDialog/Message=Please enter LrGallery username and password here",
 				fill_horizontal = 1,
 				width_in_chars = 55,
 				height_in_lines = 2,
@@ -132,7 +132,7 @@ function LrGalleryAPI.showPasswordDialog( message )
 				spacing = f:label_spacing(),
 				
 				f:static_text {
-					title = LOC "$$$/LrGallery/PasswordDialog/Username=Username:",
+					title = LOC "$$$/LrGallery/CredentialsDialog/Username=Username:",
 					alignment = 'right',
 					width = share 'title_width',
 				},
@@ -148,7 +148,7 @@ function LrGalleryAPI.showPasswordDialog( message )
 				spacing = f:label_spacing(),
 				
 				f:static_text {
-					title = LOC "$$$/LrGallery/PasswordDialog/Password=Password:",
+					title = LOC "$$$/LrGallery/CredentialsDialog/Password=Password:",
 					alignment = 'right',
 					width = share 'title_width',
 				},
@@ -163,7 +163,7 @@ function LrGalleryAPI.showPasswordDialog( message )
 		}
 		
 		local result = LrDialogs.presentModalDialog {
-				title = LOC "$$$/LrGallery/PasswordDialog/Title=Enter Your LrGallery username and password", 
+				title = LOC "$$$/LrGallery/CredentialsDialog/Title=Enter Your LrGallery username and password", 
 				contents = contents,
 			}
 		
@@ -192,10 +192,10 @@ function LrGalleryAPI.getCredentials()
 	
 		local message
 		if username or password then
-			message = LOC "$$$/LrGallery/PasswordDialog/Invalid=Username and password below are not valid."
+			message = LOC "$$$/LrGallery/CredentialsDialog/Invalid=Username and password below are not valid."
 		end
 
-		LrGalleryAPI.showPasswordDialog( message )
+		LrGalleryAPI.showCredentialsDialog( message )
 
 		username, password = prefs.username, prefs.password
 	
