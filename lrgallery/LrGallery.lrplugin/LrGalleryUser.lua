@@ -101,7 +101,7 @@ function LrGalleryUser.login( propertyTable )
 		
 		-- Make sure we have an API key.
 		
-		LrGalleryAPI.getPassword()
+		LrGalleryAPI.getCredentials()
 
 		-- Show request for authentication dialog.
 	

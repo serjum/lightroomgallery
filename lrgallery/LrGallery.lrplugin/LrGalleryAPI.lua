@@ -40,6 +40,7 @@ LrGalleryAPI = {}
 
 local appearsAlive
 local serviceUrl = 'http://softlit.ru/service/xmlrpc'
+local token = nil
 
 local function formatError( nativeErrorCode )
 	return LOC "$$$/LrGallery/Error/NetworkFailure=Could not contact the LrGallery web service. Please check your Internet connection."
@@ -181,7 +182,7 @@ function LrGalleryAPI.showPasswordDialog( message )
 end
 
 -- Get username and password
-function LrGalleryAPI.getPassword()
+function LrGalleryAPI.getCredentials()
 
 	local username, password = prefs.username, prefs.password
 	
@@ -209,7 +210,7 @@ function LrGalleryAPI.makeApiSignature( method, params )
 
 	-- If no API key, add it in now.
 	
-	local password, sharedSecret = LrGalleryAPI.getPassword()
+	local password, sharedSecret = LrGalleryAPI.getCredentials()
 	
 	if not params.api_key then
 		params.api_key = password
@@ -260,8 +261,9 @@ end
 function constructXml(params)
 	local xmlBuilder = LrXml.createXmlBuilder()
 	xmlBuilder:beginBlock('methodCall')
+	xmlBuilder:beginBlock('methodName')
 	xmlBuilder:text(method)
-	xmlBuilder:endBlock('methodCall')
+	xmlBuilder:endBlock('methodName')
 	xmlBuilder:beginBlock('params')
 	for param, value in pairs(params) do
 		xmlBuilder:beginBlock('param')
@@ -298,9 +300,15 @@ function constructXml(params)
 end
 
 -- XML Remote procedure call
-function LrGalleryAPI.callXmlMethod( propertyTable, params )
+function LrGalleryAPI.callXmlMethod(propertyTable, params)
+
+	-- Construct XML message
 	local xmlString = constructXml(params.params)	
+	
+	-- Send message and get response
 	local response, hdrs = LrHttp.post( serviceUrl, xmlString )
+	
+	-- Transform result to table
 	local result = traverse(response)
 	
 	return result, response
@@ -308,7 +316,7 @@ function LrGalleryAPI.callXmlMethod( propertyTable, params )
 
 	-- Automatically add username and password.
 	
-	local username, password = LrGalleryAPI.getPassword()
+	local username, password = LrGalleryAPI.getCredentials()
 	
 	if not params.api_key then
 		params.api_key = password
@@ -423,7 +431,62 @@ function LrGalleryAPI.callXmlMethod( propertyTable, params )
 	]]--
 end
 
---------------------------------------------------------------------------------
+-- Login into the gallery
+function LrGalleryAPI.login(propertyTable, params)
+	
+	-- Get username and password
+	local username, password = getCredentials();
+	
+	-- Set request params
+	local callParams = {
+		username = params.username, 
+		password = params.password, 
+	}	
+	params.params = callParams
+	
+	-- Call login method
+	local result, xmlResponse = callXmlMethod(propertyTable, params)
+	
+	-- Return token
+	return result.token
+end
+
+-- Create new gallery user
+function LrGalleryAPI.createUser( propertyTable, params )
+		
+	-- Set request params
+	local callParams = {
+		username = params.username, 
+		password = params.password,
+		folder = params.folder,
+	}
+	params.params = callParams
+	
+	-- Call createUser method
+	local result, xmlResponse = callXmlMethod(propertyTable, params)
+	
+	-- Return token
+	return result.token
+end
+
+function LrGalleryAPI.callMethod(propertyTable, params, method)
+
+	-- Check login
+	if not (method == 'login') and (token == nil)
+		token = login()
+	end
+	
+	-- Check params table
+	if not (type(params) == 'table')
+		params = {}
+	end	
+	params.params = {}
+	params.params.method = method
+	
+	-- Call the method needed and return result
+	local result = _G[method](propertyTable, params)
+	return result
+end
 
 function LrGalleryAPI.uploadPhoto( propertyTable, params )
 
@@ -507,7 +570,7 @@ function LrGalleryAPI.openAuthUrl()
 
 	-- Do the authentication. (This is not a standard REST call.)
 
-	local password = LrGalleryAPI.getPassword()
+	local password = LrGalleryAPI.getCredentials()
 	
 	local authApiSig = LrGalleryAPI.makeApiSignature{ perms = 'delete', frob = frob }
 
