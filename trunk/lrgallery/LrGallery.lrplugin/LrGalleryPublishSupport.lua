@@ -82,7 +82,7 @@ local publishServiceProvider = {}
 	-- @name publishServiceProvider.small_icon
 	-- @class property
 
-publishServiceProvider.small_icon = 'small_flickr.png'
+publishServiceProvider.small_icon = 'small_lrgallery.png'
 
 --------------------------------------------------------------------------------
 --- (optional, string) Plug-in defined value customizes the behavior of the
