@@ -27,6 +27,7 @@ local LrMD5 = import 'LrMD5'
 local LrPathUtils = import 'LrPathUtils'
 local LrView = import 'LrView'
 local LrXml = import 'LrXml'
+local LrTasks = import 'LrTasks'
 
 local prefs = import 'LrPrefs'.prefsForPlugin()
 
@@ -35,28 +36,18 @@ local share = LrView.share
 
 local logger = import 'LrLogger'( 'LrGalleryAPI' )
 
-
---============================================================================--
-
 LrGalleryAPI = {}
 
---------------------------------------------------------------------------------
-
 local appearsAlive
-
---------------------------------------------------------------------------------
+local serviceUrl = 'http://softlit.ru/service/xmlrpc'
 
 local function formatError( nativeErrorCode )
 	return LOC "$$$/LrGallery/Error/NetworkFailure=Could not contact the LrGallery web service. Please check your Internet connection."
 end
 
---------------------------------------------------------------------------------
-
 local simpleXmlMetatable = {
 	__tostring = function( self ) return self._value end
 }
-
---------------------------------------------------------------------------------
 
 local function traverse( node )
 
@@ -89,8 +80,6 @@ local function traverse( node )
 
 end
 
---------------------------------------------------------------------------------
-
 local function xmlElementToSimpleTable( xmlString )
 
 	local _, value = traverse( LrXml.parseXml( xmlString ) )
@@ -98,38 +87,31 @@ local function xmlElementToSimpleTable( xmlString )
 
 end
 
---------------------------------------------------------------------------------
-
 local function trim( s )
 
 	return string.gsub( s, "^%s*(.-)%s*$", "%1" )
 
 end
 
---------------------------------------------------------------------------------
+-- Show username and password dialog
+function LrGalleryAPI.showPasswordDialog( message )
 
--- We can't include a LrGallery API key with the source code for this plug-in, so
--- we require you obtain one on your own and enter it through this dialog.
-
---------------------------------------------------------------------------------
-
-function LrGalleryAPI.showApiKeyDialog( message )
-
-	LrFunctionContext.callWithContext( 'LrGalleryAPI.showApiKeyDialog', function( context )
+	LrFunctionContext.callWithContext( 'LrGalleryAPI.showPasswordDialog', function( context )
 
 		local f = LrView.osFactory()
 	
 		local properties = LrBinding.makePropertyTable( context )
-		properties.apiKey = prefs.apiKey
+		properties.password = prefs.password
 		properties.sharedSecret = prefs.sharedSecret
 	
+		-- Build dialog window contents
 		local contents = f:column {
 			bind_to_object = properties,
 			spacing = f:control_spacing(),
 			fill = 1,
 	
 			f:static_text {
-				title = LOC "$$$/LrGallery/ApiKeyDialog/Message=In order to use this sample plug-in, you must obtain an API key from flickr.com. Sign on to LrGallery and register for a key under Explore > LrGallery Services > Your API Keys.",
+				title = LOC "$$$/LrGallery/PasswordDialog/Message=Please enter LrGallery username and password here",
 				fill_horizontal = 1,
 				width_in_chars = 55,
 				height_in_lines = 2,
@@ -149,7 +131,7 @@ function LrGalleryAPI.showApiKeyDialog( message )
 				spacing = f:label_spacing(),
 				
 				f:static_text {
-					title = LOC "$$$/LrGallery/ApiKeyDialog/Key=API Key:",
+					title = LOC "$$$/LrGallery/PasswordDialog/Username=Username:",
 					alignment = 'right',
 					width = share 'title_width',
 				},
@@ -157,43 +139,36 @@ function LrGalleryAPI.showApiKeyDialog( message )
 				f:edit_field { 
 					fill_horizonal = 1,
 					width_in_chars = 35, 
-					value = bind 'apiKey',
+					value = bind 'username',
 						-- TO DO: Should validate API key (16 hex digits, etc.).
 				},
 			},
-			
 			f:row {
 				spacing = f:label_spacing(),
 				
 				f:static_text {
-					title = LOC "$$$/LrGallery/ApiKeyDialog/Secret=Shared Secret:",
+					title = LOC "$$$/LrGallery/PasswordDialog/Password=Password:",
 					alignment = 'right',
 					width = share 'title_width',
 				},
 				
 				f:edit_field { 
 					fill_horizonal = 1,
-					width_in_chars = 19, 
-					value = bind 'sharedSecret',
+					width_in_chars = 35, 
+					value = bind 'password',
+						-- TO DO: Should validate API key (16 hex digits, etc.).
 				},
-			},
+			}
 		}
 		
 		local result = LrDialogs.presentModalDialog {
-				title = LOC "$$$/LrGallery/ApiKeyDialog/Title=Enter Your LrGallery API Key", 
+				title = LOC "$$$/LrGallery/PasswordDialog/Title=Enter Your LrGallery username and password", 
 				contents = contents,
-				accessoryView = f:push_button {
-					title = LOC "$$$/LrGallery/ApiKeyDialog/GoToLrGallery=Get LrGallery API Key...",
-					action = function()
-						LrHttp.openUrlInBrowser( "http://www.flickr.com/services/api/keys/" )
-					end
-				},
 			}
 		
 		if result == 'ok' then
 	
-			prefs.apiKey = trim ( properties.apiKey )
-			prefs.sharedSecret = trim ( properties.sharedSecret )
+			prefs.password = trim ( properties.password )
 		
 		else
 		
@@ -205,42 +180,39 @@ function LrGalleryAPI.showApiKeyDialog( message )
 	
 end
 
---------------------------------------------------------------------------------
+-- Get username and password
+function LrGalleryAPI.getPassword()
 
-function LrGalleryAPI.getApiKeyAndSecret()
-
-	local apiKey, sharedSecret = prefs.apiKey, prefs.sharedSecret
+	local username, password = prefs.username, prefs.password
 	
 	while not(
-		type( apiKey ) == 'string' and #apiKey == 32 and
-		type( sharedSecret ) == 'string' and #sharedSecret == 16
+		type( username ) == 'string' and type( password ) == 'string'
 	) do
 	
 		local message
-		if apiKey or sharedSecret then
-			message = LOC "$$$/LrGallery/ApiKeyDialog/Invalid=The key below is not valid."
+		if username or password then
+			message = LOC "$$$/LrGallery/PasswordDialog/Invalid=Username and password below are not valid."
 		end
 
-		LrGalleryAPI.showApiKeyDialog( message )
+		LrGalleryAPI.showPasswordDialog( message )
 
-		apiKey, sharedSecret = prefs.apiKey, prefs.sharedSecret
+		username, password = prefs.username, prefs.password
 	
 	end
 	
-	return apiKey, sharedSecret
+	return username, password
 
 end
 
---------------------------------------------------------------------------------
-
-function LrGalleryAPI.makeApiSignature( params )
+-- ?
+function LrGalleryAPI.makeApiSignature( method, params )
 
 	-- If no API key, add it in now.
 	
-	local apiKey, sharedSecret = LrGalleryAPI.getApiKeyAndSecret()
+	local password, sharedSecret = LrGalleryAPI.getPassword()
 	
 	if not params.api_key then
-		params.api_key = apiKey
+		params.api_key = password
 	end
 
 	-- Get list of arguments in sorted order.
@@ -267,16 +239,79 @@ function LrGalleryAPI.makeApiSignature( params )
 
 end
 
---------------------------------------------------------------------------------
-
-function LrGalleryAPI.callRestMethod( propertyTable, params )
-
-	-- Automatically add API key.
+--[[ Construct xml message of format
+<?xml version="1.0"?>
+<methodCall>
+	<methodName>getPhotoInfo</methodName>
+	<params>
+		<param>
+			<value>
+				<username>ivanov</username>
+			</value>
+		</param>		
+		<param>
+			<value>
+				<token>djk32i38dsjdk</token>
+			</value>
+		</param>
+	</params>
+ </methodCall>
+]]--
+function constructXml(params)
+	local xmlBuilder = LrXml.createXmlBuilder()
+	xmlBuilder:beginBlock('methodCall')
+	xmlBuilder:text(method)
+	xmlBuilder:endBlock('methodCall')
+	xmlBuilder:beginBlock('params')
+	for param, value in pairs(params) do
+		xmlBuilder:beginBlock('param')
+		xmlBuilder:beginBlock('value')
+		xmlBuilder:beginBlock(param)
+		xmlBuilder:text(value)
+		xmlBuilder:endBlock(param)
+		xmlBuilder:endBlock('value')
+		xmlBuilder:endBlock('param')
+	end
+	xmlBuilder:endBlock('params')
+	xmlBuilder:endBlock('methodCall')
 	
-	local apiKey = LrGalleryAPI.getApiKeyAndSecret()
+	return xmlBuilder:serialize()
+	
+	--[[
+	local xml = ''
+		xml = xml .. '<?xml version="1.0"?>\n'
+		xml = xml .. '<methodCall>\n'
+		xml = xml .. '	<methodName>' .. method .. '</methodName>\n'
+		xml = xml .. '	<params>\n'
+	for param, value in pairs(params) do
+		xml = xml .. '		<param>\n'
+		xml = xml .. '			<value>\n'
+		xml = xml .. '				<' .. param .. '>' .. value .. '</' .. param ..'>\n'
+		xml = xml .. '			</value>\n'
+		xml = xml .. '		</param>\n'		
+	end
+		xml = xml .. '	</params>\n'
+		xml = xml .. '</methodCall>\n'
+
+	return xml
+	]]--
+end
+
+-- XML Remote procedure call
+function LrGalleryAPI.callXmlMethod( propertyTable, params )
+	local xmlString = constructXml(params.params)	
+	local response, hdrs = LrHttp.post( serviceUrl, xmlString )
+	local result = traverse(response)
+	
+	return result, response
+	--[[
+
+	-- Automatically add username and password.
+	
+	local username, password = LrGalleryAPI.getPassword()
 	
 	if not params.api_key then
-		params.api_key = apiKey
+		params.api_key = password
 	end
 	
 	-- Remove any special values from params.
@@ -296,7 +331,8 @@ function LrGalleryAPI.callRestMethod( propertyTable, params )
 	end
 	
 	params.api_sig = LrGalleryAPI.makeApiSignature( params )
-	local url = string.format( 'http://www.flickr.com/services/rest/?method=%s', assert( params.method ) )
+	--local url = string.format( 'http://www.flickr.com/services/rest/?method=%s', assert( params.method ) )
+	local url = 'http://www.softlit.ru/service/xmlrpc'
 	
 	for name, value in pairs( params ) do
 
@@ -384,7 +420,7 @@ function LrGalleryAPI.callRestMethod( propertyTable, params )
 							tostring( simpleXml.err and simpleXml.err.msg ) ) )
 
 	end
-
+	]]--
 end
 
 --------------------------------------------------------------------------------
@@ -463,7 +499,7 @@ function LrGalleryAPI.openAuthUrl()
 
 	-- Request the frob that we need for authentication.
 
-	local data = LrGalleryAPI.callRestMethod( nil, { method = 'flickr.auth.getFrob', skipAuthToken = true } )
+	local data = LrGalleryAPI.callXmlMethod( nil, { method = 'flickr.auth.getFrob', skipAuthToken = true } )
 	
 	-- Get the frob from the response.
 	
@@ -471,12 +507,12 @@ function LrGalleryAPI.openAuthUrl()
 
 	-- Do the authentication. (This is not a standard REST call.)
 
-	local apiKey = LrGalleryAPI.getApiKeyAndSecret()
+	local password = LrGalleryAPI.getPassword()
 	
 	local authApiSig = LrGalleryAPI.makeApiSignature{ perms = 'delete', frob = frob }
 
 	local authURL = string.format( 'http://flickr.com/services/auth/?api_key=%s&perms=delete&frob=%s&api_sig=%s',
-						apiKey, frob, authApiSig )
+						password, frob, authApiSig )
 
 	LrHttp.openUrlInBrowser( authURL )
 
@@ -492,7 +528,7 @@ local function getPhotoInfo( propertyTable, params )
 	
 	if params.is_public == 1 then
 	
-		data, response = LrGalleryAPI.callRestMethod( nil, {
+		data, response = LrGalleryAPI.callXmlMethod( nil, {
 									method = 'flickr.photos.getInfo',
 									photo_id = params.photo_id,
 									skipAuthToken = true,
@@ -501,7 +537,7 @@ local function getPhotoInfo( propertyTable, params )
 	
 		-- http://flickr.com/services/api/flickr.photos.getFavorites.html
 		
-		data = LrGalleryAPI.callRestMethod( propertyTable, {
+		data = LrGalleryAPI.callXmlMethod( propertyTable, {
 							method = 'flickr.photos.getFavorites',
 							photo_id = params.photo_id,
 							per_page = 1,
@@ -516,7 +552,7 @@ local function getPhotoInfo( propertyTable, params )
 			
 			local secret = data.photo.secret
 		
-			data,response = LrGalleryAPI.callRestMethod( nil, {
+			data,response = LrGalleryAPI.callXmlMethod( nil, {
 									method = 'flickr.photos.getInfo',
 									photo_id = params.photo_id,
 									skipAuthToken = true,
@@ -617,7 +653,7 @@ function LrGalleryAPI.createOrUpdatePhotoset( propertyTable, params )
 	
 	if params.photosetId then
 
-		data, response = LrGalleryAPI.callRestMethod( propertyTable, {
+		data, response = LrGalleryAPI.callXmlMethod( propertyTable, {
 								method = 'flickr.photosets.getInfo',
 								photoset_id = params.photosetId,
 								suppressError = true,
@@ -630,7 +666,7 @@ function LrGalleryAPI.createOrUpdatePhotoset( propertyTable, params )
 
 	else
 
-		data, response = LrGalleryAPI.callRestMethod( propertyTable, {
+		data, response = LrGalleryAPI.callXmlMethod( propertyTable, {
 								method = 'flickr.photosets.getList',
 							} )
 
@@ -646,14 +682,14 @@ function LrGalleryAPI.createOrUpdatePhotoset( propertyTable, params )
 	end
 	
 	if needToCreatePhotoset then
-		data, response = LrGalleryAPI.callRestMethod( propertyTable, { 
+		data, response = LrGalleryAPI.callXmlMethod( propertyTable, { 
 								method = 'flickr.photosets.create', 
 								title = params.title, 
 								description = params.description,
 								primary_photo_id = params.primary_photo_id,
 							} )
 	else
-		data, response = LrGalleryAPI.callRestMethod( propertyTable, { 
+		data, response = LrGalleryAPI.callXmlMethod( propertyTable, { 
 								method = 'flickr.photosets.editMeta', 
 								photoset_id = params.photosetId,
 								title = params.title, 
@@ -680,7 +716,7 @@ function LrGalleryAPI.listPhotosFromPhotoset( propertyTable, params )
 
 		curPage = curPage + 1
 		
-		data, response = LrGalleryAPI.callRestMethod( propertyTable, {
+		data, response = LrGalleryAPI.callXmlMethod( propertyTable, {
 								method = 'flickr.photosets.getPhotos',
 								photoset_id = params.photosetId,
 								page = curPage,
@@ -764,7 +800,7 @@ function LrGalleryAPI.setPhotosetSequence( propertyTable, params )
 	local primary = assert( params.primary )
 	local photoIds = table.concat( params.photoIds, ',' )
 	
-	LrGalleryAPI.callRestMethod( propertyTable, {
+	LrGalleryAPI.callXmlMethod( propertyTable, {
 								method = 'flickr.photosets.editPhotos',
 								photoset_id = photosetId,
 								primary_photo_id = primary,
@@ -781,7 +817,7 @@ function LrGalleryAPI.addPhotosToSet( propertyTable, params )
 			
 	-- http://flickr.com/services/api/flickr.photosets.addPhoto.html
 
-	data, response = LrGalleryAPI.callRestMethod( propertyTable, {
+	data, response = LrGalleryAPI.callXmlMethod( propertyTable, {
 								method = 'flickr.photosets.addPhoto',
 								photoset_id = params.photosetId,
 								photo_id = params.photoId,
@@ -822,7 +858,7 @@ function LrGalleryAPI.deletePhoto( propertyTable, params )
 	
 	-- http://flickr.com/services/api/flickr.photos.delete.html
 
-	LrGalleryAPI.callRestMethod( propertyTable, {
+	LrGalleryAPI.callXmlMethod( propertyTable, {
 							method = 'flickr.photos.delete',
 							photo_id = params.photoId,
 							suppressError = params.suppressError,
@@ -839,7 +875,7 @@ function LrGalleryAPI.deletePhotoset( propertyTable, params )
 	
 	-- http://flickr.com/services/api/flickr.photosets.delete.html
 
-	LrGalleryAPI.callRestMethod( propertyTable, {
+	LrGalleryAPI.callXmlMethod( propertyTable, {
 							method = 'flickr.photosets.delete',
 							photoset_id = params.photosetId,
 							suppressError = params.suppressError,
@@ -871,7 +907,7 @@ local function removePhotoTags( propertyTable, node, previous_tag )
 			
 				-- http://www.flickr.com/services/api/flickr.photos.removeTag.html
 					
-				LrGalleryAPI.callRestMethod( propertyTable, {
+				LrGalleryAPI.callXmlMethod( propertyTable, {
 											method = 'flickr.photos.removeTag',
 											tag_id = tag.id,
 											suppressError = true,
@@ -912,7 +948,7 @@ function LrGalleryAPI.setImageTags( propertyTable, params )
 	if not params.previous_tags then
 	
 		local tags = string.gsub( params.tags, ",", " " )
-		LrGalleryAPI.callRestMethod( propertyTable, {
+		LrGalleryAPI.callXmlMethod( propertyTable, {
 								method = 'flickr.photos.addTags',
 								photo_id = params.photo_id,
 								tags = tags,
@@ -946,7 +982,7 @@ function LrGalleryAPI.setImageTags( propertyTable, params )
 		
 		local tags = string.gsub( params.tags, ",", " " )
 		
-		LrGalleryAPI.callRestMethod( propertyTable, {
+		LrGalleryAPI.callXmlMethod( propertyTable, {
 									method = 'flickr.photos.addTags',
 									photo_id = params.photo_id,
 									tags = tags,
@@ -965,7 +1001,7 @@ function LrGalleryAPI.getUserInfo( propertyTable, params )
 	
 	-- http://flickr.com/services/api/flickr.people.getInfo.html
 
-	local data = LrGalleryAPI.callRestMethod( propertyTable, {
+	local data = LrGalleryAPI.callXmlMethod( propertyTable, {
 							method = 'flickr.people.getInfo',
 							user_id = params.userId,
 						} )
@@ -999,7 +1035,7 @@ function LrGalleryAPI.getComments( propertyTable, params )
 	
 	-- http://flickr.com/services/api/flickr.photos.comments.getList.html
 
-	data, response = LrGalleryAPI.callRestMethod( propertyTable, {
+	data, response = LrGalleryAPI.callXmlMethod( propertyTable, {
 							method = 'flickr.photos.comments.getList',
 							photo_id = params.photoId,
 							min_comment_date = minCommentDate,
@@ -1067,7 +1103,7 @@ function LrGalleryAPI.addComment( propertyTable, params )
 	
 	-- http://flickr.com/services/api/flickr.photos.comments.addComment.html
 
-	local data = LrGalleryAPI.callRestMethod( propertyTable, {
+	local data = LrGalleryAPI.callXmlMethod( propertyTable, {
 							method = 'flickr.photos.comments.addComment',
 							photo_id = params.photoId,
 							comment_text = params.commentText,
@@ -1087,7 +1123,7 @@ function LrGalleryAPI.getNumOfFavorites( propertyTable, params )
 	
 	-- http://flickr.com/services/api/flickr.photos.getFavorites.html
 
-	data, response = LrGalleryAPI.callRestMethod( propertyTable, {
+	data, response = LrGalleryAPI.callXmlMethod( propertyTable, {
 							method = 'flickr.photos.getFavorites',
 							photo_id = params.photoId,
 							per_page = 1,
@@ -1140,7 +1176,7 @@ end
 function LrGalleryAPI.testLrGalleryConnection( propertyTable )
 	
 	if appearsAlive == nil then
-		local data = LrGalleryAPI.callRestMethod( propertyTable, {
+		local data = LrGalleryAPI.callXmlMethod( propertyTable, {
 								method = 'flickr.test.echo',
 								suppressError = true,
 							} )

@@ -997,7 +997,7 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 					
 					if exportSettings.titleRepublishBehavior == 'replace' then
 						
-						LrGalleryAPI.callRestMethod( exportSettings, {
+						LrGalleryAPI.callXmlMethod( exportSettings, {
 												method = 'flickr.photos.setMeta',
 												photo_id = flickrPhotoId,
 												title = title or '',
@@ -1006,7 +1006,7 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 											
 					end
 	
-					LrGalleryAPI.callRestMethod( exportSettings, {
+					LrGalleryAPI.callXmlMethod( exportSettings, {
 											method = 'flickr.photos.setPerms',
 											photo_id = flickrPhotoId,
 											is_public = is_public,
@@ -1016,14 +1016,14 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 											perm_addmeta = 3, -- everybody
 										} )
 	
-					LrGalleryAPI.callRestMethod( exportSettings, {
+					LrGalleryAPI.callXmlMethod( exportSettings, {
 											method = 'flickr.photos.setSafetyLevel',
 											photo_id = flickrPhotoId,
 											safety_level = safety_level,
 											hidden = hidden,
 										} )
 	
-					LrGalleryAPI.callRestMethod( exportSettings, {
+					LrGalleryAPI.callXmlMethod( exportSettings, {
 											method = 'flickr.photos.setContentType',
 											photo_id = flickrPhotoId,
 											content_type = content_type,

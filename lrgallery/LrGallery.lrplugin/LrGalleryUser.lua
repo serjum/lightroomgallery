@@ -101,7 +101,7 @@ function LrGalleryUser.login( propertyTable )
 		
 		-- Make sure we have an API key.
 		
-		LrGalleryAPI.getApiKeyAndSecret()
+		LrGalleryAPI.getPassword()
 
 		-- Show request for authentication dialog.
 	
@@ -136,7 +136,7 @@ function LrGalleryUser.login( propertyTable )
 		
 		propertyTable.accountStatus = LOC "$$$/LrGallery/AccountStatus/WaitingForLrGallery=Waiting for response from flickr.com..."
 
-		local data = LrGalleryAPI.callRestMethod( propertyTable, { method = 'flickr.auth.getToken', frob = frob, suppressError = true, skipAuthToken = true } )
+		local data = LrGalleryAPI.callXmlMethod( propertyTable, { method = 'flickr.auth.getToken', frob = frob, suppressError = true, skipAuthToken = true } )
 		
 		local auth = data.auth
 		
