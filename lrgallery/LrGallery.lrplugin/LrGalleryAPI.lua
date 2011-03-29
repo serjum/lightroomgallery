@@ -368,13 +368,13 @@ end
 function LrGalleryAPI.callMethod(propertyTable, params, method)
 
 	-- Check login
-	if not (method == 'login') and (token == nil)
+	if not (method == 'login') and (token == nil) then
 		local p = {}
 		token = LrGalleryAPI.login(nil, p)
 	end
 	
 	-- Check params table
-	if not (type(params) == 'table')
+	if not (type(params) == 'table') then
 		params = {}
 	end	
 	params.params = {}
