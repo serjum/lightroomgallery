@@ -1,95 +1,29 @@
---[[----------------------------------------------------------------------------
-
-LrGalleryExportServiceProvider.lua
-Export service provider description for Lightroom LrGallery uploader
-
---------------------------------------------------------------------------------
-
-ADOBE SYSTEMS INCORPORATED
- Copyright 2007-2010 Adobe Systems Incorporated
- All Rights Reserved.
-
-NOTICE: Adobe permits you to use, modify, and distribute this file in accordance
-with the terms of the Adobe license agreement accompanying it. If you have received
-this file from a source other than Adobe, then your use, modification, or distribution
-of it requires the prior written permission of Adobe.
-
-------------------------------------------------------------------------------]]
-
-	-- Lightroom SDK
+-- Lightroom SDK
 local LrBinding = import 'LrBinding'
 local LrDialogs = import 'LrDialogs'
 local LrFileUtils = import 'LrFileUtils'
 local LrPathUtils = import 'LrPathUtils'
 local LrView = import 'LrView'
 
-	-- Common shortcuts
+-- Common shortcuts
 local bind = LrView.bind
 local share = LrView.share
 
-	-- LrGallery plug-in
+-- LrGallery plug-in
 require 'LrGalleryAPI'
 require 'LrGalleryPublishSupport'
 
 
---------------------------------------------------------------------------------
-
- -- NOTE to developers reading this sample code: This file is used to generate
- -- the documentation for the "export service provider" section of the API
- -- reference material. This means it's more verbose than it would otherwise
- -- be, but also means that you can match up the documentation with an actual
- -- working example. It is not necessary for you to preserve any of the
- -- documentation comments in your own code.
-
-
---===========================================================================--
---[[ @sdk
---- The <i>service definition script</i> for an export service provider defines the hooks 
- -- that your plug-in uses to extend the behavior of Lightroom's Export features.
- -- The plug-in's <code>Info.lua</code> file identifies this script in the 
- -- <code>LrExportServiceProvider</code> entry.
- -- <p>The service definition script should return a table that contains:
- --   <ul><li>A pair of functions that initialize and terminate your export service. </li>
- --	<li>Settings that you define for your export service.</li>
- --	<li>One or more items that define the desired customizations for the Export dialog. 
- --	    These can restrict the built-in services offered by the dialog,
- --	    or customize the dialog by defining new sections. </li>
- --	<li> A function that defines the export operation to be performed 
- --	     on rendered photos (required).</li> </ul>
- -- <p>The <code>LrGalleryExportServiceProvider.lua</code> file of the LrGallery sample plug-in provides 
- -- 	examples of and documentation for the hooks that a plug-in must provide in order to 
- -- 	define an export service. Lightroom expects your plug-in to define the needed callbacks
- --	and properties with the required names and syntax. </p>
- -- <p>Unless otherwise noted, all of the hooks in this section are available to
- -- both Export and Publish service provider plug-ins. If your plug-in supports
- -- Lightroom's Publish feature, you should also read the API reference section
- -- <a href="SDK%20-%20Publish%20service%20provider.html">publish service provider</a>.</p>
- -- @module_type Plug-in provided
-
-	module 'SDK - Export service provider' -- not actually executed, but suffices to trick LuaDocs
-
---]]
-
-
---============================================================================--
-
 local exportServiceProvider = {}
-
--- A typical service provider would probably roll all of this into one file, but
--- this approach allows us to document the publish-specific hooks separately.
 
 for name, value in pairs( LrGalleryPublishSupport ) do
 	exportServiceProvider[ name ] = value
 end
 
---------------------------------------------------------------------------------
 --- (optional) Plug-in defined value declares whether this plug-in supports the Lightroom
  -- publish feature. If not present, this plug-in is available in Export only.
  -- When true, this plug-in can be used for both Export and Publish. When 
  -- set to the string "only", the plug-in is visible only in Publish.
-	-- @name exportServiceProvider.supportsIncrementalPublish
-	-- @class property
-
 exportServiceProvider.supportsIncrementalPublish = 'only'
 
 --------------------------------------------------------------------------------
@@ -112,53 +46,11 @@ exportServiceProvider.supportsIncrementalPublish = 'only'
  -- your plug-in is selected in the Export or Publish dialog. On second and subsequent
  -- activations, the values chosen by the user in the previous session are used.</p>
  -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
-	-- @name exportServiceProvider.exportPresetFields
- 	-- @class property
-
 exportServiceProvider.exportPresetFields = {
 	{ key = 'username', default = "" },
-	{ key = 'fullname', default = "" },
-	{ key = 'nsid', default = "" },
-	{ key = 'isUserPro', default = false },
-	{ key = 'auth_token', default = '' },
-	{ key = 'privacy', default = 'public' },
-	{ key = 'privacy_family', default = false },
-	{ key = 'privacy_friends', default = false },
-	{ key = 'safety', default = 'safe' },
-	{ key = 'hideFromPublic', default = false },
-	{ key = 'type', default = 'photo' },
-	{ key = 'addToPhotoset', default = false },
-	{ key = 'photoset', default = '' },
-	{ key = 'titleFirstChoice', default = 'title' },
-	{ key = 'titleSecondChoice', default = 'filename' },
-	{ key = 'titleRepublishBehavior', default = 'replace' },
+	{ key = 'password', default = "" },	
 }
 
---------------------------------------------------------------------------------
---- (optional) Plug-in defined value restricts the display of sections in the Export
- -- or Publish dialog to those named. You can use either <code>hideSections</code> or 
- -- <code>showSections</code>, but not both. If present, this should be an array 
- -- containing one or more of the following strings:
-	-- <ul>
-		-- <li>exportLocation</li>
-		-- <li>fileNaming</li>
-		-- <li>fileSettings</li>
-		-- <li>imageSettings</li>
-		-- <li>outputSharpening</li>
-		-- <li>metadata</li>
-		-- <li>watermarking</li>
-	-- </ul>
- -- <p>You cannot suppress display of the "Connection Name" section in the Publish Manager dialog.</p>
- -- <p>If you suppress the "exportLocation" section, the files are rendered into
- -- a temporary folder which is deleted immediately after the Export operation
- -- completes.</p>
- -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
-	-- @name exportServiceProvider.showSections
-	-- @class property
-
---exportServiceProvider.showSections = { 'fileNaming', 'fileSettings', etc... } -- not used for LrGallery plug-in
-
---------------------------------------------------------------------------------
 --- (optional) Plug-in defined value suppresses the display of the named sections in
  -- the Export or Publish dialogs. You can use either <code>hideSections</code> or 
  -- <code>showSections</code>, but not both. If present, this should be an array 
@@ -177,127 +69,14 @@ exportServiceProvider.exportPresetFields = {
  -- a temporary folder which is deleted immediately after the Export operation
  -- completes.</p>
  -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
-	-- @name exportServiceProvider.hideSections
-	-- @class property
-
 exportServiceProvider.hideSections = { 'exportLocation' }
 
---------------------------------------------------------------------------------
---- (optional, Boolean) If your plug-in allows the display of the exportLocation section,
- -- this property controls whether the item "Temporary folder" is available.
- -- If the user selects this option, the files are rendered into a temporary location
- -- on the hard drive, which is deleted when the export finished.
- -- <p>If your plug-in hides the exportLocation section, this temporary
- -- location behavior is always used.</p>
-	-- @name exportServiceProvider.canExportToTemporaryLocation
-	-- @class property
-
--- exportServiceProvider.canExportToTemporaryLocation = true -- not used for LrGallery plug-in
-
---------------------------------------------------------------------------------
---- (optional) Plug-in defined value restricts the available file format choices in the
- -- Export or Publish dialogs to those named. You can use either <code>allowFileFormats</code> or 
- -- <code>disallowFileFormats</code>, but not both. If present, this should be an array
- -- containing one or more of the following strings:
-	-- <ul>
-		-- <li>JPEG</li>
-		-- <li>PSD</li>
-		-- <li>TIFF</li>
-		-- <li>DNG</li>
-		-- <li>ORIGINAL</li>
-	-- </ul>
- -- <p>This property affects the output of still photo files only;
- -- it does not affect the output of video files.
- --  See <a href="#exportServiceProvider.canExportVideo"><code>canExportVideo</code></a>.)</p>
- -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
-	-- @name exportServiceProvider.allowFileFormats
-	-- @class property
-
 exportServiceProvider.allowFileFormats = { 'JPEG' }
-
---------------------------------------------------------------------------------
---- (optional) Plug-in defined value suppresses the named file formats from the list
- -- of available file format choices in the Export or Publish dialogs. 
- -- You can use either <code>allowFileFormats</code> or 
- -- <code>disallowFileFormats</code>, but not both. If present,
- -- this should be an array containing one or more of the following strings:
-	-- <ul>
-		-- <li>JPEG</li>
-		-- <li>PSD</li>
-		-- <li>TIFF</li>
-		-- <li>DNG</li>
-		-- <li>ORIGINAL</li>
-	-- </ul>
- -- <p>Affects the output of still photo files only, not video files.
- -- See <a href="#exportServiceProvider.canExportVideo"><code>canExportVideo</code></a>.</p>
- -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
-	-- @name exportServiceProvider.disallowFileFormats
-	-- @class property
-
---exportServiceProvider.disallowFileFormats = { 'PSD', 'TIFF', 'DNG', 'ORIGINAL' } -- not used for LrGallery plug-in
-
---------------------------------------------------------------------------------
---- (optional) Plug-in defined value restricts the available color space choices in the
- -- Export or Publish dialogs to those named.  You can use either <code>allowColorSpaces</code> or 
- -- <code>disallowColorSpaces</code>, but not both. If present, this should be an array
- -- containing one or more of the following strings:
-	-- <ul>
-		-- <li>sRGB</li>
-		-- <li>AdobeRGB</li>
-		-- <li>ProPhotoRGB</li>
-	-- </ul>
- -- <p>Affects the output of still photo files only, not video files.
- -- See <a href="#exportServiceProvider.canExportVideo"><code>canExportVideo</code></a>.</p>
- -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
-	-- @name exportServiceProvider.allowColorSpaces
-	-- @class property
-
 exportServiceProvider.allowColorSpaces = { 'sRGB' }
-	
---------------------------------------------------------------------------------
---- (optional) Plug-in defined value suppresses the named color spaces from the list
- -- of available color space choices in the Export or Publish dialogs. You can use either <code>allowColorSpaces</code> or 
- -- <code>disallowColorSpaces</code>, but not both. If present, this should be an array
- -- containing one or more of the following strings:
-	-- <ul>
-		-- <li>sRGB</li>
-		-- <li>AdobeRGB</li>
-		-- <li>ProPhotoRGB</li>
-	-- </ul>
- -- <p>Affects the output of still photo files only, not video files.
- -- See <a href="#exportServiceProvider.canExportVideo"><code>canExportVideo</code></a>.</p>
- -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
-	-- @name exportServiceProvider.disallowColorSpaces
-	-- @class property
-
-
---exportServiceProvider.disallowColorSpaces = { 'AdobeRGB', 'ProPhotoRGB' } -- not used for LrGallery plug-in
-
---------------------------------------------------------------------------------
---- (optional, Boolean) Plug-in defined value is true to hide print resolution controls
- -- in the Image Sizing section of the Export or Publish dialog.
- -- (Recommended when uploading to most web services.)
- -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
-	-- @name exportServiceProvider.hidePrintResolution
-	-- @class property
-
 exportServiceProvider.hidePrintResolution = true
-
---------------------------------------------------------------------------------
---- (optional, Boolean)  When plug-in defined value istrue, both video and 
- -- still photos can be exported through this plug-in. If not present or set to false,
- --  video files cannot be exported through this plug-in. If set to the string "only",
- -- video files can be exported, but not still photos.
- -- <p>No conversions are available for video files. They are simply
- -- copied in the same format that was originally imported into Lightroom.</p>
- -- <p>First supported in version 3.0 of the Lightroom SDK.</p>
-	-- @name exportServiceProvider.canExportVideo
-	-- @class property
-
 exportServiceProvider.canExportVideo = false -- video is not supported through this sample plug-in
 
---------------------------------------------------------------------------------
--- FLICKR SPECIFIC: Helper functions and tables.
+-- LRGALLERY SPECIFIC: Helper functions and tables.
 
 local function updateCantExportBecause( propertyTable )
 
@@ -406,27 +185,6 @@ function exportServiceProvider.startDialog( propertyTable )
 
 end
 
---------------------------------------------------------------------------------
---- (optional) This plug-in defined callback function is called when the user 
- -- chooses a different export service provider in the Export or Publish dialog
- --  or closes the dialog. 
- -- <p>This is a blocking call. If you need to start a long-running task (such as
- -- network access), create a task using the <a href="LrTasks.html"><code>LrTasks</code></a>
- -- namespace.</p>
- -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
-	-- @param propertyTable (table) An observable table that contains the most
-		-- recent settings for your export or publish plug-in, including both
-		-- settings that you have defined and Lightroom-defined export settings
-	-- @param why (string) The reason this function was called. One of 
-		-- 'ok', 'cancel', or 'changedServiceProvider'
-	-- @name exportServiceProvider.endDialog
-	-- @class function
-
---function exportServiceProvider.endDialog( propertyTable )
-	-- not used for LrGallery plug-in
---end
-
---------------------------------------------------------------------------------
 --- (optional) This plug-in defined callback function is called when the user 
  -- chooses this export service provider in the Export or Publish dialog. 
  -- It can create new sections that appear above all of the built-in sections 
@@ -445,8 +203,6 @@ end
 		-- settings that you have defined and Lightroom-defined export settings
 	-- @return (table) An array of dialog sections (see example code for details)
 	-- @name exportServiceProvider.sectionsForTopOfDialog
-	-- @class function
-
 function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
 
 	return {
@@ -552,7 +308,6 @@ function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
 
 end
 
---------------------------------------------------------------------------------
 --- (optional) This plug-in defined callback function is called when the user 
  -- chooses this export service provider in the Export or Publish dialog. 
  -- It can create new sections that appear below all of the built-in sections in the dialog.
@@ -568,9 +323,6 @@ end
 		-- recent settings for your export or publish plug-in, including both
 		-- settings that you have defined and Lightroom-defined export settings
 	-- @return (table) An array of dialog sections (see example code for details)
-	-- @name exportServiceProvider.sectionsForBottomOfDialog
-	-- @class function
-
 function exportServiceProvider.sectionsForBottomOfDialog( f, propertyTable )
 
 	return {
@@ -724,25 +476,6 @@ function exportServiceProvider.sectionsForBottomOfDialog( f, propertyTable )
 
 end
 
---------------------------------------------------------------------------------
---- (optional) This plug-in defined callback function is called at the beginning
- -- of each export and publish session before the rendition objects are generated.
- -- It provides an opportunity for your plug-in to modify the export settings.
- -- <p>First supported in version 2.0 of the Lightroom SDK.</p>
-	-- @param exportSettings (table) The current export settings.
-	-- @name exportServiceProvider.updateExportSettings
-	-- @class function
-
--- function exportServiceProvider.updateExportSettings( exportSettings ) -- not used for the LrGallery sample plug-in
-
-	-- This example would cause the export to generate very low-quality JPEG files.
-
-	-- exportSettings.LR_format = 'JPEG'
-	-- exportSettings.LR_jpeg_quality = 0
-
--- end
-
---------------------------------------------------------------------------------
 --- (optional) This plug-in defined callback function is called for each exported photo
  -- after it is rendered by Lightroom and after all post-process actions have been
  -- applied to it. This function is responsible for transferring the image file 
@@ -756,7 +489,6 @@ end
 		-- process; this function context terminates as soon as your function exits.
 	-- @param exportContext (<a href="LrExportContext.html"><code>LrExportContext</code></a>)
 		-- Information about your export settings and the photos to be published.
-
 function exportServiceProvider.processRenderedPhotos( functionContext, exportContext )
 	
 	local exportSession = exportContext.exportSession
@@ -1135,7 +867,5 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 	progressScope:done()
 	
 end
-
---------------------------------------------------------------------------------
 
 return exportServiceProvider
