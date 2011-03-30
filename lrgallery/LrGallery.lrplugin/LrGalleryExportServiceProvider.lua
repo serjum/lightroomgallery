@@ -254,12 +254,12 @@ function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
 					f:static_text {
 						title = LOC "$$$/LrGallery/ExportDialog/ChooseTitleBy=Set LrGallery Title Using:",
 						alignment = 'right',
-						width = share 'flickrTitleSectionLabel',
+						width = share 'lrgalleryTitleSectionLabel',
 					},
 					
 					f:popup_menu {
 						value = bind 'titleFirstChoice',
-						width = share 'flickrTitleLeftPopup',
+						width = share 'lrgalleryTitleLeftPopup',
 						items = {
 							{ value = 'filename', title = displayNameForTitleChoice.filename },
 							{ value = 'title', title = displayNameForTitleChoice.title },
@@ -290,12 +290,12 @@ function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
 					f:static_text {
 						title = LOC "$$$/LrGallery/ExportDialog/OnUpdate=When Updating Photos:",
 						alignment = 'right',
-						width = share 'flickrTitleSectionLabel',
+						width = share 'lrgalleryTitleSectionLabel',
 					},
 					
 					f:popup_menu {
 						value = bind 'titleRepublishBehavior',
-						width = share 'flickrTitleLeftPopup',
+						width = share 'lrgalleryTitleLeftPopup',
 						items = {
 							{ value = 'replace', title = LOC "$$$/LrGallery/ExportDialog/ReplaceExistingTitle=Replace Existing Title" },
 							{ value = 'leaveAsIs', title = LOC "$$$/LrGallery/ExportDialog/LeaveAsIs=Leave Existing Title" },
@@ -426,12 +426,12 @@ function exportServiceProvider.sectionsForBottomOfDialog( f, propertyTable )
 					f:static_text {
 						title = LOC "$$$/LrGallery/ExportDialog/Safety=Safety:",
 						alignment = 'right',
-						width = share 'flickr_col2_label_width',
+						width = share 'lrgallery_col2_label_width',
 					},
 	
 					f:popup_menu {
 						value = bind 'safety',
-						width = share 'flickr_col2_popup_width',
+						width = share 'lrgallery_col2_popup_width',
 						items = {
 							{ title = kSafetyTitles.safe, value = 'safe' },
 							{ title = kSafetyTitles.moderate, value = 'moderate' },
@@ -444,7 +444,7 @@ function exportServiceProvider.sectionsForBottomOfDialog( f, propertyTable )
 					margin_bottom = f:control_spacing() / 2,
 					
 					f:spacer {
-						width = share 'flickr_col2_label_width',
+						width = share 'lrgallery_col2_label_width',
 					},
 	
 					f:checkbox {
@@ -457,11 +457,11 @@ function exportServiceProvider.sectionsForBottomOfDialog( f, propertyTable )
 					f:static_text {
 						title = LOC "$$$/LrGallery/ExportDialog/Type=Type:",
 						alignment = 'right',
-						width = share 'flickr_col2_label_width',
+						width = share 'lrgallery_col2_label_width',
 					},
 	
 					f:popup_menu {
-						width = share 'flickr_col2_popup_width',
+						width = share 'lrgallery_col2_popup_width',
 						value = bind 'type',
 						items = {
 							{ title = LOC "$$$/LrGallery/ExportDialog/Type/Photo=Photo", value = 'photo' },
@@ -537,33 +537,33 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 	end
 	
 	local couldNotPublishBecauseFreeAccount = {}
-	local flickrPhotoIdsForRenditions = {}
+	local lrgalleryPhotoIdsForRenditions = {}
 	
 	local cannotRepublishCount = 0
 	
-	-- Gather flickr photo IDs, and if we're on a free account, remember the renditions that
+	-- Gather lrgallery photo IDs, and if we're on a free account, remember the renditions that
 	-- had been previously published.
 
 	for i, rendition in exportContext.exportSession:renditions() do
 	
-		local flickrPhotoId = rendition.publishedPhotoId
+		local lrgalleryPhotoId = rendition.publishedPhotoId
 			
-		if flickrPhotoId then
+		if lrgalleryPhotoId then
 		
 			-- Check to see if the photo is still on LrGallery.
 
-			if not photosetPhotosSet[ flickrPhotoId ] and not isDefaultCollection then
-				flickrPhotoId = nil
+			if not photosetPhotosSet[ lrgalleryPhotoId ] and not isDefaultCollection then
+				lrgalleryPhotoId = nil
 			end
 			
 		end
 		
-		if flickrPhotoId and not exportSettings.isUserPro then
+		if lrgalleryPhotoId and not exportSettings.isUserPro then
 			couldNotPublishBecauseFreeAccount[ rendition ] = true
 			cannotRepublishCount = cannotRepublishCount + 1
 		end
 			
-		flickrPhotoIdsForRenditions[ rendition ] = flickrPhotoId
+		lrgalleryPhotoIdsForRenditions[ rendition ] = lrgalleryPhotoId
 	
 	end
 	
@@ -629,7 +629,7 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 
 		-- See if we previously uploaded this photo.
 
-		local flickrPhotoId = flickrPhotoIdsForRenditions[ rendition ]
+		local lrgalleryPhotoId = lrgalleryPhotoIdsForRenditions[ rendition ]
 		
 		if not rendition.wasSkipped then
 
@@ -697,19 +697,19 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 	
 				-- If on a free account and this photo already exists, delete it from LrGallery.
 
-				if flickrPhotoId and not exportSettings.isUserPro then
+				if lrgalleryPhotoId and not exportSettings.isUserPro then
 
-					LrGalleryAPI.deletePhoto( exportSettings, { photoId = flickrPhotoId, suppressError = true } )
-					flickrPhotoId = nil
+					LrGalleryAPI.deletePhoto( exportSettings, { photoId = lrgalleryPhotoId, suppressError = true } )
+					lrgalleryPhotoId = nil
 
 				end
 				
 				-- Upload or replace the photo.
 				
-				local didReplace = not not flickrPhotoId
+				local didReplace = not not lrgalleryPhotoId
 				
-				flickrPhotoId = LrGalleryAPI.uploadPhoto( exportSettings, {
-										photo_id = flickrPhotoId,
+				lrgalleryPhotoId = LrGalleryAPI.uploadPhoto( exportSettings, {
+										photo_id = lrgalleryPhotoId,
 										filePath = pathOrMessage,
 										title = title or '',
 										description = description,
@@ -730,8 +730,8 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 					if exportSettings.titleRepublishBehavior == 'replace' then
 						
 						LrGalleryAPI.callXmlMethod( exportSettings, {
-												method = 'flickr.photos.setMeta',
-												photo_id = flickrPhotoId,
+												method = 'lrgallery.photos.setMeta',
+												photo_id = lrgalleryPhotoId,
 												title = title or '',
 												description = description or '',
 											} )
@@ -739,8 +739,8 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 					end
 	
 					LrGalleryAPI.callXmlMethod( exportSettings, {
-											method = 'flickr.photos.setPerms',
-											photo_id = flickrPhotoId,
+											method = 'lrgallery.photos.setPerms',
+											photo_id = lrgalleryPhotoId,
 											is_public = is_public,
 											is_friend = is_friend,
 											is_family = is_family,
@@ -749,22 +749,22 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 										} )
 	
 					LrGalleryAPI.callXmlMethod( exportSettings, {
-											method = 'flickr.photos.setSafetyLevel',
-											photo_id = flickrPhotoId,
+											method = 'lrgallery.photos.setSafetyLevel',
+											photo_id = lrgalleryPhotoId,
 											safety_level = safety_level,
 											hidden = hidden,
 										} )
 	
 					LrGalleryAPI.callXmlMethod( exportSettings, {
-											method = 'flickr.photos.setContentType',
-											photo_id = flickrPhotoId,
+											method = 'lrgallery.photos.setContentType',
+											photo_id = lrgalleryPhotoId,
 											content_type = content_type,
 										} )
 		
 				end
 	
 				LrGalleryAPI.setImageTags( exportSettings, {
-											photo_id = flickrPhotoId,
+											photo_id = lrgalleryPhotoId,
 											tags = table.concat( tags, ',' ),
 											previous_tags = previous_tags,
 											is_public = is_public,
@@ -777,7 +777,7 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 	
 				-- Remember this in the list of photos we uploaded.
 	
-				uploadedPhotoIds[ #uploadedPhotoIds + 1 ] = flickrPhotoId
+				uploadedPhotoIds[ #uploadedPhotoIds + 1 ] = lrgalleryPhotoId
 				
 				-- If this isn't the Photostream, set up the photoset.
 				
@@ -806,14 +806,14 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 				
 				-- Record this LrGallery ID with the photo so we know to replace instead of upload.
 					
-				rendition:recordPublishedPhotoId( flickrPhotoId )
+				rendition:recordPublishedPhotoId( lrgalleryPhotoId )
 				
 				local photoUrl
 							
 				if ( not isDefaultCollection ) then
 					
 					photoUrl = LrGalleryAPI.constructPhotoURL( exportSettings, {	
-											photo_id = flickrPhotoId,
+											photo_id = lrgalleryPhotoId,
 											photosetId = photosetId,
 											is_public = is_public,
 										} )	
@@ -821,14 +821,14 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 					-- Add the uploaded photos to the correct photoset.
 
 					LrGalleryAPI.addPhotosToSet( exportSettings, {
-									photoId = flickrPhotoId,
+									photoId = lrgalleryPhotoId,
 									photosetId = photosetId,
 								} )
 					
 				else
 					
 					photoUrl = LrGalleryAPI.constructPhotoURL( exportSettings, {
-											photo_id = flickrPhotoId,
+											photo_id = lrgalleryPhotoId,
 											is_public = is_public,
 										} )
 										
