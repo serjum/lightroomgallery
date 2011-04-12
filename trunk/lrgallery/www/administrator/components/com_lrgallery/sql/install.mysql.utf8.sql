@@ -39,3 +39,15 @@ create table #__lrgallery_userfolders
         primary key (id),
         foreign key (user_id) references #__users(id)
 ) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+
+create table #__lrgallery_tokens
+(
+    id          int(11) not null AUTO_INCREMENT,
+    user_id     int(11) not null,
+    token       varchar(32) not null,
+    start_date  datetime,
+    expire_date datetime,
+        primary key (id),
+        foreign key (user_id) references #__users(id)
+) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+
