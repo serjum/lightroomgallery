@@ -1,56 +1,53 @@
 <?
-    defined('_JEXEC') or die('Restricted access');
-    
-    $user = $this->user;
-    $photos = $this->photos;
-    $metadata = $this->metadata;
-            
-    // Отобразим выбранную фотографию, либо по умолчанию первую
-    $id = JRequest::getInt('id');
-    if (!empty($id))
-    {
-        foreach ($photos as $photo)
-        {
-            if ($photo->id == $id)
-            {
-                $currPhoto = $photo;
-                break;
-            }
+defined('_JEXEC') or die('Restricted access');
+
+$user = $this->user;
+$photos = $this->photos;
+$metadata = $this->metadata;
+
+// Отобразим выбранную фотографию, либо по умолчанию первую
+$id = JRequest::getInt('id');
+if (!empty($id)) {
+    foreach ($photos as $photo) {
+        if ($photo->id == $id) {
+            $currPhoto = $photo;
+            break;
         }
     }
-    if (empty($currPhoto))
-        $currPhoto = $photos[0];
-    
-    // Для удобства пихнем метаданные в текущуюю фотографию
-    foreach ($metadata as $md_item)
-    {
-        if ($md_item['photo_id'] == $currPhoto->id)
-        {
-            $currPhoto->metadata[$md_item['name']] = $md_item['value'];
-        }
+}
+if (empty($currPhoto))
+    $currPhoto = $photos[0];
+
+// Для удобства пихнем метаданные в текущуюю фотографию
+foreach ($metadata as $md_item) {
+    if ($md_item['photo_id'] == $currPhoto->id) {
+        $currPhoto->metadata[$md_item['name']] = $md_item['value'];
     }
-    
+}
 ?>
 
 <html lang="ru">
     <head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <title>Веб-галерея Софтлит</title>
-        
+
         <link rel="stylesheet" type="text/css" href="media/lrgallery/css/lrgallery.css" />
-        
+
         <script type="text/javascript" src="media/system/js/mootools-core.js"></script>
         <script type="text/javascript" src="media/system/js/mootools-more.js"></script>
         <script type="text/javascript" src="media/lrgallery/js/slide.js"></script>
         <script type="text/javascript">
+            
+            var slider;
+            var currThumb;
             
             /* Удаление лишних пробелов и др. из строки */
             function trimStr (s) {
                 s = s.replace(/^\s+/, '');
                 for (var i = s.length - 1; i >= 0; i--) {
                     if (/\S/.test(s.charAt(i))) {
-			s = s.substring(0, i + 1);
-			break;
+                        s = s.substring(0, i + 1);
+                        break;
                     }
                 }
                 return s;
@@ -99,9 +96,9 @@
                 });
                 
                 // Заполним звёзды рейтинга
-				if ($('metadata_rating') != null) {
-					displayRating($('metadata_rating').value);
-				}                
+                if ($('metadata_rating') != null) {
+                    displayRating($('metadata_rating').value);
+                }                
                 
                 // Установим обработчик кнопки сохранения комментариев
                 $('save').addEvent('click', setComments);
@@ -114,7 +111,29 @@
                 });
                 
                 // Добавим слайдер
+                currThumb = $('thumb_' + $('currPhoto').value);
+                slider = new Fx.Scroll('thumbs_container', {
+                    duration:   700,
+                    transition: Fx.Transitions.Quad.easeInOut
+                });
                 
+                // Добавим обработчик навигационных кнопок
+                $('nav_first').addEvent('click', function(){
+                    slider.cancel();
+                    slider.toLeft()
+                });
+                $('nav_prev').addEvent('click', function(){
+                    slider.cancel;
+                    slider.start(slider.element.scrollLeft - 130, 0);
+                });
+                $('nav_next').addEvent('click', function(){
+                    slider.cancel;
+                    slider.start(slider.element.scrollLeft + 130, 0);
+                });
+                $('nav_last').addEvent('click', function(){
+                    slider.cancel();
+                    slider.toRight();
+                });
             });
             
             /* Получение значения поля метаданных фотографии */
@@ -191,24 +210,24 @@
             function setAcceptedFlag(flag) {
                 var id = $('id').value;
                 setMetadata(id, 'accepted', flag, 
-                    function(){
-                        // Во время обработки запроса покажем анимацию
-                        $('accept_loader').setStyle('visibility', 'visible');
-                    },
-                    function(response) {
-                        // Скроем анимацию
-                        $('accept_loader').setStyle('visibility', 'hidden');
+                function(){
+                    // Во время обработки запроса покажем анимацию
+                    $('accept_loader').setStyle('visibility', 'visible');
+                },
+                function(response) {
+                    // Скроем анимацию
+                    $('accept_loader').setStyle('visibility', 'hidden');
                         
-                        if (!response.error) {
-                            // Если всё ок, подсветим выбранную кнопку
-                            var flag = response.meta;
-                            displayAcceptedFlag(flag);
-                        }
-                        else {
-                            alert('При установке флага произошла ошибка. Пожалуйста, обратитесь к администратору');
-                        }
+                    if (!response.error) {
+                        // Если всё ок, подсветим выбранную кнопку
+                        var flag = response.meta;
+                        displayAcceptedFlag(flag);
                     }
-                );                                
+                    else {
+                        alert('При установке флага произошла ошибка. Пожалуйста, обратитесь к администратору');
+                    }
+                }
+            );                                
             }
             
             /* Получение рейтинга для фотографии */
@@ -276,24 +295,24 @@
                 }                                        
                 
                 setMetadata(id, 'rating', rating, 
-                    function(){
-                        // Во время обработки запроса покажем анимацию
-                        $('rating_loader').setStyle('visibility', 'visible');
-                    },
-                    function(response) {
-                        // Скроем анимацию
-                        $('rating_loader').setStyle('visibility', 'hidden');
+                function(){
+                    // Во время обработки запроса покажем анимацию
+                    $('rating_loader').setStyle('visibility', 'visible');
+                },
+                function(response) {
+                    // Скроем анимацию
+                    $('rating_loader').setStyle('visibility', 'hidden');
                         
-                        if (!response.error) {
-                            // Если всё ок, заполним звёзды
-                            var rating = response.meta;
-                            displayRating(rating);
-                        }
-                        else {
-                            alert('При установке рейтинга произошла ошибка. Пожалуйста, обратитесь к администратору');
-                        }
+                    if (!response.error) {
+                        // Если всё ок, заполним звёзды
+                        var rating = response.meta;
+                        displayRating(rating);
                     }
-                );                                 
+                    else {
+                        alert('При установке рейтинга произошла ошибка. Пожалуйста, обратитесь к администратору');
+                    }
+                }
+            );                                 
             }
             
             /* Получение комментариев для фотографии */
@@ -328,24 +347,24 @@
                 
                 var comments = $('comments').value;
                 setMetadata(id, 'comments', comments, 
-                    function(){
-                        // Во время обработки запроса покажем анимацию
-                        $('comments_loader').setStyle('visibility', 'visible');
-                    },
-                    function(response) {
-                        // Скроем анимацию
-                        $('comments_loader').setStyle('visibility', 'hidden');
+                function(){
+                    // Во время обработки запроса покажем анимацию
+                    $('comments_loader').setStyle('visibility', 'visible');
+                },
+                function(response) {
+                    // Скроем анимацию
+                    $('comments_loader').setStyle('visibility', 'hidden');
                         
-                        // Разберем ответ в формате JSON
-                        var response = JSON.decode(result);
-                        if (!response.error) {
+                    // Разберем ответ в формате JSON
+                    var response = JSON.decode(result);
+                    if (!response.error) {
                             
-                        }
-                        else {
-                            alert('При записи комментариев произошла ошибка. Пожалуйста, обратитесь к администратору');
-                        }
                     }
-                );                                
+                    else {
+                        alert('При записи комментариев произошла ошибка. Пожалуйста, обратитесь к администратору');
+                    }
+                }
+            );                                
             }
         
             /* Устанавливает текущую фотографию */
@@ -356,12 +375,9 @@
                 getAcceptedFlag();
                 getRating();
                 getComments();
-                /*displayAcceptedFlag();
-                displayRating();
-                displayComments();*/
             }
         </script>
-        
+
     </head>
     <body>
         <div id="header">
@@ -429,10 +445,10 @@
                 <div class="clear"></div>
 
                 <a id="save" href="javascript:;" class="minibutton btn-download">
-                    <span>
-                        <span class="icon icon_save"></span>
-                                                    Сохранить
-                    </span>
+                <span>
+                    <span class="icon icon_save"></span>
+                    Сохранить
+                </span>
                 </a>
                 <div class="loader" id="comments_loader"></div>
                 <div class="clear"></div>
@@ -443,43 +459,43 @@
         <div id="footer">
             <div id="nav">
                 <div class="nav_controls">
-                    <div class="nav_first"></div>
-                    <div class="nav_prev"></div>
+                    <div class="nav_first" id="nav_first"></div>
+                    <div class="nav_prev" id="nav_prev"></div>
                     <div class="nav_space"></div>
-                    <div class="nav_next"></div>
-                    <div class="nav_last"></div>
+                    <div class="nav_next" id="nav_next"></div>
+                    <div class="nav_last" id="nav_last"></div>
                 </div>
             </div>
             <div class="clear"></div>
 
-            <div id="thumbs">
+            <div id="thumbs_container">
+                <div id="thumbs" style="width: <? echo 130 * count($photos); ?>;">
 <?
-            foreach ($photos as $photo)
-            {
+                    foreach ($photos as $photo) 
+                    {
 ?>
-                <div class="thumb" id ="thumb_<? echo $photo->id; ?>" rel="<? echo $photo->file_name; ?>">
-                    <img src="<? echo $photo->base . "/" . $photo->file_name; ?>" />
-                </div>
+                        <div class="thumb" id ="thumb_<? echo $photo->id; ?>" rel="<? echo $photo->file_name; ?>">
+                            <img src="<? echo $photo->base . "/" . $photo->file_name; ?>" />
+                        </div>
 <?
-            }
+                    }
 ?>                                               
+                </div>
             </div>
         </div>
         <div class="clear"></div>
-        
+
         <input type="hidden" name="photoBase" id="photoBase" value="<? echo $currPhoto->base; ?>">
         <input type="hidden" name="id" id="id" value="<? echo $currPhoto->id; ?>">
 <?
-    // Выведем все метаданные текущей фотографии
-    if (!empty($currPhoto->metadata))
-    {
-        foreach ($currPhoto->metadata as $key => $value)
-        {
-?>
-        <input type="hidden" name="metadata_<? echo $key; ?>" id="metadata_<? echo $key; ?>" value="<? echo $value; ?>" />
-<?        
+// Выведем все метаданные текущей фотографии
+if (!empty($currPhoto->metadata)) {
+    foreach ($currPhoto->metadata as $key => $value) {
+        ?>
+                <input type="hidden" name="metadata_<? echo $key; ?>" id="metadata_<? echo $key; ?>" value="<? echo $value; ?>" />
+                <?
+            }
         }
-    }
-?>        
-    </body>
-</html>
+        ?>        
+        </body>
+        </html>
