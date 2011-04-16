@@ -42,14 +42,14 @@
             // Пытаемся найти указанного пользователя
             $user = &JFactory::getUser($username);            
             if (empty($user))
-                return false;
+                return JError::raiseError(1, "Requested user doesn't exist");
             
             // Если пользователь есть, проверяем, входит ли он в административную группу
             $acl = &JFactory::getACL();
             $userId = $user->id;
             $userGroups = JAccess::getGroupsByUser($userId);
             if (!in_array(self::adminGroupID, $userGroups))
-                return false;
+                return JError::raiseError(2, "User is not in administrative group", $userGroups);
             
             // Если пользователь входит в группу администраторов, пробуем аутентифицировать его            
             $credentials = array();
@@ -58,22 +58,22 @@
             $app = JFactory::getApplication();
             $error = $app->login($credentials);
             if (JError::isError($error))
-                return false;
+                return $error;
             
             // Почистим таблицу токенов от устаревших записей
+            $db =& JFactory::getDBO();
             $db->setQuery("DELETE FROM #__lrgallery_tokens WHERE expire_date < now()");
             if (!$db->query())
-                return false;
+                return JError::raiseError(3, "Error occured while clearing old tokens", $db->stderr());
             
             // Если всё в порядке, сгенерируем новый токен, внесём в базу и вернём его
-            $token = md5(date('diu'));
-            $db =& JFactory::getDBO();
+            $token = md5(date('diu'));            
             $db->setQuery("INSERT INTO #__lrgallery_tokens
                                 (token, user_id, start_date, expire_date)
                            VALUES
                                 ('$token', $userId, now(), date_add(now(), interval 4 hour))");
             if (!$db->query())
-                return false;
+                return JError::raiseError(3, "Error occured while inserting a new token", $db->stderr());
             
             return $token;
         }                
@@ -90,27 +90,31 @@
          * Создание нового пользователя галереи
          */
         public function createUser($username, $password, $folderName)
-        {
+        {            
             if (empty($username))
-                return false;
+                return JError::raiseError(1, "No username specified");
             
             // Проверим, нет ли уже такого пользователя
             $user = &JFactory::getUser($username);            
             if (!empty($user))
-                return false;
+                return JError::raiseError(2, "Specified user already exists", $user);
             
-            // Создадим нового пользователя            
-            $instance = JUser::getInstance();            
+            // Создадим нового пользователя
+            $instance = JUser::getInstance();
             $instance->set('id', 0);
             $instance->set('name', $username);
             $instance->set('username', $username);
-            $instance->set('password_clear', $password);
+            
+            $salt  = JUserHelper::genRandomPassword(32);
+            $crypt = JUserHelper::getCryptedPassword($password, $salt);                                    
+            $instance->set('password', "$crypt:$salt");
+            
             $instance->set('email', "$username@softlit.ru");
             $instance->set('usertype', 'deprecated');
             $instance->set('groups', array(self::userGroupID));                        
             $result = $instance->save();
             if (!$result)   
-                return false;
+                return JError::raiseError(3, "Error occured while saving a new user", $instance->getError());
             
             // Создадим папку пользователя
             // Если такая папка уже существует - удалим все файлы из неё
@@ -122,6 +126,14 @@
                 foreach (JFolder::files($folderToCreate, '*', true, true) as $file) {
                     JFile::delete($file);
                 }
+                $db = &JFactory::getDBO();
+                $folderNameQ = $db->quote($folderName);
+                $db->setQuery("DELETE 
+                                 FROM #__lrgallery_userfolders
+                                WHERE folder_name = $folderNameQ");
+                if (!$db->query())
+                    return JError::raiseError(4, "Error occured while deleting an existing folder from database", 
+                        $db->stderr());
             }
             else
                 JFolder::create($folderToCreate);
@@ -134,7 +146,7 @@
                            VALUES
                                 ($userId, '$folderName')");
             if (!$db->query())
-                return false;
+                return JError::raiseError(5, "Error while saving user folder to database", $db->stderr());
             
             return true;
         }
