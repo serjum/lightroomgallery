@@ -4,22 +4,16 @@
     define('_JEXEC', 1);
     define('DS', DIRECTORY_SEPARATOR);
 
-    /*if (file_exists(dirname(__FILE__) . DS . '..' . DS . '..' . DS . 'defines.php')) {
-        include_once dirname(__FILE__) . DS . '..' . DS . '..' . DS . 'defines.php';
-    }*/
-
     if (!defined('_JDEFINES')) {
         define('JPATH_BASE', dirname(dirname(dirname(__FILE__))));
         require_once JPATH_BASE . DS . 'includes' . DS . 'defines.php';
     }
-
     require_once JPATH_BASE . DS . 'includes' . DS . 'framework.php';
     
-    // Instantiate the application.
     $app = JFactory::getApplication('site');
     $app->initialise();
 
-
+    // Подключаем нужные библиотеки
     jimport('joomla.filesystem.file');
     jimport('joomla.utilities.simplexml');
     jimport('joomla.application.component.helper');
@@ -63,7 +57,18 @@
                 $keyValues = $param->value[0]->children();
                 $keyValue = $keyValues[0];
                 $this->data->params[$keyValue->name()] = $keyValue->data();
-            }           
+            }
+            
+            // Если в параметрах присутствует изображение, 
+            // декодируем его из base64 и запишем во временный файл
+            if (in_array('image', $this->data->params)) {
+                $data = base64_decode($this->data->params['image']);
+                $file = tempnam(sys_get_temp_dir(), 'lrgallery_');
+                JFile::write($file, $data);
+                
+                $this->data->params['fileName'] = $file;
+                unset($this->data->params['image']);                
+            }
         }
         
         /*
