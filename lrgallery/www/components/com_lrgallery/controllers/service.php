@@ -72,7 +72,7 @@
                 return JError::raiseWarning(3, "Error occured while clearing old tokens", $db->stderr());
             
             // Если всё в порядке, сгенерируем новый токен, внесём в базу и вернём его
-            $token = md5(date('diu'));            
+            $token = md5(uniqid(rand(),1));            
             $db->setQuery("INSERT INTO #__lrgallery_tokens
                                 (token, user_id, start_date, expire_date)
                            VALUES
