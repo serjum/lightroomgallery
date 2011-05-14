@@ -61,14 +61,35 @@
             
             // Если в параметрах присутствует изображение, 
             // декодируем его из base64 и запишем во временный файл
-            if (in_array('image', $this->data->params)) {
-                $data = base64_decode($this->data->params['image']);
+            if (array_key_exists('image', $this->data->params)) {
+                $data = $this->urlsafe_b64decode($this->data->params['image']);
                 $file = tempnam(sys_get_temp_dir(), 'lrgallery_');
                 JFile::write($file, $data);
                 
-                $this->data->params['fileName'] = $file;
+                // Переименуем файл
+                $oldName = basename($file);
+                $newName = $this->data->params['filename'];
+                $newPath = str_replace($oldName, $newName, $file);
+                JFile::move($file, $newPath);
+                
+                $this->data->params['filename'] = $newPath;
                 unset($this->data->params['image']);                
             }
+        }
+        
+        private function urlsafe_b64encode($string) {
+            $data = base64_encode($string);
+            $data = str_replace(array('+', '/', '='), array('-', '_', ''), $data);
+            return $data;
+        }
+
+        private function urlsafe_b64decode($string) {
+            $data = str_replace(array('-', '_'), array('+', '/'), $string);
+            $mod4 = strlen($data) % 4;
+            if ($mod4) {
+                $data .= substr('====', $mod4);
+            }
+            return base64_decode($data);
         }
         
         /*
@@ -90,7 +111,8 @@
             }
             
             // Вызовем метод с нужными параметрами
-            $this->data->result = call_user_func_array(array($controllerName, $this->data->method), $params);
+            echo $this->data->result = 
+                call_user_func_array(array($controller, $this->data->method), $params);
         }
         
         /*
