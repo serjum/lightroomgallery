@@ -192,16 +192,16 @@
         public function uploadPhotoTest()
         {
             $username = JRequest::getString('username');
-            $photoName = JRequest::getString('photoName');
-            $fileName = JRequest::getString('fileName');
+            $photoname = JRequest::getString('photoname');
+            $filename = JRequest::getString('filename');
             $token = JRequest::getString('token');
-            echo $this->uploadPhoto($username, $photoName, $fileName, $token);
+            echo $this->uploadPhoto($username, $photoname, $filename, $token);
         }
         
         /*
          * Загрузка фотографии в папку пользователя
          */
-        public function uploadPhoto($username, $photoName, $fileName, $token)
+        public function uploadPhoto($username, $photoname, $filename, $token)
         {
             $err = $this->checkLogin($token);
             if (JError::isError($err))
@@ -228,18 +228,18 @@
                 return JError::raiseWarning(4, "User folder doesn't exist");
             
             // Переместим туда фотографию
-            $baseName = JFile::getName($fileName);
+            $baseName = JFile::getName($filename);
             $destPath = $path . DS . $baseName;
-            if (!JFile::move($fileName, $destPath))
+            if (!JFile::move($filename, $destPath))
                 return JError::raiseWarning(5, "Error while uploading file");
             
             // Вставим запись в БД
-            $photoNameQ = $db->quote($photoName);
+            $photonameQ = $db->quote($photoname);
             $baseNameQ = $db->quote($baseName);
             $db->setQuery("INSERT INTO #__lrgallery_photos
                                 (name, user_id, file_name)
                            VALUES
-                                ($photoNameQ, $userId, $baseNameQ)");
+                                ($photonameQ, $userId, $baseNameQ)");
             if (!$db->query())
                 return JError::raiseWarning(6, "Error while saving uploaded photo to database", 
                     $db->stderr());
@@ -427,6 +427,37 @@
                     $db->stderr());
             
             return true;
+        }
+        
+        public function decode()
+        {
+            $data = '';
+            $decData = $this->urlsafe_b64decode($data);
+            JFile::write(JPATH_SITE . DS . 'media\user_folders\admin\test.jpg', $decData);
+        }
+        
+        public function encode()
+        {
+            $file = JPATH_SITE . DS . 'media\user_folders\admin\1.jpg';
+            $data = $this->urlsafe_b64encode(JFile::read($file));
+            echo "<pre>";
+            echo $data;
+            echo "</pre>";            
+        }
+        
+        private function urlsafe_b64encode($string) {
+            $data = base64_encode($string);
+            $data = str_replace(array('+', '/', '='), array('-', '_', ''), $data);
+            return $data;
+        }
+
+        private function urlsafe_b64decode($string) {
+            $data = str_replace(array('-', '_'), array('+', '/'), $string);
+            $mod4 = strlen($data) % 4;
+            if ($mod4) {
+                $data .= substr('====', $mod4);
+            }
+            return base64_decode($data);
         }
     }
 ?>    
