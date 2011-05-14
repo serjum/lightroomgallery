@@ -99,12 +99,14 @@
             $db->setQuery("SELECT expire_date
                              FROM #__lrgallery_tokens
                             WHERE token = $tokenQ");
+            $db->query();
+            $numRows = $db->getNumRows();
             $expireDate = $db->loadResult();
-            if (empty($expireDate))
-                return JError::raiseWarning(1, "Error occured while checking token from database", 
-                    $db->stderr());
+            if ($numRows === 0)
+                return JError::raiseWarning(1, "Specified token doesn't exist");
             else if (empty($expireDate))
-                return JError::raiseWarning(2, "Specified token doesn't exist");
+                return JError::raiseWarning(2, "Error occured while checking token from database", 
+                    $db->stderr());                
             else if (strtotime($expireDate) < strtotime(date("Y-m-d h:m:s")))
                 return JError::raiseWarning(3, "Specified token is expired");
             else 
@@ -115,15 +117,15 @@
         {
             $username = JRequest::getString('username');
             $password = JRequest::getString('password');
-            $folderName = JRequest::getString('folderName');
+            $foldername = JRequest::getString('foldername');
             $token = JRequest::getString('token');
-            echo $this->createUSer($username, $password, $folderName, $token);
+            echo $this->createUSer($username, $password, $foldername, $token);
         }
 
         /*
          * Создание нового пользователя галереи
          */
-        public function createUser($username, $password, $folderName, $token)
+        public function createUser($username, $password, $foldername, $token)
         {
             $err = $this->checkLogin($token);
             if (JError::isError($err))
@@ -156,19 +158,19 @@
             
             // Создадим папку пользователя
             // Если такая папка уже существует - удалим все файлы из неё
-            if (empty($folderName)) {
-                $folderName = $username;
+            if (empty($foldername)) {
+                $foldername = $username;
             }
-            $folderToCreate = $this->userFolders . DS . $folderName;                        
+            $folderToCreate = $this->userFolders . DS . $foldername;                        
             if (JFolder::exists($folderToCreate)) {
                 foreach (JFolder::files($folderToCreate, '*', true, true) as $file) {
                     JFile::delete($file);
                 }
                 $db = &JFactory::getDBO();
-                $folderNameQ = $db->quote($folderName);
+                $foldernameQ = $db->quote($foldername);
                 $db->setQuery("DELETE 
                                  FROM #__lrgallery_userfolders
-                                WHERE folder_name = $folderNameQ");
+                                WHERE folder_name = $foldernameQ");
                 if (!$db->query())
                     return JError::raiseWarning(4, "Error occured while deleting an existing folder from database", 
                         $db->stderr());
@@ -182,7 +184,7 @@
             $db->setQuery("INSERT INTO #__lrgallery_userfolders
                                 (user_id, folder_name)
                            VALUES
-                                ($userId, $folderNameQ)");
+                                ($userId, $foldernameQ)");
             if (!$db->query())
                 return JError::raiseWarning(5, "Error while saving user folder to database", $db->stderr());
             
@@ -218,12 +220,12 @@
             $db->setQuery("SELECT folder_name
                              FROM #__lrgallery_userfolders
                             WHERE user_id = $userId");
-            $folderName = $db->loadResult();
-            if (empty($folderName))
+            $foldername = $db->loadResult();
+            if (empty($foldername))
                 return JError::raiseWarning(3, "Error while retrieving user folder from database", 
                     $db->stderr());
             
-            $path = $this->userFolders . DS . $folderName;
+            $path = $this->userFolders . DS . $foldername;
             if (!JFolder::exists($path))
                 return JError::raiseWarning(4, "User folder doesn't exist");
             
@@ -249,15 +251,15 @@
         
         public function getPhotoInfoTest()
         {
-            $photoId = JRequest::getString('photoId');
+            $photoid = JRequest::getString('photoid');
             $token = JRequest::getString('token');
-            var_dump($this->getPhotoInfo($photoId, $token));
+            var_dump($this->getPhotoInfo($photoid, $token));
         }
         
         /*
          * Получение информации о фотографии, включая метаданные
          */
-        public function getPhotoInfo($photoId, $token)
+        public function getPhotoInfo($photoid, $token)
         {
             $err = $this->checkLogin($token);
             if (JError::isError($err))
@@ -265,7 +267,7 @@
             
             // Получим основные данные фотографии
             $db = &JFactory::getDBO();
-            $photoIdQ = $db->quote($photoId);
+            $photoidQ = $db->quote($photoid);
             $db->setQuery("SELECT p.id, 
                                   p.name, 
                                   p.file_name,
@@ -273,7 +275,7 @@
                              FROM #__lrgallery_photos p,
                                   #__users u
                             WHERE p.user_id = u.id
-                              AND p.id = $photoIdQ");
+                              AND p.id = $photoidQ");
             $photoInfo = $db->loadObject();
             if (empty($photoInfo))
                 return JError::raiseWarning(1, "Error while retrieving photo from database", 
@@ -285,7 +287,7 @@
                              FROM #__lrgallery_meta meta,
                                   #__lrgallery_metadata data
                             WHERE meta.id = data.meta_id
-                              AND data.photo_id = $photoIdQ");
+                              AND data.photo_id = $photoidQ");
             $metadata = $db->loadAssocList();
             if (empty($metadata))
                 return JError::raiseWarning(2, "Error while retrieving photo metadata from database", 
@@ -297,15 +299,15 @@
         
         public function deletePhotoTest()
         {
-            $photoId = JRequest::getInt('photoId');
+            $photoid = JRequest::getInt('photoid');
             $token = JRequest::getString('token');
-            echo $this->deletePhoto($photoId, $token);
+            echo $this->deletePhoto($photoid, $token);
         }
         
         /*
          * Удаление фотографии
          */
-        public function deletePhoto($photoId, $token)
+        public function deletePhoto($photoid, $token)
         {
             $err = $this->checkLogin($token);
             if (JError::isError($err))
@@ -313,12 +315,12 @@
             
             // Удалим файл
             $db = &JFactory::getDBO();
-            $photoIdQ = $db->quote($photoId);
+            $photoidQ = $db->quote($photoid);
             $db->setQuery("SELECT p.file_name, u.folder_name 
                              FROM #__lrgallery_photos p,
                                   #__lrgallery_userfolders u
                             WHERE p.user_id = u.user_id
-                              AND p.id = $photoIdQ");
+                              AND p.id = $photoidQ");
             $result = $db->loadObject();
             if (empty($result))
                 return JError::raiseWarning(2, "Error occured while getting photo from database", 
@@ -332,7 +334,7 @@
             // Удалим фото из БД                        
             $db->setQuery("DELETE 
                              FROM #__lrgallery_photos
-                            WHERE id = $photoIdQ");
+                            WHERE id = $photoidQ");
             if (!$db->query())
                 return JError::raiseWarning(3, "Error occured while deleting photo from database", 
                     $db->stderr());
