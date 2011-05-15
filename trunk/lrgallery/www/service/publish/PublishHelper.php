@@ -39,6 +39,11 @@
                 $this->error = new JException('XML content is empty', 1);
                 return $this->error;
             }
+            
+            // Если включены magic quotes, уберем escape слэши
+            if (get_magic_quotes_gpc()) {
+                $content = stripslashes($content);
+            }
 
             // Попробуем разобрать его как XML
             $parser = new JSimpleXML();
