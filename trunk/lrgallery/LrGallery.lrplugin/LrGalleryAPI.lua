@@ -41,8 +41,7 @@ local logger = import 'LrLogger'('LrGalleryAPI')
 LrGalleryAPI = {}
 
 local appearsAlive
---local serviceUrl = 'http://softlit.ru/service/xmlrpc'
-local serviceUrl = 'XN--H1AFILGCK.XN--P1AI'
+local serviceUrl = "http://XN--H1AFILGCK.XN--P1AI/service/publish/"
 local token = nil
 
 local function formatError(nativeErrorCode)
@@ -97,12 +96,11 @@ end
 function LrGalleryAPI.showCredentialsDialog( message )
 
 	LrFunctionContext.callWithContext( 'LrGalleryAPI.showCredentialsDialog', function( context )
-
 		local f = LrView.osFactory()
 	
-		local properties = LrBinding.makePropertyTable( context )
+		local properties = LrBinding.makePropertyTable(context)
+		properties.username = prefs.username
 		properties.password = prefs.password
-		properties.sharedSecret = prefs.sharedSecret
 	
 		-- Build dialog window contents
 		local contents = f:column {
@@ -140,7 +138,6 @@ function LrGalleryAPI.showCredentialsDialog( message )
 					fill_horizonal = 1,
 					width_in_chars = 35, 
 					value = bind 'username',
-						-- TO DO: Should validate API key (16 hex digits, etc.).
 				},
 			},
 			f:row {
@@ -156,20 +153,140 @@ function LrGalleryAPI.showCredentialsDialog( message )
 					fill_horizonal = 1,
 					width_in_chars = 35, 
 					value = bind 'password',
-						-- TO DO: Should validate API key (16 hex digits, etc.).
 				},
 			}
 		}
 		
 		local result = LrDialogs.presentModalDialog {
-				title = LOC "$$$/LrGallery/CredentialsDialog/Title=Enter Your LrGallery username and password", 
+			title = LOC "$$$/LrGallery/CredentialsDialog/Title=Enter Your LrGallery username and password", 
+			contents = contents,
+		}
+			
+		if result == 'ok' then
+			prefs.username = trim(properties.username)
+			prefs.password = trim(properties.password)		
+		else		
+			LrErrors.throwCanceled()		
+		end	
+	end )	
+end
+
+-- Get username and password
+function LrGalleryAPI.getCredentials()
+
+	local username, password = prefs.username, prefs.password
+	
+	while not (
+		type( username ) == 'string' and type( password ) == 'string'
+	) do		
+	
+		local message
+		if username or password then
+			message = LOC "$$$/LrGallery/CredentialsDialog/Invalid=Username and password below are not valid."
+		end
+	
+		LrGalleryAPI.showCredentialsDialog(message)
+		username, password = prefs.username, prefs.password		
+				
+	end
+	
+	return username, password
+end
+
+-- Show create user dialog
+function LrGalleryAPI.showCreateUserDialog( message )
+
+	LrFunctionContext.callWithContext( 'LrGalleryAPI.showCreateUserDialog', function( context )
+
+		local f = LrView.osFactory()
+	
+		local properties = LrBinding.makePropertyTable( context )
+		properties.username = ''
+		properties.password = ''
+		properties.folder = ''
+	
+		-- Build dialog window contents
+		local contents = f:column {
+			bind_to_object = properties,
+			spacing = f:control_spacing(),
+			fill = 1,
+	
+			f:static_text {
+				title = LOC "$$$/LrGallery/CreateUserDialog/Message=Please enter new user properties",
+				fill_horizontal = 1,
+				width_in_chars = 55,
+				height_in_lines = 2,
+				size = 'small',
+			},
+	
+			message and f:static_text {
+				title = message,
+				fill_horizontal = 1,
+				width_in_chars = 55,
+				height_in_lines = 2,
+				size = 'small',
+				text_color = import 'LrColor'( 1, 0, 0 ),
+			} or 'skipped item',
+			
+			f:row {
+				spacing = f:label_spacing(),
+				
+				f:static_text {
+					title = LOC "$$$/LrGallery/CreateUserDialog/Username=Username:",
+					alignment = 'right',
+					width = share 'title_width',
+				},
+				
+				f:edit_field { 
+					fill_horizonal = 1,
+					width_in_chars = 35, 
+					value = bind 'username',
+				},
+			},
+			f:row {
+				spacing = f:label_spacing(),
+				
+				f:static_text {
+					title = LOC "$$$/LrGallery/CreateUserDialog/Password=Password:",
+					alignment = 'right',
+					width = share 'title_width',
+				},
+				
+				f:edit_field { 
+					fill_horizonal = 1,
+					width_in_chars = 35, 
+					value = bind 'password',
+				},
+			},
+			f:row {
+				spacing = f:label_spacing(),
+				
+				f:static_text {
+					title = LOC "$$$/LrGallery/CreateUserDialog/Folder=Folder name:",
+					alignment = 'right',
+					width = share 'title_width',
+				},
+				
+				f:edit_field { 
+					fill_horizonal = 1,
+					width_in_chars = 35, 
+					value = bind 'folder',
+				},
+			}
+		}
+		
+		local result = LrDialogs.presentModalDialog {
+				title = LOC "$$$/LrGallery/CreateUserDialog/Title=Enter new user properties", 
 				contents = contents,
 			}
 		
 		if result == 'ok' then
 	
-			prefs.password = trim ( properties.password )
+			username = trim ( properties.username )
+			password = trim ( properties.password )
+			password = trim ( properties.folder )
 		
+			return username, password, folder
 		else
 		
 			LrErrors.throwCanceled()
@@ -180,29 +297,121 @@ function LrGalleryAPI.showCredentialsDialog( message )
 	
 end
 
--- Get username and password
-function LrGalleryAPI.getCredentials()
+-- Get new user username and password
+function LrGalleryAPI.getCreateUserCredentials()
 
-	local username, password = prefs.username, prefs.password
+	local username, password, folder
 	
 	while not(
-		type( username ) == 'string' and type( password ) == 'string'
+		type( username ) == 'string' and type( password ) == 'string' and type( folder ) == 'string'
 	) do
 	
 		local message
 		if username or password then
-			message = LOC "$$$/LrGallery/CredentialsDialog/Invalid=Username and password below are not valid."
+			message = LOC "$$$/LrGallery/CredentialsDialog/Invalid=Properties below are not valid."
 		end
-
-		LrGalleryAPI.showCredentialsDialog( message )
-
-		username, password = prefs.username, prefs.password
-	
+		
+		username, password, folder = LrGalleryAPI.showCreateUserDialog( message )
+		
 	end
 	
-	return username, password
+	return username, password, folder
 
 end
+
+-- Show delete user dialog
+function LrGalleryAPI.showDeleteUserDialog( message )
+
+	LrFunctionContext.callWithContext( 'LrGalleryAPI.showDeleteUserDialog', function( context )
+
+		local f = LrView.osFactory()
+	
+		local properties = LrBinding.makePropertyTable( context )
+		properties.username = ''
+	
+		-- Build dialog window contents
+		local contents = f:column {
+			bind_to_object = properties,
+			spacing = f:control_spacing(),
+			fill = 1,
+	
+			f:static_text {
+				title = LOC "$$$/LrGallery/CreateUserDialog/Message=Please enter username for delete",
+				fill_horizontal = 1,
+				width_in_chars = 55,
+				height_in_lines = 2,
+				size = 'small',
+			},
+	
+			message and f:static_text {
+				title = message,
+				fill_horizontal = 1,
+				width_in_chars = 55,
+				height_in_lines = 2,
+				size = 'small',
+				text_color = import 'LrColor'( 1, 0, 0 ),
+			} or 'skipped item',
+			
+			f:row {
+				spacing = f:label_spacing(),
+				
+				f:static_text {
+					title = LOC "$$$/LrGallery/DeleteUserDialog/Username=Username:",
+					alignment = 'right',
+					width = share 'title_width',
+				},
+				
+				f:edit_field { 
+					fill_horizonal = 1,
+					width_in_chars = 35, 
+					value = bind 'username',
+				},
+			},
+		}
+		
+		local result = LrDialogs.presentModalDialog {
+				title = LOC "$$$/LrGallery/DeleteUserDialog/Title=Enter username for delete", 
+				contents = contents,
+			}
+		
+		if result == 'ok' then
+	
+			username = trim ( properties.username )
+		
+			return username
+		else
+		
+			LrErrors.throwCanceled()
+		
+		end
+	
+	end )
+	
+end
+
+-- Get new user username and password
+function LrGalleryAPI.getDeleteUserName()
+
+	local username
+	
+	while not(
+		type( username ) == 'string'
+	) do
+	
+		local message
+		if username then
+			message = LOC "$$$/LrGallery/DeleteUserDialog/Invalid=Username below are not valid."
+		end
+		
+		username = LrGalleryAPI.showDeleteUserDialog(message)
+		
+	end
+	
+	return username
+
+end
+
+
 
 --[[ Construct xml message of format
 <?xml version="1.0"?>
@@ -223,13 +432,13 @@ end
  </methodCall>
 ]]--
 local function constructXml(params)
-	local xmlBuilder = LrXml.createXmlBuilder()
+	--[[local xmlBuilder = LrXml.createXmlBuilder()
 	xmlBuilder:beginBlock('methodCall')
 	xmlBuilder:beginBlock('methodName')
 	xmlBuilder:text(method)
 	xmlBuilder:endBlock('methodName')
 	xmlBuilder:beginBlock('params')
-	for param, value in pairs(params) do
+	for param, value in pairs(params.params) do
 		xmlBuilder:beginBlock('param')
 		xmlBuilder:beginBlock('value')
 		xmlBuilder:beginBlock(param)
@@ -241,15 +450,15 @@ local function constructXml(params)
 	xmlBuilder:endBlock('params')
 	xmlBuilder:endBlock('methodCall')
 	
-	return xmlBuilder:serialize()
+	return "lrgalleryxml=" .. xmlBuilder:serialize()
+	--]]
 	
-	--[[
 	local xml = ''
 		xml = xml .. '<?xml version="1.0"?>\n'
 		xml = xml .. '<methodCall>\n'
-		xml = xml .. '	<methodName>' .. method .. '</methodName>\n'
+		xml = xml .. '	<methodName>' .. params.method .. '</methodName>\n'
 		xml = xml .. '	<params>\n'
-	for param, value in pairs(params) do
+	for param, value in pairs(params.params) do
 		xml = xml .. '		<param>\n'
 		xml = xml .. '			<value>\n'
 		xml = xml .. '				<' .. param .. '>' .. value .. '</' .. param ..'>\n'
@@ -260,40 +469,47 @@ local function constructXml(params)
 		xml = xml .. '</methodCall>\n'
 
 	return xml
-	]]--
+	
 end
 
 -- XML Remote procedure call
-function LrGalleryAPI.callXmlMethod(propertyTable, params)
+function LrGalleryAPI.callXmlMethod(params)	
 
 	-- Construct XML message
-	local xmlString = constructXml(params.params)	
-	
+	local xmlString = constructXml(params)
+		
 	-- Send message and get response
-	local response, hdrs = LrHttp.post( serviceUrl, xmlString )
-	
-	-- Transform result to table
-	local result = xml2table(response)
-	
-	-- Return result and raw xml response
-	return result, response	
+	LrTasks.startAsyncTask(
+		function()
+			local LrMD5 = import "LrMD5"
+	 
+			local response, headers = LrHttp.get(serviceUrl .. "?lrgalleryxml=" .. xmlString)
+			LrDialogs.message(response)
+			
+			-- Transform result to table
+			local result = xml2table(response)
+			
+			-- Return result and raw xml response
+			return result, response	
+		end 
+	)					
 end
 
 -- Login into the gallery
 function LrGalleryAPI.login(propertyTable, params)
 	
 	-- Get username and password
-	local username, password = getCredentials();
+	local username, password = LrGalleryAPI.getCredentials();
 	
 	-- Set request params
-	local callParams = {
-		username = params.username, 
-		password = params.password, 
-	}	
+	local callParams = {}
+	callParams.username = username 
+	callParams.password = password
 	params.params = callParams
+	params.method = 'login'
 	
 	-- Call login method
-	local result, xmlResponse = LrGalleryAPI.callXmlMethod(propertyTable, params)
+	local result, xmlResponse = LrGalleryAPI.callXmlMethod(params)
 	
 	-- Return token
 	return result.token
@@ -301,7 +517,7 @@ end
 
 -- Create new gallery user
 function LrGalleryAPI.createUser( propertyTable, params )
-		
+				
 	-- Set request params
 	local callParams = {
 		username = params.username, 
@@ -384,4 +600,12 @@ function LrGalleryAPI.callMethod(propertyTable, params, method)
 	-- Call the method needed and return result
 	local result = LrGalleryAPI[method](propertyTable, params)
 	return result
+end
+
+function LrGalleryAPI.displayTable(t)
+	local message = ""
+	for key, value in pairs(t) do 
+		message = message .. key .. " = " .. value .. "\n"
+	end	
+	LrDialogs.message(message)
 end
