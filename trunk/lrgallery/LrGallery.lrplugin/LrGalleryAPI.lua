@@ -41,7 +41,8 @@ local logger = import 'LrLogger'('LrGalleryAPI')
 LrGalleryAPI = {}
 
 local appearsAlive
-local serviceUrl = "http://XN--H1AFILGCK.XN--P1AI/service/publish/"
+--local serviceUrl = "http://XN--H1AFILGCK.XN--P1AI/service/publish/"
+local serviceUrl = "http://lrgallery/service/publish/"
 local token = nil
 
 local function formatError(nativeErrorCode)
@@ -476,14 +477,20 @@ end
 function LrGalleryAPI.callXmlMethod(params)	
 
 	-- Construct XML message
-	local xmlString = constructXml(params)
+	local xmlString = "lrgalleryxml=" .. constructXml(params)
 		
 	-- Send message and get response
 	LrTasks.startAsyncTask(
 		function()
-			local LrMD5 = import "LrMD5"
-	 
-			local response, headers = LrHttp.get(serviceUrl .. "?lrgalleryxml=" .. xmlString)
+		
+			local response, headers = LrHttp.post(serviceUrl, xmlString, {{
+					field = 'Content-Type',
+					value = 'application/x-www-form-urlencoded',
+				}, {
+					field = 'Content-Length',
+					value = tostring(#xmlString)
+				}
+			})
 			LrDialogs.message(response)
 			
 			-- Transform result to table
