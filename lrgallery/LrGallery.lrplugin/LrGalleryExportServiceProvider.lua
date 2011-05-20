@@ -226,13 +226,45 @@ function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
 					title = bind 'loginButtonTitle',
 					enabled = bind 'loginButtonEnabled',
 					action = function()
-					require 'LrGalleryUser'
-					LrGalleryUser.login( propertyTable )
+						require 'LrGalleryUser'
+						LrGalleryUser.login( propertyTable )
 					end,
 				},
 
 			},
 		},
+		
+		{
+			title = LOC "$$$/LrGallery/ExportDialog/Account=User management",
+			
+			synopsis = bind 'userManagement',
+
+			f:row {
+				spacing = f:control_spacing(),
+
+				f:push_button {
+					width = tonumber( LOC "$$$/locale_metric/LrGallery/ExportDialog/LoginButton/Width=90" ),
+					title = LOC "$$$/locale_metric/LrGallery/ExportDialog/UserManagement/Create=Create user...",
+					--enabled = bind 'createUserButtonEnabled',
+					action = function()
+						require 'LrGalleryUser'
+						LrGalleryUser.createUser( propertyTable )
+					end,
+				},
+				
+				f:push_button {
+					width = tonumber( LOC "$$$/locale_metric/LrGallery/ExportDialog/LoginButton/Width=90" ),
+					title = LOC "$$$/locale_metric/LrGallery/ExportDialog/UserManagement/Delete=Delete user...",
+					--enabled = bind 'deleteUserButtonEnabled',
+					action = function()
+						require 'LrGalleryUser'
+						LrGalleryUser.deleteUser( propertyTable )
+					end,
+				},
+
+			},
+		},
+		
 	
 		{
 			title = LOC "$$$/LrGallery/ExportDialog/Title=LrGallery Title",

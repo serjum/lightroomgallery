@@ -64,11 +64,13 @@ local doingLogin = false
 
 function LrGalleryUser.login( propertyTable )
 
-	if doingLogin then return end
+	if doingLogin then 
+		return 
+	end
 	doingLogin = true
 
 	LrFunctionContext.postAsyncTaskWithContext( 'LrGallery login',
-	function( context )
+	function(context)
 
 		-- Clear any existing login info, but only if creating new account.
 		-- If we're here on an existing connection, that's because the login
@@ -82,91 +84,117 @@ function LrGalleryUser.login( propertyTable )
 		propertyTable.accountStatus = LOC "$$$/LrGallery/AccountStatus/LoggingIn=Logging in..."
 		propertyTable.loginButtonEnabled = false
 		
-		LrDialogs.attachErrorDialogToFunctionContext( context )
+		LrDialogs.attachErrorDialogToFunctionContext(context)
 		
 		-- Make sure login is valid when done, or is marked as invalid.
 		
-		context:addCleanupHandler( function()
+		context:addCleanupHandler(
+			function()
+				doingLogin = false
 
-			doingLogin = false
-
-			if not storedCredentialsAreValid( propertyTable ) then
-				notLoggedIn( propertyTable )
-			end
-			
-			-- Hrm. New API doesn't make it easy to show what operation failed.
-			-- LrDialogs.message( LOC "$$$/LrGallery/LoginFailed=Failed to log in." )
-
-		end )
-		
-		-- Make sure we have an API key.
-		
-		LrGalleryAPI.getCredentials()
-
-		-- Show request for authentication dialog.
-	
-		local authRequestDialogResult = LrDialogs.confirm(
-			LOC "$$$/LrGallery/AuthRequestDialog/Message=Lightroom needs your permission to upload images to LrGallery.",
-			LOC "$$$/LrGallery/AuthRequestDialog/HelpText=If you click Authorize, you will be taken to a web page in your web browser where you can log in. When you're finished, return to Lightroom to complete the authorization.",
-			LOC "$$$/LrGallery/AuthRequestDialog/AuthButtonText=Authorize",
-			LOC "$$$/LrDialogs/Cancel=Cancel" )
-	
-		if authRequestDialogResult == 'cancel' then
-			return
-		end
-	
-		-- Request the frob that we need for authentication.
-		
+				if not storedCredentialsAreValid( propertyTable ) then
+					notLoggedIn( propertyTable )
+				end
+				
+				-- Hrm. New API doesn't make it easy to show what operation failed.
+				-- LrDialogs.message( LOC "$$$/LrGallery/LoginFailed=Failed to log in." )
+			end 
+		)
+				
 		propertyTable.accountStatus = LOC "$$$/LrGallery/AccountStatus/WaitingForLrGallery=Waiting for response from flickr.com..."
 
-		require 'LrGalleryAPI'
-		local frob = LrGalleryAPI.openAuthUrl()
-	
-		local waitForAuthDialogResult = LrDialogs.confirm(
-			LOC "$$$/LrGallery/WaitForAuthDialog/Message=Return to this window once you've authorized Lightroom on flickr.com.",
-			LOC "$$$/LrGallery/WaitForAuthDialog/HelpText=Once you've granted permission for Lightroom (in your web browser), click the Done button below.",
-			LOC "$$$/LrGallery/WaitForAuthDialog/DoneButtonText=Done",
-			LOC "$$$/LrDialogs/Cancel=Cancel" )
-	
-		if waitForAuthDialogResult == 'cancel' then
+		params = {}
+		method = 'login';
+		local data = LrGalleryAPI.callMethod(propertyTable, params, method)
+		
+		local token = data.response.token
+		
+		if not token then
 			return
 		end
-	
-		-- User has OK'd authentication. Get the user info.
 		
-		propertyTable.accountStatus = LOC "$$$/LrGallery/AccountStatus/WaitingForLrGallery=Waiting for response from flickr.com..."
+		propertyTable.token = data.response.token		
+		LrGalleryUser.updateUserStatusTextBindings( propertyTable )
+		
+	end )
 
-		local data = LrGalleryAPI.callXmlMethod( propertyTable, { method = 'flickr.auth.getToken', frob = frob, suppressError = true, skipAuthToken = true } )
+end
+
+--------------------------------------------------------------------------------
+
+local doingCreateUser = false
+
+function LrGalleryUser.createUser( propertyTable )
+
+	if doingCreateUser then return end
+	doingCreateUser = true
+
+	LrFunctionContext.postAsyncTaskWithContext( 'LrGallery createUser',
+	function( context )
+
+		propertyTable.userManagementStatus = LOC "$$$/LrGallery/UserManagement/CreatingUser=Creating user..."
+		propertyTable.createUserButtonEnabled = false
 		
-		local auth = data.auth
+		LrDialogs.attachErrorDialogToFunctionContext( context )
 		
-		if not auth then
-			return
-		end
-		
-		-- If editing existing connection, make sure user didn't try to change user ID on us.
-		
-		if propertyTable.LR_editingExistingPublishConnection then
-		
-			if auth.user and propertyTable.nsid ~= auth.user.nsid then
-				LrDialogs.message( LOC "$$$/LrGallery/CantChangeUserID=You can not change LrGallery accounts on an existing publish connection. Please log in again with the account you used when you first created this connection." )
-				return
-			end
-		
-		end
-		
-		-- Now we can read the LrGallery user credentials. Save off to prefs.
+		context:addCleanupHandler( 
+			function()
+				doingCreateUser = false
+			end 
+		)
+
+		local username, password, folder = LrGalleryAPI.getCreateUserCredentials()
 	
-		propertyTable.nsid = auth.user.nsid
-		propertyTable.username = auth.user.username
-		propertyTable.fullname = auth.user.fullname
-		propertyTable.auth_token = auth.token._value
+		local params = {}
+		params.username = username
+		params.password = password
+		params.folder = folder
+		local result = LrGalleryAPI.createUser(propertyTable, params)
 		
 		LrGalleryUser.updateUserStatusTextBindings( propertyTable )
 		
 	end )
 
 end
+
+
+--------------------------------------------------------------------------------
+
+local doingDeleteUser = false
+
+function LrGalleryUser.deleteUser( propertyTable )
+
+	if doingDeleteUser then 
+		return 
+	end
+	doingDeleteUser = true
+
+	LrFunctionContext.postAsyncTaskWithContext( 'LrGallery deleteUser',
+	function( context )
+
+		propertyTable.userManagementStatus = LOC "$$$/LrGallery/UserManagement/DeletingUser=Deleting user..."
+		propertyTable.deleteUserButtonEnabled = false
+		
+		LrDialogs.attachErrorDialogToFunctionContext( context )
+		
+		context:addCleanupHandler( 
+			function()
+				doingDeleteUser = false
+			end 
+		)
+
+		local username = LrGalleryAPI.getDeleteUserName()
+	
+		local params = {}
+		params.username = username
+		local result = LrGalleryAPI.deleteUser(propertyTable, params)
+		
+		LrGalleryUser.updateUserStatusTextBindings( propertyTable )
+		
+	end )
+
+end
+
 
 --------------------------------------------------------------------------------
 
