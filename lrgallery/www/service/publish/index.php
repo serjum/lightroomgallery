@@ -6,4 +6,4 @@ $xmlVar = 'lrgalleryxml';
 $helper = new PublishHelper();
 $helper->parse($xmlVar);
 $helper->call();
-//echo $helper->getXmlResult();
+echo $helper->getXmlResult();
