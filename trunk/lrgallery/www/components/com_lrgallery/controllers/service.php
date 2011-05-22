@@ -80,7 +80,9 @@
             if (!$db->query())
                 return JError::raiseWarning(3, "Error occured while inserting a new token", $db->stderr());
             
-            return $token;
+            return array(
+                'token' => $token
+            );
         }
         
         public function checkLoginTest()
@@ -188,7 +190,9 @@
             if (!$db->query())
                 return JError::raiseWarning(5, "Error while saving user folder to database", $db->stderr());
             
-            return true;
+            return array(
+                'user_id' => $userId
+            );
         }
         
         public function uploadPhotoTest()
@@ -246,7 +250,10 @@
                 return JError::raiseWarning(6, "Error while saving uploaded photo to database", 
                     $db->stderr());
             
-            return $db->insertid();
+            $photoId = $db->insertid();
+            return array(
+                'photo_id' => $photoId
+            );
         }
         
         public function getPhotoInfoTest()
@@ -268,22 +275,22 @@
             // Получим основные данные фотографии
             $db = &JFactory::getDBO();
             $photoidQ = $db->quote($photoid);
-            $db->setQuery("SELECT p.id, 
-                                  p.name, 
-                                  p.file_name,
-                                  u.username
+            $db->setQuery("SELECT p.id          photo_id, 
+                                  p.name        photo_name, 
+                                  p.file_name   file_name,
+                                  u.username    user_name
                              FROM #__lrgallery_photos p,
                                   #__users u
                             WHERE p.user_id = u.id
                               AND p.id = $photoidQ");
-            $photoInfo = $db->loadObject();
+            $photoInfo = $db->loadAssoc();
             if (empty($photoInfo))
                 return JError::raiseWarning(1, "Error while retrieving photo from database", 
                     $db->stderr());
             
             // Получим метаданные фотографии
-            $db->setQuery("SELECT meta.name,
-                                  data.value
+            $db->setQuery("SELECT meta.name     meta_name,
+                                  data.value    meta_value
                              FROM #__lrgallery_meta meta,
                                   #__lrgallery_metadata data
                             WHERE meta.id = data.meta_id
@@ -293,8 +300,14 @@
                 return JError::raiseWarning(2, "Error while retrieving photo metadata from database", 
                     $db->stderr());
             
-            $photoInfo->metadata = $metadata;
-            return $photoInfo;
+            // Повернем метаданные
+            $pivotedMeta = array();
+            foreach ($metadata as $meta) {
+                $pivotedMeta[$meta['meta_name']] = $meta['meta_value'];
+            }
+            
+            $info = array_merge($photoInfo, $pivotedMeta);
+            return $info;
         }
         
         public function deletePhotoTest()
@@ -339,7 +352,9 @@
                 return JError::raiseWarning(3, "Error occured while deleting photo from database", 
                     $db->stderr());
             
-            return true;
+            return array(
+                'result' => true
+            );
         }       
         
         public function deleteUserTest()
@@ -400,7 +415,9 @@
                 return JError::raiseWarning(6, "Error occured while deleting user data from database", 
                     $db->stderr());
             
-            return true;
+            return array(
+                'result' => true
+            );
         }
         
         public function logoutTest()
@@ -428,7 +445,9 @@
                 return JError::raiseWarning(2, "Error while removing token from database", 
                     $db->stderr());
             
-            return true;
+            return array(
+                'result' => true
+            );
         }
         
         public function decode()

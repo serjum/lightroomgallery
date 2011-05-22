@@ -24,6 +24,7 @@
     class PublishHelper {
         
         private $data = null;
+        private $result = null;
         private $error = null;
                 
         /*
@@ -32,8 +33,7 @@
         public function parse($xmlVar) {
             
             // Получим содержимое
-            //$content = JRequest::getString($xmlVar, '', 'POST');
-            $content = $_POST[$xmlVar];
+            $content = $_POST[$xmlVar];            
             
             if (empty($content)) {
                 $this->error = new JException('XML content is empty', 1);
@@ -43,7 +43,7 @@
             // Если включены magic quotes, уберем escape слэши
             if (get_magic_quotes_gpc()) {
                 $content = stripslashes($content);
-            }
+            }          
 
             // Попробуем разобрать его как XML
             $parser = new JSimpleXML();
@@ -116,16 +116,43 @@
             }
             
             // Вызовем метод с нужными параметрами
-            echo $this->data->result = 
-                call_user_func_array(array($controller, $this->data->method), $params);
+            $result = call_user_func_array(array($controller, $this->data->method), $params);
+            if (JError::isError($result))
+                $this->error = $result;
+            else
+                $this->result = $result;
+            
         }
         
         /*
          * Получение результата в формате XML
          */
         public function getXmlResult() {
-            
+            $xml =      '<?xml version="1.0"?>';
+            $xml .=     "<methodResponse>";
+            $xml .=     "   <params>";
+            foreach ($this->result as $key => $value) {
+                $xml .= "       <param>";
+                $xml .= "           <value>";
+                $xml .= "               <$key>$value</$key>";
+                $xml .= "           </value>";
+                $xml .= "       </param>";
+            }
+            $xml .=     "   </params>";
+            $xml .=     "   <errors>";
+            if (!empty($this->error)) {
+                $code = $this->error->getCode();
+                $message = $this->error->getMessage();
+                
+                $xml .= "       <error>";
+                $xml .= "           <code>$code</code>";
+                $xml .= "           <message>$message</message>";
+                $xml .= "       </error>";
+            }
+            $xml .=     "   </errors>";
+            $xml .=     "</methodResponse>";
+
+            return $xml;
         }
     }
-
 ?>
