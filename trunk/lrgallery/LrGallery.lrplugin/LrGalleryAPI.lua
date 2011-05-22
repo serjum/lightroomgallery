@@ -433,27 +433,6 @@ end
  </methodCall>
 ]]--
 local function constructXml(params)
-	--[[local xmlBuilder = LrXml.createXmlBuilder()
-	xmlBuilder:beginBlock('methodCall')
-	xmlBuilder:beginBlock('methodName')
-	xmlBuilder:text(method)
-	xmlBuilder:endBlock('methodName')
-	xmlBuilder:beginBlock('params')
-	for param, value in pairs(params.params) do
-		xmlBuilder:beginBlock('param')
-		xmlBuilder:beginBlock('value')
-		xmlBuilder:beginBlock(param)
-		xmlBuilder:text(value)
-		xmlBuilder:endBlock(param)
-		xmlBuilder:endBlock('value')
-		xmlBuilder:endBlock('param')
-	end
-	xmlBuilder:endBlock('params')
-	xmlBuilder:endBlock('methodCall')
-	
-	return "lrgalleryxml=" .. xmlBuilder:serialize()
-	--]]
-	
 	local xml = ''
 		xml = xml .. '<?xml version="1.0"?>\n'
 		xml = xml .. '<methodCall>\n'
@@ -469,8 +448,7 @@ local function constructXml(params)
 		xml = xml .. '	</params>\n'
 		xml = xml .. '</methodCall>\n'
 
-	return xml
-	
+	return xml	
 end
 
 -- XML Remote procedure call
@@ -491,10 +469,10 @@ function LrGalleryAPI.callXmlMethod(params)
 					value = tostring(#xmlString)
 				}
 			})
-			LrDialogs.message(response)
+			--LrDialogs.message(response)
 			
 			-- Transform result to table
-			local result = xml2table(response)
+			local result = xml2table(response)		
 			
 			-- Return result and raw xml response
 			return result, response	
