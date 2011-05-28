@@ -18,12 +18,13 @@ if (!empty($id)) {
 if (empty($currPhoto))
     $currPhoto = $photos[0];
 
-// Для удобства пихнем метаданные в текущуюю фотографию
+// Для удобства пихнем метаданные в текущую фотографию
 foreach ($metadata as $md_item) {
     if ($md_item['photo_id'] == $currPhoto->id) {
         $currPhoto->metadata[$md_item['name']] = $md_item['value'];
     }
 }
+
 ?>
 
 <html lang="ru">
@@ -347,31 +348,76 @@ foreach ($metadata as $md_item) {
                 
                 var comments = $('comments').value;
                 setMetadata(id, 'comments', comments, 
-                function(){
-                    // Во время обработки запроса покажем анимацию
-                    $('comments_loader').setStyle('visibility', 'visible');
-                },
-                function(response) {
-                    // Скроем анимацию
-                    $('comments_loader').setStyle('visibility', 'hidden');
-                        
-                    // Разберем ответ в формате JSON
-                    var response = JSON.decode(result);
+                    function(){
+                        // Во время обработки запроса покажем анимацию
+                        $('comments_loader').setStyle('visibility', 'visible');
+                    },
+                    function(response) {
+                        // Скроем анимацию
+                        $('comments_loader').setStyle('visibility', 'hidden');
+
+                        // Разберем ответ в формате JSON
+                        var response = JSON.decode(result);
+                        if (!response.error) {
+
+                        }
+                        else {
+                            alert('При записи комментариев произошла ошибка. Пожалуйста, обратитесь к администратору');
+                        }
+                    }
+                );                                
+            }
+            
+            /* Получение названия фотографии */
+            function getName() {
+                var id = $('id').value;
+                if (id == '') {
+                    alert('Пожалуйста, выберите фотографию!');
+                    return;
+                }
+                getMetadata(id, 'name', null, function(response) {
                     if (!response.error) {
-                            
+                        displayName(response.meta);
                     }
                     else {
-                        alert('При записи комментариев произошла ошибка. Пожалуйста, обратитесь к администратору');
+                        alert('При получении названии фотографии произошла ошибка. Пожалуйста, обратитесь к администратору');
                     }
-                }
-            );                                
+                });
             }
+                                                            
+            /* Отображение названия фотографии */
+            function displayName(name) {
+                $('caption_title').innerHTML = name;
+            }                        
+            
+            /* Получение даты фотографии */
+            function getDateime() {
+                var id = $('id').value;
+                if (id == '') {
+                    alert('Пожалуйста, выберите фотографию!');
+                    return;
+                }
+                getMetadata(id, 'datetime', null, function(response) {
+                    if (!response.error) {
+                        displayDatetime(response.meta);
+                    }
+                    else {
+                        alert('При получении даты фотографии произошла ошибка. Пожалуйста, обратитесь к администратору');
+                    }
+                });
+            }
+                                                            
+            /* Отображение названия фотографии */
+            function displayDatetime(datetime) {
+                $('caption_date').innerHTML = datetime;
+            }                      
         
             /* Устанавливает текущую фотографию */
             function setCurrPhoto(id) {
                 var photoSrc = $('photoBase').value + "/" + $('thumb_' + id).getAttribute('rel');
                 $('currPhoto').src = photoSrc;
                 $('id').value = id;
+                getName();
                 getAcceptedFlag();
                 getRating();
                 getComments();
@@ -382,10 +428,10 @@ foreach ($metadata as $md_item) {
     <body>
         <div id="header">
             <div id="caption_title">
-                Отдых в Швейцарии
+                <? echo $currPhoto->metadata['name']; ?>
             </div>
             <div id="caption_date">
-                (08.01.2011 11:03:47)
+                (<? echo $currPhoto->metadata['datetime']; ?>)
             </div>
         </div>
         <div class="clear"></div>
