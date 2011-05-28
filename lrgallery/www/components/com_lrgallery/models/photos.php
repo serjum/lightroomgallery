@@ -9,7 +9,7 @@
         /*
          * Базовый путь для папок с пользовательскими фотографиями
          */
-        const folderBase = 'media/user_folders';
+        const folderBase = '/media/user_folders';
         
         /*
          * Текущий пользователь
