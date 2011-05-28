@@ -418,7 +418,7 @@ foreach ($metadata as $md_item) {
                 $('currPhoto').src = photoSrc;
                 $('id').value = id;
                 getName();
-                getDate();
+                getDatetime();
                 getAcceptedFlag();
                 getRating();
                 getComments();
