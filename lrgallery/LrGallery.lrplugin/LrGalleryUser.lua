@@ -35,8 +35,7 @@ LrGalleryUser = {}
 local function storedCredentialsAreValid( propertyTable )
 
 	return propertyTable.username and string.len( propertyTable.username ) > 0
-			and propertyTable.nsid 
-			and propertyTable.auth_token
+			and propertyTable.token
 
 end
 
@@ -58,65 +57,42 @@ local function notLoggedIn( propertyTable )
 
 end
 
---------------------------------------------------------------------------------
 
-local doingLogin = false
+-- Login
+function LrGalleryUser.login(propertyTable)
 
-function LrGalleryUser.login( propertyTable )
-
-	if doingLogin then 
-		return 
-	end
-	doingLogin = true
-
+	-- Start async task
 	LrFunctionContext.postAsyncTaskWithContext( 'LrGallery login',
-	function(context)
+		function(context)
 
-		-- Clear any existing login info, but only if creating new account.
-		-- If we're here on an existing connection, that's because the login
-		-- token was rejected. We need to retain existing account info so we
-		-- can cross-check it.
-
-		if not propertyTable.LR_editingExistingPublishConnection then
-			notLoggedIn( propertyTable )
-		end
-
-		propertyTable.accountStatus = LOC "$$$/LrGallery/AccountStatus/LoggingIn=Logging in..."
-		propertyTable.loginButtonEnabled = false
-		
-		LrDialogs.attachErrorDialogToFunctionContext(context)
-		
-		-- Make sure login is valid when done, or is marked as invalid.
-		
-		context:addCleanupHandler(
-			function()
-				doingLogin = false
-
-				if not storedCredentialsAreValid( propertyTable ) then
-					notLoggedIn( propertyTable )
-				end
-				
-				-- Hrm. New API doesn't make it easy to show what operation failed.
-				-- LrDialogs.message( LOC "$$$/LrGallery/LoginFailed=Failed to log in." )
-			end 
-		)
-				
-		propertyTable.accountStatus = LOC "$$$/LrGallery/AccountStatus/WaitingForLrGallery=Waiting for response from flickr.com..."
-
-		params = {}
-		method = 'login';
-		local data = LrGalleryAPI.callMethod(propertyTable, params, method)
-		
-		local token = data.response.token
-		
-		if not token then
-			return
-		end
-		
-		propertyTable.token = data.response.token		
-		LrGalleryUser.updateUserStatusTextBindings( propertyTable )
-		
-	end )
+			-- Display process
+			propertyTable.accountStatus = LOC "$$$/LrGallery/AccountStatus/LoggingIn=Logging in..."
+			propertyTable.loginButtonEnabled = false	
+			
+			LrDialogs.attachErrorDialogToFunctionContext( context )
+			
+			-- Call login method
+			params = {}
+			method = 'login';
+			local data = LrGalleryAPI.callMethod(propertyTable, params, method)		
+			
+			-- Check result
+			local username = data.params.param.value.username._value
+			local token = data.params.param.value.token._value
+			if not token then
+				return
+			end
+			
+			-- Save username and token
+			propertyTable.username = username
+			propertyTable.password = password
+			propertyTable.token = token		
+			
+			-- Update labels
+			propertyTable.accountStatus = LOC "$$$/LrGallery/AccountStatus/WaitingForLrGallery=Logged in as " .. username
+			propertyTable.LR_cantExportBecause = nil
+		end 
+	)
 
 end
 
@@ -256,8 +232,8 @@ function LrGalleryUser.verifyLogin( propertyTable )
 	
 end
 
---------------------------------------------------------------------------------
 
+-- UI labels text update
 function LrGalleryUser.updateUserStatusTextBindings( settings )
 
 	local nsid = settings.nsid
