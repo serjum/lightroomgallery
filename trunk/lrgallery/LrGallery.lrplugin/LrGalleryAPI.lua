@@ -31,7 +31,7 @@ local LrXml = import 'LrXml'
 local LrTasks = import 'LrTasks'
 local LrStringUtils = import 'LrStringUtils'
 
-local prefs = import 'LrPrefs'.prefsForPlugin()
+local prefs = import 'LrPrefs'.prefsForPlugin(_PLUGIN)
 
 local bind = LrView.bind
 local share = LrView.share
@@ -41,8 +41,8 @@ local logger = import 'LrLogger'('LrGalleryAPI')
 LrGalleryAPI = {}
 
 local appearsAlive
---local serviceUrl = "http://XN--H1AFILGCK.XN--P1AI/service/publish/"
-local serviceUrl = "http://lrgallery/service/publish/"
+local serviceUrl = "http://XN--H1AFILGCK.XN--P1AI/service/publish/"
+--local serviceUrl = "http://lrgallery/service/publish/"
 local token = nil
 
 local function formatError(nativeErrorCode)
@@ -59,22 +59,22 @@ local function traverse(node)
 
 	if type == 'element' then
 
-		local element = setmetatable( {}, simpleXmlMetatable )
-		element._name = node:name()
+		local element = setmetatable( {}, simpleXmlMetatable )		
+		element._name = node:name()		
 		element._value = node:text()
 		
 		local count = node:childCount()
 
 		for i = 1, count do
 			local name, value = traverse( node:childAtIndex( i ) )
-			if name and value then
+			if name and value then				
 				element[ name ] = value
-			end
+			end			
 		end
 
 		if type == 'element' then
 			for k, v in pairs( node:attributes() ) do
-				element[ k ] = v.value
+				element[ k ] = v.value				
 			end
 		end
 		
@@ -165,7 +165,7 @@ function LrGalleryAPI.showCredentialsDialog( message )
 			
 		if result == 'ok' then
 			prefs.username = trim(properties.username)
-			prefs.password = trim(properties.password)		
+			prefs.password = trim(properties.password)
 		else		
 			LrErrors.throwCanceled()		
 		end	
@@ -174,21 +174,11 @@ end
 
 -- Get username and password
 function LrGalleryAPI.getCredentials()
-
 	local username, password = prefs.username, prefs.password
 	
-	while not (
-		type( username ) == 'string' and type( password ) == 'string'
-	) do		
-	
-		local message
-		if username or password then
-			message = LOC "$$$/LrGallery/CredentialsDialog/Invalid=Username and password below are not valid."
-		end
-	
-		LrGalleryAPI.showCredentialsDialog(message)
-		username, password = prefs.username, prefs.password		
-				
+	while not (type(username) == 'string' and type(password) == 'string') do					
+		LrGalleryAPI.showCredentialsDialog()
+		username, password = prefs.username, prefs.password
 	end
 	
 	return username, password
@@ -457,34 +447,29 @@ function LrGalleryAPI.callXmlMethod(params)
 	-- Construct XML message
 	local xmlString = "lrgalleryxml=" .. constructXml(params)
 		
-	-- Send message and get response
-	LrTasks.startAsyncTask(
-		function()
-		
-			local response, headers = LrHttp.post(serviceUrl, xmlString, {{
-					field = 'Content-Type',
-					value = 'application/x-www-form-urlencoded',
-				}, {
-					field = 'Content-Length',
-					value = tostring(#xmlString)
-				}
-			})
-			--LrDialogs.message(response)
-			
-			-- Transform result to table
-			local result = xml2table(response)		
-			
-			-- Return result and raw xml response
-			return result, response	
-		end 
-	)					
+	-- Send message and get response		
+	local response, headers = LrHttp.post(serviceUrl, xmlString, {{
+			field = 'Content-Type',
+			value = 'application/x-www-form-urlencoded',
+		}, {
+			field = 'Content-Length',
+			value = tostring(#xmlString)
+		}
+	})
+	--LrDialogs.message(response)
+	
+	-- Transform result to table
+	local result = xml2table(response)		
+	
+	-- Return result and raw xml response
+	return result, response	
 end
 
 -- Login into the gallery
 function LrGalleryAPI.login(propertyTable, params)
 	
 	-- Get username and password
-	local username, password = LrGalleryAPI.getCredentials();
+	local username, password = LrGalleryAPI.getCredentials();	
 	
 	-- Set request params
 	local callParams = {}
@@ -495,9 +480,15 @@ function LrGalleryAPI.login(propertyTable, params)
 	
 	-- Call login method
 	local result, xmlResponse = LrGalleryAPI.callXmlMethod(params)
+		
+	-- Include username and password in the result
+	result.params.param.value['username'] = {}
+	result.params.param.value['username']._value = username
+	result.params.param.value['password'] = {}
+	result.params.param.value['password']._value = password
 	
-	-- Return token
-	return result.token
+	-- Return result
+	return result
 end
 
 -- Create new gallery user
