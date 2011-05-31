@@ -253,7 +253,7 @@ function LrGalleryAPI.showCreateUserDialog(propertyTable)
 				spacing = f:label_spacing(),
 				
 				f:static_text {
-					title = LOC "$$$/LrGallery/CreateUserDialog/foldername=foldername name:",
+					title = LOC "$$$/LrGallery/CreateUserDialog/foldername=Folder name:",
 					alignment = 'right',
 					width = share 'title_width',
 				},
@@ -306,10 +306,8 @@ function LrGalleryAPI.getCreateUserCredentials(propertyTable)
 end
 
 -- Show delete user dialog
-function LrGalleryAPI.showDeleteUserDialog( message )
-
+function LrGalleryAPI.showDeleteUserDialog(propertyTable)
 	LrFunctionContext.callWithContext( 'LrGalleryAPI.showDeleteUserDialog', function( context )
-
 		local f = LrView.osFactory()
 	
 		local properties = LrBinding.makePropertyTable( context )
@@ -356,19 +354,18 @@ function LrGalleryAPI.showDeleteUserDialog( message )
 		}
 		
 		local result = LrDialogs.presentModalDialog {
-				title = LOC "$$$/LrGallery/DeleteUserDialog/Title=Enter username for delete", 
-				contents = contents,
+			title = LOC "$$$/LrGallery/DeleteUserDialog/Title=Enter username for delete", 
+			contents = contents,
+		}
+		
+		if result == 'ok' then	
+			username = trim (properties.username)		
+			deleteUser = {
+				username = username,
 			}
-		
-		if result == 'ok' then
-	
-			username = trim ( properties.username )
-		
-			return username
-		else
-		
+			propertyTable.deleteUser = deleteUser
+		else		
 			LrErrors.throwCanceled()
-		
 		end
 	
 	end )
@@ -376,25 +373,15 @@ function LrGalleryAPI.showDeleteUserDialog( message )
 end
 
 -- Get new user username and password
-function LrGalleryAPI.getDeleteUserName()
-
+function LrGalleryAPI.getDeleteUserName(propertyTable)
 	local username
 	
-	while not(
-		type( username ) == 'string'
-	) do
-	
-		local message
-		if username then
-			message = LOC "$$$/LrGallery/DeleteUserDialog/Invalid=Username below are not valid."
-		end
-		
-		username = LrGalleryAPI.showDeleteUserDialog(message)
-		
+	while not (type(username) == 'string') do	
+		LrGalleryAPI.showDeleteUserDialog(propertyTable)
+		username = propertyTable.deleteUser.username
 	end
 	
 	return username
-
 end
 
 
@@ -526,6 +513,31 @@ function LrGalleryAPI.createUser(propertyTable, params)
 	result.params.param.value['username']._value = username
 	result.params.param.value['foldername'] = {}
 	result.params.param.value['foldername']._value = foldername
+	
+	-- Return result
+	return result
+end
+
+-- Delete gallery user
+function LrGalleryAPI.deleteUser(propertyTable, params)
+	
+	-- Get new user params
+	local username = LrGalleryAPI.getDeleteUserName(propertyTable)
+	
+	-- Set request params
+	local callParams = {
+		username = username, 
+		token = prefs.token,
+	}
+	params.params = callParams
+	params.method = 'deleteUser'
+	
+	-- Call login method
+	local result, xmlResponse = LrGalleryAPI.callXmlMethod(params)
+		
+	-- Include deleted username in the result
+	result.params.param.value['username'] = {}
+	result.params.param.value['username']._value = username
 	
 	-- Return result
 	return result
