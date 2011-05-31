@@ -96,8 +96,7 @@ function LrGalleryUser.login(propertyTable)
 
 end
 
---------------------------------------------------------------------------------
-
+-- Create new gallery user
 function LrGalleryUser.createUser(propertyTable)
 
 	-- Start async task
@@ -132,45 +131,34 @@ function LrGalleryUser.createUser(propertyTable)
 			LrDialogs.message('Successfully created new user: ' .. username)
 		end 
 	)	
-
 end
 
 
---------------------------------------------------------------------------------
+-- Delete gallery user
+function LrGalleryUser.deleteUser(propertyTable)
 
-local doingDeleteUser = false
-
-function LrGalleryUser.deleteUser( propertyTable )
-
-	if doingDeleteUser then 
-		return 
-	end
-	doingDeleteUser = true
-
-	LrFunctionContext.postAsyncTaskWithContext( 'LrGallery deleteUser',
-	function( context )
-
+	-- Start async task
+	LrFunctionContext.postAsyncTaskWithContext( 'LrGallery deleteUser', function( context )
 		propertyTable.userManagementStatus = LOC "$$$/LrGallery/UserManagement/DeletingUser=Deleting user..."
 		propertyTable.deleteUserButtonEnabled = false
 		
 		LrDialogs.attachErrorDialogToFunctionContext( context )
 		
-		context:addCleanupHandler( 
-			function()
-				doingDeleteUser = false
-			end 
-		)
-
-		local username = LrGalleryAPI.getDeleteUserName()
-	
 		local params = {}
-		params.username = username
-		local result = LrGalleryAPI.deleteUser(propertyTable, params)
+		method = 'deleteUser'
+		local data = LrGalleryAPI.deleteUser(propertyTable, params)
 		
-		LrGalleryUser.updateUserStatusTextBindings( propertyTable )
-		
-	end )
-
+		-- Check result
+		local result = data.params.param.value.result._value
+		local username = data.params.param.value.username._value
+		if not result then
+			return
+		end
+				
+		-- Say about successfull delete
+		LrDialogs.message('Successfully deleted user: ' .. username)		
+	end
+	)
 end
 
 
