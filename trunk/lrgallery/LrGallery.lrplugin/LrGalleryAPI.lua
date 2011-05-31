@@ -94,7 +94,7 @@ local function trim(s)
 end
 
 -- Show username and password dialog
-function LrGalleryAPI.showCredentialsDialog( message )
+function LrGalleryAPI.showCredentialsDialog(message)
 
 	LrFunctionContext.callWithContext( 'LrGalleryAPI.showCredentialsDialog', function( context )
 		local f = LrView.osFactory()
@@ -176,7 +176,7 @@ end
 function LrGalleryAPI.getCredentials()
 	local username, password = prefs.username, prefs.password
 	
-	while not (type(username) == 'string' and type(password) == 'string') do					
+	while not (type(username) == 'string' and type(password) == 'string') do
 		LrGalleryAPI.showCredentialsDialog()
 		username, password = prefs.username, prefs.password
 	end
@@ -185,16 +185,16 @@ function LrGalleryAPI.getCredentials()
 end
 
 -- Show create user dialog
-function LrGalleryAPI.showCreateUserDialog( message )
+function LrGalleryAPI.showCreateUserDialog(propertyTable)
 
-	LrFunctionContext.callWithContext( 'LrGalleryAPI.showCreateUserDialog', function( context )
+	LrFunctionContext.callWithContext( 'LrGalleryAPI.showCreateUserDialog', function(context)
 
 		local f = LrView.osFactory()
 	
 		local properties = LrBinding.makePropertyTable( context )
 		properties.username = ''
 		properties.password = ''
-		properties.folder = ''
+		properties.foldername = ''
 	
 		-- Build dialog window contents
 		local contents = f:column {
@@ -253,7 +253,7 @@ function LrGalleryAPI.showCreateUserDialog( message )
 				spacing = f:label_spacing(),
 				
 				f:static_text {
-					title = LOC "$$$/LrGallery/CreateUserDialog/Folder=Folder name:",
+					title = LOC "$$$/LrGallery/CreateUserDialog/foldername=foldername name:",
 					alignment = 'right',
 					width = share 'title_width',
 				},
@@ -261,7 +261,7 @@ function LrGalleryAPI.showCreateUserDialog( message )
 				f:edit_field { 
 					fill_horizonal = 1,
 					width_in_chars = 35, 
-					value = bind 'folder',
+					value = bind 'foldername',
 				},
 			}
 		}
@@ -273,11 +273,13 @@ function LrGalleryAPI.showCreateUserDialog( message )
 		
 		if result == 'ok' then
 	
-			username = trim ( properties.username )
-			password = trim ( properties.password )
-			password = trim ( properties.folder )
-		
-			return username, password, folder
+			newUser = {}
+			newUser.username = trim (properties.username)
+			newUser.password = trim (properties.password)
+			newUser.foldername = trim (properties.foldername)
+			propertyTable.newUser = newUser
+					
+			--return username, password, foldername
 		else
 		
 			LrErrors.throwCanceled()
@@ -289,25 +291,18 @@ function LrGalleryAPI.showCreateUserDialog( message )
 end
 
 -- Get new user username and password
-function LrGalleryAPI.getCreateUserCredentials()
-
-	local username, password, folder
+function LrGalleryAPI.getCreateUserCredentials(propertyTable)
+	local username, password, foldername
 	
-	while not(
-		type( username ) == 'string' and type( password ) == 'string' and type( folder ) == 'string'
-	) do
-	
-		local message
-		if username or password then
-			message = LOC "$$$/LrGallery/CredentialsDialog/Invalid=Properties below are not valid."
-		end
+	while not (type(username) == 'string' and type(password) == 'string' and type(foldername) == 'string') do		
+		LrGalleryAPI.showCreateUserDialog(propertyTable)
 		
-		username, password, folder = LrGalleryAPI.showCreateUserDialog( message )
-		
+		username = propertyTable.newUser.username
+		password = propertyTable.newUser.password
+		foldername = propertyTable.newUser.foldername	
 	end
 	
-	return username, password, folder
-
+	return username, password, foldername
 end
 
 -- Show delete user dialog
@@ -456,10 +451,10 @@ function LrGalleryAPI.callXmlMethod(params)
 			value = tostring(#xmlString)
 		}
 	})
-	--LrDialogs.message(response)
+	LrDialogs.message(response)
 	
 	-- Transform result to table
-	local result = xml2table(response)		
+	local result = xml2table(response)
 	
 	-- Return result and raw xml response
 	return result, response	
@@ -480,6 +475,10 @@ function LrGalleryAPI.login(propertyTable, params)
 	
 	-- Call login method
 	local result, xmlResponse = LrGalleryAPI.callXmlMethod(params)
+	
+	-- Save token to prefs
+	local token = result.params.param.value.token._value
+	prefs.token = token
 		
 	-- Include username and password in the result
 	result.params.param.value['username'] = {}
@@ -492,18 +491,41 @@ function LrGalleryAPI.login(propertyTable, params)
 end
 
 -- Create new gallery user
-function LrGalleryAPI.createUser( propertyTable, params )
-				
+function LrGalleryAPI.createUser(propertyTable, params)
+	
+	-- Get new user params
+	local username, password, foldername = LrGalleryAPI.getCreateUserCredentials(propertyTable)
+	
 	-- Set request params
 	local callParams = {
-		username = params.username, 
-		password = params.password,
-		folder = params.folder,
+		username = username, 
+		password = password,
+		foldername = foldername,
+		token = prefs.token,
 	}
 	params.params = callParams
+	params.method = 'createUser'
 	
-	-- Call createUser method
-	local result, xmlResponse = LrGalleryAPI.callXmlMethod(propertyTable, params)
+	-- Call login method
+	local result, xmlResponse = LrGalleryAPI.callXmlMethod(params)
+	
+	-- Save newly created user to prefs
+	local user_id = result.params.param.value.user_id._value
+	createdUser = {		
+		username = username,
+		password = password,
+		foldername = foldername
+	}
+	if not (type(prefs.createdUsers) == 'table') then
+		prefs.createdUsers = {}
+	end
+	prefs.createdUsers[user_id] = createdUser
+		
+	-- Include username and password in the result
+	result.params.param.value['username'] = {}
+	result.params.param.value['username']._value = username
+	result.params.param.value['foldername'] = {}
+	result.params.param.value['foldername']._value = foldername
 	
 	-- Return result
 	return result
@@ -560,6 +582,7 @@ end
 function LrGalleryAPI.callMethod(propertyTable, params, method)
 
 	-- Check login
+	token = prefs.token
 	if not (method == 'login') and (token == nil) then
 		local p = {}
 		token = LrGalleryAPI.login(nil, p)
