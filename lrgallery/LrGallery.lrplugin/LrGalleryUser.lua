@@ -73,7 +73,7 @@ function LrGalleryUser.login(propertyTable)
 			
 			-- Call login method
 			params = {}
-			method = 'login';
+			method = 'login'
 			local data = LrGalleryAPI.callMethod(propertyTable, params, method)		
 			
 			-- Check result
@@ -98,38 +98,40 @@ end
 
 --------------------------------------------------------------------------------
 
-local doingCreateUser = false
+function LrGalleryUser.createUser(propertyTable)
 
-function LrGalleryUser.createUser( propertyTable )
-
-	if doingCreateUser then return end
-	doingCreateUser = true
-
+	-- Start async task
 	LrFunctionContext.postAsyncTaskWithContext( 'LrGallery createUser',
-	function( context )
+		function(context)
 
-		propertyTable.userManagementStatus = LOC "$$$/LrGallery/UserManagement/CreatingUser=Creating user..."
-		propertyTable.createUserButtonEnabled = false
-		
-		LrDialogs.attachErrorDialogToFunctionContext( context )
-		
-		context:addCleanupHandler( 
-			function()
-				doingCreateUser = false
-			end 
-		)
-
-		local username, password, folder = LrGalleryAPI.getCreateUserCredentials()
-	
-		local params = {}
-		params.username = username
-		params.password = password
-		params.folder = folder
-		local result = LrGalleryAPI.createUser(propertyTable, params)
-		
-		LrGalleryUser.updateUserStatusTextBindings( propertyTable )
-		
-	end )
+			-- Display process
+			propertyTable.userManagementStatus = LOC "$$$/LrGallery/UserManagement/CreatingUser=Creating user..."
+			propertyTable.createUserButtonEnabled = false
+			
+			LrDialogs.attachErrorDialogToFunctionContext( context )					
+			
+			-- Call createUser method
+			params = {}
+			method = 'createUser'
+			local data = LrGalleryAPI.callMethod(propertyTable, params, method)		
+			
+			-- Check result
+			local user_id = data.params.param.value.user_id._value
+			local username = data.params.param.value.username._value
+			local foldername = data.params.param.value.foldername._value			
+			if not user_id then
+				return
+			end
+			
+			-- Save params
+			propertyTable.user_id = user_id
+			propertyTable.username = username			
+			propertyTable.foldername = foldername		
+			
+			-- Say about successfull creation
+			LrDialogs.message('Successfully created new user: ' .. username)
+		end 
+	)	
 
 end
 
