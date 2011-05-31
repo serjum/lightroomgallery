@@ -162,14 +162,14 @@
             // Если такая папка уже существует - удалим все файлы из неё
             if (empty($foldername)) {
                 $foldername = $username;
-            }
+            }            
             $folderToCreate = $this->userFolders . DS . $foldername;                        
             if (JFolder::exists($folderToCreate)) {
                 foreach (JFolder::files($folderToCreate, '*', true, true) as $file) {
                     JFile::delete($file);
                 }
                 $db = &JFactory::getDBO();
-                $foldernameQ = $db->quote($foldername);
+                $foldernameQ = $db->Quote($foldername);
                 $db->setQuery("DELETE 
                                  FROM #__lrgallery_userfolders
                                 WHERE folder_name = $foldernameQ");
@@ -182,6 +182,7 @@
             
             // Вставим запись в #__lrgallery_userfolders
             $db = &JFactory::getDBO();
+            $foldernameQ = $db->Quote($foldername);
             $userId = $instance->id;
             $db->setQuery("INSERT INTO #__lrgallery_userfolders
                                 (user_id, folder_name)
