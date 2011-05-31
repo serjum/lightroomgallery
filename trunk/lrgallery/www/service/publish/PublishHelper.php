@@ -43,7 +43,9 @@
             // Если включены magic quotes, уберем escape слэши
             if (get_magic_quotes_gpc()) {
                 $content = stripslashes($content);
-            }          
+            }
+            
+            //var_dump($content);
 
             // Попробуем разобрать его как XML
             $parser = new JSimpleXML();
@@ -131,13 +133,15 @@
             $xml =      '<?xml version="1.0"?>';
             $xml .=     "<methodResponse>";
             $xml .=     "   <params>";
-            foreach ($this->result as $key => $value) {
-                $xml .= "       <param>";
-                $xml .= "           <value>";
-                $xml .= "               <$key>$value</$key>";
-                $xml .= "           </value>";
-                $xml .= "       </param>";
-            }
+            if (!empty($this->result)) {
+                foreach ($this->result as $key => $value) {
+                    $xml .= "       <param>";
+                    $xml .= "           <value>";
+                    $xml .= "               <$key>$value</$key>";
+                    $xml .= "           </value>";
+                    $xml .= "       </param>";
+                }
+            }            
             $xml .=     "   </params>";
             $xml .=     "   <errors>";
             if (!empty($this->error)) {
