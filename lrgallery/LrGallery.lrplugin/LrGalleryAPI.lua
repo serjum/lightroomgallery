@@ -176,10 +176,10 @@ end
 function LrGalleryAPI.getCredentials()
 	local username, password = prefs.username, prefs.password
 	
-	while not (type(username) == 'string' and type(password) == 'string') do
+	repeat
 		LrGalleryAPI.showCredentialsDialog()
 		username, password = prefs.username, prefs.password
-	end
+	until type(username) == 'string' and type(password) == 'string'		
 	
 	return username, password
 end
@@ -427,6 +427,7 @@ end
 function LrGalleryAPI.callXmlMethod(params)	
 
 	-- Construct XML message
+	LrGalleryAPI.displayTable(params.params)
 	local xmlString = "lrgalleryxml=" .. constructXml(params)
 		
 	-- Send message and get response		
@@ -545,20 +546,19 @@ end
 
 -- Upload photo
 function LrGalleryAPI.uploadPhoto(propertyTable, params)
-		
-	-- Encode image in Base64
-	local rawPhotoData = LrFileUtils.readFile(params.photoFile)
-	local base64photo = LrStringUtils.encodeBase64(rawPhotoData)
-		
-	-- Set request params
-	local callParams = {
-		title = params.title,
-		photo = base64photo,
-	}
-	params.params = callParams
+				
+	-- Read photo file content	
+	local rawPhotoData = LrFileUtils.readFile(params.params.photoFile)
+	
+	-- Encode image in urlsafeBase64
+	local base64 = LrStringUtils.encodeBase64(rawPhotoData)
+	urlsafeBase64 = base64:gsub('+', '-')
+	urlsafeBase64 = urlsafeBase64:gsub('/', '_')
+	urlsafeBase64 = urlsafeBase64:gsub('=', '')
+	params.params.photo = urlsafeBase64	
 	
 	-- Call uploadPhoto method
-	local result, xmlResponse = LrGalleryAPI.callXmlMethod(propertyTable, params)
+	local result, xmlResponse = LrGalleryAPI.callXmlMethod(params)
 	
 	-- Return result
 	return result
@@ -574,6 +574,22 @@ function LrGalleryAPI.getPhotoInfo(propertyTable, params)
 	params.params = callParams
 	
 	-- Call getPhotoInfo method
+	local result, xmlResponse = LrGalleryAPI.callXmlMethod(propertyTable, params)
+	
+	-- Return result
+	return result
+end
+
+-- Delete photo
+function LrGalleryAPI.getPhotoInfo(propertyTable, params)
+		
+	-- Set request params
+	local callParams = {
+		photoid = params.photoid,
+	}
+	params.params = callParams
+	
+	-- Call deletePhoto method
 	local result, xmlResponse = LrGalleryAPI.callXmlMethod(propertyTable, params)
 	
 	-- Return result
@@ -604,8 +620,10 @@ function LrGalleryAPI.callMethod(propertyTable, params, method)
 	if not (type(params) == 'table') then
 		params = {}
 	end	
-	params.params = {}
-	params.params.method = method
+	if not (type(params.params) == 'table') then
+		params.params = {}
+	end		
+	params.method = method
 	params.params.token = token
 	
 	-- Call the method needed and return result
