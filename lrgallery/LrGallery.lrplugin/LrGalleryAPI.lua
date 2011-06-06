@@ -555,7 +555,7 @@ function LrGalleryAPI.uploadPhoto(propertyTable, params)
 	urlsafeBase64 = base64:gsub('+', '-')
 	urlsafeBase64 = urlsafeBase64:gsub('/', '_')
 	urlsafeBase64 = urlsafeBase64:gsub('=', '')
-	params.params.photo = urlsafeBase64	
+	params.params.image = urlsafeBase64	
 	
 	-- Call uploadPhoto method
 	local result, xmlResponse = LrGalleryAPI.callXmlMethod(params)
