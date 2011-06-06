@@ -429,34 +429,34 @@ end
 
 function publishServiceProvider.getCommentsFromPublishedCollection( publishSettings, arrayOfPhotoInfo, commentCallback )
 
-	for i, photoInfo in ipairs( arrayOfPhotoInfo ) do
+	-- for i, photoInfo in ipairs( arrayOfPhotoInfo ) do
 
-		local comments = LrGalleryAPI.getComments( publishSettings, {
-								photoId = photoInfo.remoteId,
-							} )
+		-- local comments = LrGalleryAPI.getComments( publishSettings, {
+								-- photoId = photoInfo.remoteId,
+							-- } )
 		
-		local commentList = {}
+		-- local commentList = {}
 		
-		if comments and #comments > 0 then
+		-- if comments and #comments > 0 then
 
-			for _, comment in ipairs( comments ) do
+			-- for _, comment in ipairs( comments ) do
 
-				table.insert( commentList, {
-								commentId = comment.id,
-								commentText = comment.commentText,
-								dateCreated = comment.datecreate,
-								username = comment.author,
-								realname = comment.authorname,
-								url = comment.permalink
-							} )
+				-- table.insert( commentList, {
+								-- commentId = comment.id,
+								-- commentText = comment.commentText,
+								-- dateCreated = comment.datecreate,
+								-- username = comment.author,
+								-- realname = comment.authorname,
+								-- url = comment.permalink
+							-- } )
 
-			end			
+			-- end			
 
-		end	
+		-- end	
 
-		commentCallback{ publishedPhoto = photoInfo, comments = commentList }						    
+		-- commentCallback{ publishedPhoto = photoInfo, comments = commentList }						    
 
-	end
+	-- end
 
 end
 
@@ -516,14 +516,14 @@ publishServiceProvider.titleForPhotoRating = LOC "$$$/LrGallery/TitleForPhotoRat
 
 function publishServiceProvider.getRatingsFromPublishedCollection( publishSettings, arrayOfPhotoInfo, ratingCallback )
 
-	for i, photoInfo in ipairs( arrayOfPhotoInfo ) do
+	-- for i, photoInfo in ipairs( arrayOfPhotoInfo ) do
 
-		local rating = LrGalleryAPI.getNumOfFavorites( publishSettings, { photoId = photoInfo.remoteId } )
-		if type( rating ) == 'string' then rating = tonumber( rating ) end
+		-- local rating = LrGalleryAPI.getNumOfFavorites( publishSettings, { photoId = photoInfo.remoteId } )
+		-- if type( rating ) == 'string' then rating = tonumber( rating ) end
 
-		ratingCallback{ publishedPhoto = photoInfo, rating = rating or 0 }
+		-- ratingCallback{ publishedPhoto = photoInfo, rating = rating or 0 }
 
-	end
+	-- end
 	
 end
 
