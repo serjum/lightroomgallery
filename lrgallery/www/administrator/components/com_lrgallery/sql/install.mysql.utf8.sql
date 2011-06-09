@@ -6,7 +6,6 @@ drop table if exists #__lrgallery_photos;
 create table #__lrgallery_photos
 (
     id          int(11) not null AUTO_INCREMENT,
-    name        varchar(200),
     user_id     int(11) not null,
     file_name   varchar(100) not null,
         primary key (id),

@@ -196,6 +196,45 @@
             );
         }
         
+        public function extractExifInfoTest() {
+            $filename = JRequest::getString('filename');
+            $info = $this->extractExifInfo($filename);
+            echo "<pre>";
+            var_dump($info);
+            echo "</pre>";
+        }
+        
+        /* Метод извлекает информацию из EXIF тегов изображения */
+        private function extractExifInfo($filename) {
+            $exif = exif_read_data($filename, 'FILE, ANY_TAG, COMMENT, IFD0, EXIF, THUMBNAIL');
+            $info = array();
+            
+            // Название
+            $info['name'] = $exif['FileName'];
+            
+            // Дата
+            $datetime = '';
+            if (!empty($exif['DateTimeOriginal']))
+                $datetime = $exif['DateTimeOriginal'];
+            else if (!empty($exif['DateTime']))
+                $datetime = $exif['DateTime'];
+            else            
+                $datetime = $exif['FileDateTime'];
+            
+            // Конвертируем дату в timestamp
+            if (!is_int($datetime)) {
+                $exifPieces = explode(":", $datetime);
+                $newExifString = $exifPieces[0] . "-" . $exifPieces[1] . "-" . $exifPieces[2] . ":" .
+                        $exifPieces[3] . ":" . $exifPieces[4];
+                $datetime = strtotime($newExifString);
+            }
+            $info['datetime'] = $datetime;
+            
+            // TODO: флаг, рейтинг и комментарии
+                
+            return $info;
+        }
+        
         public function uploadPhotoTest()
         {
             $username = JRequest::getString('username');
@@ -208,7 +247,7 @@
         /*
          * Загрузка фотографии в папку пользователя
          */
-        public function uploadPhoto($username, $photoname, $filename, $token)
+        public function uploadPhoto($username, $filename, $token)
         {
             $err = $this->checkLogin($token);
             if (JError::isError($err))
@@ -241,17 +280,37 @@
                 return JError::raiseWarning(5, "Error while uploading file");
             
             // Вставим запись в БД
-            $photonameQ = $db->quote($photoname);
             $baseNameQ = $db->quote($baseName);
             $db->setQuery("INSERT INTO #__lrgallery_photos
-                                (name, user_id, file_name)
+                                (user_id, file_name)
                            VALUES
-                                ($photonameQ, $userId, $baseNameQ)");
+                                ($userId, $baseNameQ)");
             if (!$db->query())
                 return JError::raiseWarning(6, "Error while saving uploaded photo to database", 
                     $db->stderr());
-            
+                                    
             $photoId = $db->insertid();
+            
+            // Заполним метаданные
+            $query = '';
+            $metadata = $this->extractExifInfo($destPath);
+            foreach ($metadata as $meta => $data) {
+                $metaQ = $db->quote($meta);
+                
+                if ($meta == 'datetime')
+                    $dataQ = "FROM_UNIXTIME($data)";
+                else
+                    $dataQ = $db->quote ($data);
+                
+                $query .=   "INSERT INTO #__lrgallery_metadata
+                                (photo_id, meta_id, value)
+                             VALUES
+                                ($photoId, (SELECT id FROM #__lrgallery_meta WHERE name = $metaQ), $dataQ);
+                             ";
+            }
+            $db->setQuery($query);
+            $db->queryBatch();
+            
             return array(
                 'photo_id' => $photoId
             );
@@ -277,7 +336,6 @@
             $db = &JFactory::getDBO();
             $photoidQ = $db->quote($photoid);
             $db->setQuery("SELECT p.id          photo_id, 
-                                  p.name        photo_name, 
                                   p.file_name   file_name,
                                   u.username    user_name
                              FROM #__lrgallery_photos p,
