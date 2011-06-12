@@ -438,11 +438,20 @@ function publishServiceProvider.getCommentsFromPublishedCollection( publishSetti
 		}		
 		method = 'getPhotoInfo'
 		local data = LrGalleryAPI.callMethod(propertyTable, params, method)
-		--LrGalleryAPI.displayTable(data.params.param.value.comments)
-		local comments = data.comments
 		
 		-- Update comments
-		commentCallback{publishedPhoto = photoInfo, comments = comments}		
+		if (data.comments) then
+			local comments = {}
+			table.insert(comments, {
+				commentId = 1,
+				commentText = data.comments,
+				dateCreated = nil,
+				username = nil,
+				realname = nil,
+				url = nil
+			})
+			commentCallback{publishedPhoto = photoInfo, comments = comments}
+		end
 	end
 
 end

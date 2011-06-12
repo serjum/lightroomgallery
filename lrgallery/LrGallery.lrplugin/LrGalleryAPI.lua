@@ -71,7 +71,6 @@ end
 local function xml2table(xmlString)
 	local data = {}
 	local result = traverse(LrXml.parseXml(xmlString), nil, data)
-	LrGalleryAPI.displayTable(result)
 	return result
 end
 
@@ -556,13 +555,7 @@ function LrGalleryAPI.getPhotoInfo(propertyTable, params)
 end
 
 -- Delete photo
-function LrGalleryAPI.deletePhoto(propertyTable, params)	
-
-	-- Set request params
-	local callParams = {
-		photoid = params.photoid,
-	}
-	params.params = callParams
+function LrGalleryAPI.deletePhoto(propertyTable, params)
 	
 	-- Call deletePhoto method
 	local result, xmlResponse = LrGalleryAPI.callXmlMethod(params)
