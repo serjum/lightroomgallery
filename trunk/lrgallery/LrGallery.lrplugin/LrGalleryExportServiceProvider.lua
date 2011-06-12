@@ -553,8 +553,8 @@ function exportServiceProvider.processRenderedPhotos(functionContext, exportCont
 		
 		-- If it was published, delete it first
 		if lrgalleryPhotoId then
-			LrDialogs.message('Photo was published')
-			params = {
+			params = {}
+			params.params = {
 				photoid = lrgalleryPhotoId
 			}
 			method = 'deletePhoto'
