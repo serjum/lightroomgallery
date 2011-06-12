@@ -8,40 +8,6 @@ require 'LrGalleryAPI'
 -- Plugin prefs
 local prefs = import 'LrPrefs'.prefsForPlugin(_PLUGIN)
 
---[[ @sdk
---- The <i>service definition script</i> for a publish service provider associates 
- -- the code and hooks that extend the behavior of Lightroom's Publish features
- -- with their implementation for your plug-in. The plug-in's <code>Info.lua</code> file 
- -- identifies this script in the <code>LrExportServiceProvider</code> entry. The script
- -- must define the needed callback functions and properties (with the required
- -- names and syntax) and assign them to members of the table that it returns. 
- -- <p>The <code>LrGalleryPublishSupport.lua</code> file of the LrGallery sample plug-in provides 
- -- 	examples of and documentation for the hooks that a plug-in must provide in order to 
- -- 	define a publish service. Because much of the functionality of a publish service
- -- 	is the same as that of an export service, this example builds upon that defined in the
- -- 	<code>LrGalleryExportServiceProvider.lua</code> file.</p>
-  -- <p>The service definition script for a publish service should return a table that contains:
- --   <ul><li>A pair of functions that initialize and terminate your publish service. </li>
- --	<li>Optional items that define the desired customizations for the Publish dialog. 
- --	    These can restrict the built-in services offered by the dialog,
- --	    or customize the dialog by defining new sections. </li>
- --	<li> A function that defines the publish operation to be performed 
- --	     on rendered photos (required).</li> 
- --	<li> Additional functions and/or properties to customize the publish operation.</li>
- --   </ul>
- -- <p>Most of these functions are the same as those defined for an export service provider.
- -- Publish services, unlike export services, cannot create presets. (You could think of the 
- -- publish service itself as an export preset.) The settings tables passed
- -- to these callback functions contain only Lightroom-defined settings, and settings that
- -- have been explicitly declared in the <code>exportPresetFields</code> list of the publish service.
- -- A callback function that you define for a publish service cannot make any changes to the
- -- settings table passed to it.</p>
- -- @module_type Plug-in provided
-
-	module 'SDK - Publish service provider' -- not actually executed, but suffices to trick LuaDocs
-
---]]
-
 local publishServiceProvider = {}
 
 publishServiceProvider.small_icon = 'small_lrgallery.png'
@@ -388,68 +354,30 @@ end
 
 publishServiceProvider.titleForPhotoRating = LOC "$$$/LrGallery/TitleForPhotoRating=Rating"
 
---------------------------------------------------------------------------------
---- (optional) This plug-in defined callback function is called (if supplied)
- -- to retrieve ratings from the remote service, for a single collection of photos 
- -- that have been published through this service. This function is called:
-  -- <ul>
-    -- <li>For every photo in the published collection each time <i>any</i> photo
-	-- in the collection is published or re-published.</li>
- 	-- <li>When the user clicks the Refresh button in the Library module's Comments panel.</li>
-	-- <li>After the user adds a new comment to a photo in the Library module's Comments panel.</li>
-  -- </ul>
-  -- <p>The body of this function should have a loop that looks like this:</p>
-	-- <pre>
-		-- function publishServiceProvider.getRatingsFromPublishedCollection( settings, arrayOfPhotoInfo, ratingCallback )<br/>
-			--<br/>
-			-- &nbsp;&nbsp;&nbsp;&nbsp;for i, photoInfo in ipairs( arrayOfPhotoInfo ) do<br/>
-				--<br/>
-				-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-- Get ratings from service.<br/>
-				--<br/>
-				-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local ratings = (depends on your plug-in's service)<br/>
-				-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-- WARNING: The value for ratings must be a single number.<br/>
-				-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-- This number is displayed in the Comments panel, but is not<br/>
-				-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-- otherwise parsed by Lightroom.<br/>
-				--<br/>
-				-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-- Call Lightroom's callback function to register rating.<br/>
-				--<br/>
-				-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ratingCallback { publishedPhoto = photoInfo, rating = rating }<br/>
-			--<br/>
-			-- &nbsp;&nbsp;&nbsp;&nbsp;end<br/>
-			--<br/>
-		-- end
-	-- </pre>
- -- <p>This is not a blocking call. It is called from within a task created
- -- using the <a href="LrTasks.html"><code>LrTasks</code></a> namespace. In most
- -- cases, you should not need to start your own task within this function.</p>
- -- <p>First supported in version 3.0 of the Lightroom SDK.</p>
-	-- @param publishSettings (table) The settings for this publish service, as specified
-		-- by the user in the Publish Manager dialog. Any changes that you make in
-		-- this table do not persist beyond the scope of this function call.
-	-- @param arrayOfPhotoInfo (table) An array of tables with a member table for each photo.
-		-- Each member table has these fields:
-		-- <ul>
-			-- <li><b>photo</b>: (<a href="LrPhoto.html"><code>LrPhoto</code></a>) The photo object.</li>
-			-- <li><b>publishedPhoto</b>: (<a href="LrPublishedPhoto.html"><code>LrPublishedPhoto</code></a>)
-			--	The publishing data for that photo.</li>
-			-- <li><b>remoteId</b>: (string or number) The remote systems unique identifier
-			-- 	for the photo, as previously recorded by the plug-in.</li>
-			-- <li><b>url</b>: (string, optional) The URL for the photo, as assigned by the
-			--	remote service and previously recorded by the plug-in.</li>
-		-- </ul>
-	-- @param ratingCallback (function) A callback function that your implementation should call to record
-		-- new ratings for each photo; see example.
-
+-- On Get Rating
 function publishServiceProvider.getRatingsFromPublishedCollection( publishSettings, arrayOfPhotoInfo, ratingCallback )
 
-	-- for i, photoInfo in ipairs( arrayOfPhotoInfo ) do
+	for i, photoInfo in ipairs(arrayOfPhotoInfo) do
+	
+		-- Get photo info
+		params = {}	
+		params.params = {
+			photoid = photoInfo.remoteId,
+		}		
+		method = 'getPhotoInfo'
+		local data = LrGalleryAPI.callMethod(propertyTable, params, method)
+		local rating = data.rating
+		if type(rating) == 'string' then 
+			rating = tonumber(rating) 
+		end
 
-		-- local rating = LrGalleryAPI.getNumOfFavorites( publishSettings, { photoId = photoInfo.remoteId } )
-		-- if type( rating ) == 'string' then rating = tonumber( rating ) end
+		-- Update rating
+		ratingCallback{publishedPhoto = photoInfo, rating = rating or 0}
+		photoInfo.photo.catalog:withWriteAccessDo('updatePhotoRating', function(context)
+			photoInfo.photo:setRawMetadata('rating', rating)
+		end)		
 
-		-- ratingCallback{ publishedPhoto = photoInfo, rating = rating or 0 }
-
-	-- end
+	end
 	
 end
 
