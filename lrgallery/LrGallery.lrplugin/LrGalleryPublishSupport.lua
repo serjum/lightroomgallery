@@ -1,8 +1,12 @@
 -- Lightroom SDK
 local LrDialogs = import 'LrDialogs'
+local LrMD5 = import 'LrMD5'
 
 -- LrGallery plug-in
 require 'LrGalleryAPI'
+
+-- Plugin prefs
+local prefs = import 'LrPrefs'.prefsForPlugin(_PLUGIN)
 
 --[[ @sdk
 --- The <i>service definition script</i> for a publish service provider associates 
@@ -79,11 +83,10 @@ publishServiceProvider.titleForPublishedSmartCollection_standalone = LOC "$$$/Lr
 function publishServiceProvider.getCollectionBehaviorInfo( publishSettings )
 
 	return {
-		defaultCollectionName = LOC "$$$/LrGallery/DefaultCollectionName/Photostream=Photostream",
+		defaultCollectionName = LOC "$$$/LrGallery/DefaultCollectionName/Photostream=Default",
 		defaultCollectionCanBeDeleted = false,
 		canAddCollection = true,
 		maxCollectionSetDepth = 0,
-			-- Collection sets are not supported through the LrGallery sample plug-in.
 	}
 	
 end
@@ -94,39 +97,24 @@ end
  -- <p>First supported in version 3.0 of the Lightroom SDK.</p>
 publishServiceProvider.titleForGoToPublishedCollection = LOC "$$$/LrGallery/TitleForGoToPublishedCollection=Show in LrGallery"
 
---------------------------------------------------------------------------------
---- This plug-in defined callback function is called when one or more photos
- -- have been removed from a published collection and need to be removed from
- -- the service. If the service you are supporting allows photos to be deleted
- -- via its API, you should do that from this function.
- -- <p>As each photo is deleted, you should call the <code>deletedCallback</code>
- -- function to inform Lightroom that the deletion was successful. This will cause
- -- Lightroom to remove the photo from the "Delete Photos to Remove" group in the
- -- Library grid.</p>
- -- <p>This is not a blocking call. It is called from within a task created
- -- using the <a href="LrTasks.html"><code>LrTasks</code></a> namespace. In most
- -- cases, you should not need to start your own task within this function.</p>
- -- <p>First supported in version 3.0 of the Lightroom SDK.</p>
-	-- @name publishServiceProvider.deletePhotosFromPublishedCollection
-	-- @class function
-	-- @param publishSettings (table) The settings for this publish service, as specified
-		-- by the user in the Publish Manager dialog. Any changes that you make in
-		-- this table do not persist beyond the scope of this function call.
-	-- @param arrayOfPhotoIds (table) The remote photo IDs that were declared by this plug-in
-		-- when they were published.
-	-- @param deletedCallback (function) This function must be called for each photo ID
-		-- as soon as the deletion is confirmed by the remote service. It takes a single
-		-- argument: the photo ID from the arrayOfPhotoIds array.
-
+-- On Delete photo
 function publishServiceProvider.deletePhotosFromPublishedCollection( publishSettings, arrayOfPhotoIds, deletedCallback )
 
 	for i, photoId in ipairs( arrayOfPhotoIds ) do
 
-		LrGalleryAPI.deletePhoto( publishSettings, { photoId = photoId, suppressErrorCodes = { [ 1 ] = true } } )
-							-- If LrGallery says photo not found, ignore that.
-
-		deletedCallback( photoId )
-
+		-- Get photo info
+		params = {}	
+		params.params = {
+			photoid = photoId,
+		}
+		method = 'deletePhoto'
+		local data = LrGalleryAPI.callMethod(propertyTable, params, method)
+		
+		if (data.result) then
+			deletedCallback(photoId)
+		else
+			LrDialogs.message("Error while deleting photo from LrGallery")
+		end
 	end
 	
 end
@@ -360,77 +348,11 @@ function publishServiceProvider.deletePublishedCollection( publishSettings, info
 
 end
 
---------------------------------------------------------------------------------
---- (optional) This plug-in defined callback function is called (if supplied)  
- -- to retrieve comments from the remote service, for a single collection of photos 
- -- that have been published through this service. This function is called:
-  -- <ul>
-    -- <li>For every photo in the published collection each time <i>any</i> photo
-	-- in the collection is published or re-published.</li>
- 	-- <li>When the user clicks the Refresh button in the Library module's Comments panel.</li>
-	-- <li>After the user adds a new comment to a photo in the Library module's Comments panel.</li>
-  -- </ul>
- -- <p>This function is not called for unpublished photos or collections that do not contain any published photos.</p>
- -- <p>The body of this function should have a loop that looks like this:</p>
-	-- <pre>
-		-- function publishServiceProvider.getCommentsFromPublishedCollection( settings, arrayOfPhotoInfo, commentCallback )<br/>
-			--<br/>
-			-- &nbsp;&nbsp;&nbsp;&nbsp;for i, photoInfo in ipairs( arrayOfPhotoInfo ) do<br/>
-				--<br/>
-				-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-- Get comments from service.<br/>
-				--<br/>
-				-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local comments = (depends on your plug-in's service)<br/>
-				--<br/>
-				-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-- Convert comments to Lightroom's format.<br/>
-				--<br/>
-				-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local commentList = {}<br/>
-				-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for i, comment in ipairs( comments ) do<br/>
-					-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;table.insert( commentList, {<br/>
-						-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;commentId = (comment ID, if any, from service),<br/>
-						-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;commentText = (text of user comment),<br/>
-						-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dateCreated = (date comment was created, if available; Cocoa date format),<br/>
-						-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;username = (user ID, if any, from service),<br/>
-						-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;realname = (user's actual name, if available),<br/>
-						-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;url = (URL, if any, for the comment),<br/>
-					-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} )<br/>
-					--<br/>
-				-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end<br/>
-				--<br/>
-				-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-- Call Lightroom's callback function to register comments.<br/>
-				--<br/>
-				-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;commentCallback { publishedPhoto = photoInfo, comments = commentList }<br/>
-			--<br/>
-			-- &nbsp;&nbsp;&nbsp;&nbsp;end<br/>
-			--<br/>
-		-- end
-	-- </pre>
- -- <p>This is not a blocking call. It is called from within a task created
- -- using the <a href="LrTasks.html"><code>LrTasks</code></a> namespace. In most
- -- cases, you should not need to start your own task within this function.</p>
- -- <p>First supported in version 3.0 of the Lightroom SDK.</p>
-	-- @param publishSettings (table) The settings for this publish service, as specified
-		-- by the user in the Publish Manager dialog. Any changes that you make in
-		-- this table do not persist beyond the scope of this function call.
-	-- @param arrayOfPhotoInfo (table) An array of tables with a member table for each photo.
-		-- Each member table has these fields:
-		-- <ul>
-			-- <li><b>photo</b>: (<a href="LrPhoto.html"><code>LrPhoto</code></a>) The photo object.</li>
-			-- <li><b>publishedPhoto</b>: (<a href="LrPublishedPhoto.html"><code>LrPublishedPhoto</code></a>)
-			--	The publishing data for that photo.</li>
-			-- <li><b>remoteId</b>: (string or number) The remote systems unique identifier
-			-- 	for the photo, as previously recorded by the plug-in.</li>
-			-- <li><b>url</b>: (string, optional) The URL for the photo, as assigned by the
-			--	remote service and previously recorded by the plug-in.</li>
-			-- <li><b>commentCount</b>: (number) The number of existing comments
-			-- 	for this photo in Lightroom's catalog database.</li>
-		-- </ul>
-	-- @param commentCallback (function) A callback function that your implementation should call to record
-		-- new comments for each photo; see example.
-
+-- On Get Comments
 function publishServiceProvider.getCommentsFromPublishedCollection( publishSettings, arrayOfPhotoInfo, commentCallback )
 
 	for i, photoInfo in ipairs( arrayOfPhotoInfo ) do
-	
+		
 		-- Get photo info
 		params = {}	
 		params.params = {
@@ -442,8 +364,9 @@ function publishServiceProvider.getCommentsFromPublishedCollection( publishSetti
 		-- Update comments
 		if (data.comments) then
 			local comments = {}
+
 			table.insert(comments, {
-				commentId = 1,
+				commentId = LrMD5.digest(data.comments),
 				commentText = data.comments,
 				dateCreated = nil,
 				username = nil,
@@ -451,6 +374,13 @@ function publishServiceProvider.getCommentsFromPublishedCollection( publishSetti
 				url = nil
 			})
 			commentCallback{publishedPhoto = photoInfo, comments = comments}
+			
+			-- Store the last comment for this photo in prefs
+			if not prefs.lastComments then
+				prefs.lastComments = {}
+			end
+			prefs.lastComments[photoInfo.remoteId] = data.comments
+			
 		end
 	end
 
