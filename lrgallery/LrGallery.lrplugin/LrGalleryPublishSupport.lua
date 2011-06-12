@@ -429,34 +429,21 @@ end
 
 function publishServiceProvider.getCommentsFromPublishedCollection( publishSettings, arrayOfPhotoInfo, commentCallback )
 
-	-- for i, photoInfo in ipairs( arrayOfPhotoInfo ) do
-
-		-- local comments = LrGalleryAPI.getComments( publishSettings, {
-								-- photoId = photoInfo.remoteId,
-							-- } )
+	for i, photoInfo in ipairs( arrayOfPhotoInfo ) do
+	
+		-- Get photo info
+		params = {}	
+		params.params = {
+			photoid = photoInfo.remoteId,
+		}		
+		method = 'getPhotoInfo'
+		local data = LrGalleryAPI.callMethod(propertyTable, params, method)
+		--LrGalleryAPI.displayTable(data.params.param.value.comments)
+		local comments = data.comments
 		
-		-- local commentList = {}
-		
-		-- if comments and #comments > 0 then
-
-			-- for _, comment in ipairs( comments ) do
-
-				-- table.insert( commentList, {
-								-- commentId = comment.id,
-								-- commentText = comment.commentText,
-								-- dateCreated = comment.datecreate,
-								-- username = comment.author,
-								-- realname = comment.authorname,
-								-- url = comment.permalink
-							-- } )
-
-			-- end			
-
-		-- end	
-
-		-- commentCallback{ publishedPhoto = photoInfo, comments = commentList }						    
-
-	-- end
+		-- Update comments
+		commentCallback{publishedPhoto = photoInfo, comments = comments}		
+	end
 
 end
 
