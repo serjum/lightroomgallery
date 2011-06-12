@@ -49,44 +49,30 @@ local function formatError(nativeErrorCode)
 	return LOC "$$$/LrGallery/Error/NetworkFailure=Could not contact the LrGallery web service. Please check your Internet connection."
 end
 
-local simpleXmlMetatable = {
-	__tostring = function( self ) return self._value end
-}
+local function traverse(node, parent, data)
 
-local function traverse(node)
-
-	local type = string.lower( node:type() )
-
-	if type == 'element' then
-
-		local element = setmetatable( {}, simpleXmlMetatable )		
-		element._name = node:name()		
-		element._value = node:text()
-		
-		local count = node:childCount()
-
-		for i = 1, count do
-			local name, value = traverse( node:childAtIndex( i ) )
-			if name and value then				
-				element[ name ] = value
-			end			
+	local nodeType = node:type()
+	
+	if nodeType == 'element' then
+		local childCount = node:childCount()
+		for i = 1, childCount do
+			data = traverse(node:childAtIndex(i), node, data)
 		end
-
-		if type == 'element' then
-			for k, v in pairs( node:attributes() ) do
-				element[ k ] = v.value				
-			end
-		end
-		
-		return element._name, element
-
+	elseif nodeType == 'text' then
+		local key = parent:name()
+		local value = node:text()
+		data[key] = value
+		return data
 	end
-
+	
+	return data
 end
 
 local function xml2table(xmlString)
-	local _, value = traverse(LrXml.parseXml(xmlString))
-	return value
+	local data = {}
+	local result = traverse(LrXml.parseXml(xmlString), nil, data)
+	LrGalleryAPI.displayTable(result)
+	return result
 end
 
 local function trim(s)
@@ -427,7 +413,7 @@ end
 function LrGalleryAPI.callXmlMethod(params)	
 
 	-- Construct XML message
-	LrGalleryAPI.displayTable(params.params)
+	--LrGalleryAPI.displayTable(params.params)
 	local xmlString = "lrgalleryxml=" .. constructXml(params)
 		
 	-- Send message and get response		
@@ -465,14 +451,12 @@ function LrGalleryAPI.login(propertyTable, params)
 	local result, xmlResponse = LrGalleryAPI.callXmlMethod(params)
 	
 	-- Save token to prefs
-	local token = result.params.param.value.token._value
+	local token = result.token
 	prefs.token = token
 		
 	-- Include username and password in the result
-	result.params.param.value['username'] = {}
-	result.params.param.value['username']._value = username
-	result.params.param.value['password'] = {}
-	result.params.param.value['password']._value = password
+	result.username = username
+	result.password = password
 	
 	-- Return result
 	return result
@@ -498,7 +482,7 @@ function LrGalleryAPI.createUser(propertyTable, params)
 	local result, xmlResponse = LrGalleryAPI.callXmlMethod(params)
 	
 	-- Save newly created user to prefs
-	local user_id = result.params.param.value.user_id._value
+	local user_id = result.user_id
 	createdUser = {		
 		username = username,
 		password = password,
@@ -510,10 +494,8 @@ function LrGalleryAPI.createUser(propertyTable, params)
 	prefs.createdUsers[user_id] = createdUser
 		
 	-- Include username and password in the result
-	result.params.param.value['username'] = {}
-	result.params.param.value['username']._value = username
-	result.params.param.value['foldername'] = {}
-	result.params.param.value['foldername']._value = foldername
+	result.username = username
+	result.foldername = foldername	
 	
 	-- Return result
 	return result
@@ -536,9 +518,8 @@ function LrGalleryAPI.deleteUser(propertyTable, params)
 	-- Call login method
 	local result, xmlResponse = LrGalleryAPI.callXmlMethod(params)
 		
-	-- Include deleted username in the result
-	result.params.param.value['username'] = {}
-	result.params.param.value['username']._value = username
+	-- Include deleted username in the result	
+	result.username = username
 	
 	-- Return result
 	return result
@@ -566,23 +547,17 @@ end
 
 -- Get photo info
 function LrGalleryAPI.getPhotoInfo(propertyTable, params)
-		
-	-- Set request params
-	local callParams = {
-		photo_id = params.photo_id,
-	}
-	params.params = callParams
-	
+
 	-- Call getPhotoInfo method
-	local result, xmlResponse = LrGalleryAPI.callXmlMethod(propertyTable, params)
+	local result, xmlResponse = LrGalleryAPI.callXmlMethod(params)
 	
 	-- Return result
 	return result
 end
 
 -- Delete photo
-function LrGalleryAPI.getPhotoInfo(propertyTable, params)
-		
+function LrGalleryAPI.deletePhoto(propertyTable, params)	
+
 	-- Set request params
 	local callParams = {
 		photoid = params.photoid,
@@ -590,7 +565,7 @@ function LrGalleryAPI.getPhotoInfo(propertyTable, params)
 	params.params = callParams
 	
 	-- Call deletePhoto method
-	local result, xmlResponse = LrGalleryAPI.callXmlMethod(propertyTable, params)
+	local result, xmlResponse = LrGalleryAPI.callXmlMethod(params)
 	
 	-- Return result
 	return result
@@ -608,7 +583,7 @@ end
 
 -- Call method
 function LrGalleryAPI.callMethod(propertyTable, params, method)
-
+	
 	-- Check login
 	token = prefs.token
 	if not (method == 'login') and (token == nil) then

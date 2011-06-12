@@ -77,8 +77,8 @@ function LrGalleryUser.login(propertyTable)
 			local data = LrGalleryAPI.callMethod(propertyTable, params, method)		
 			
 			-- Check result
-			local username = data.params.param.value.username._value
-			local token = data.params.param.value.token._value
+			local username = data.username
+			local token = data.token
 			if not token then
 				return
 			end
@@ -115,9 +115,9 @@ function LrGalleryUser.createUser(propertyTable)
 			local data = LrGalleryAPI.callMethod(propertyTable, params, method)		
 			
 			-- Check result
-			local user_id = data.params.param.value.user_id._value
-			local username = data.params.param.value.username._value
-			local foldername = data.params.param.value.foldername._value			
+			local user_id = data.user_id
+			local username = data.username
+			local foldername = data.foldername
 			if not user_id then
 				return
 			end
@@ -149,8 +149,8 @@ function LrGalleryUser.deleteUser(propertyTable)
 		local data = LrGalleryAPI.deleteUser(propertyTable, params)
 		
 		-- Check result
-		local result = data.params.param.value.result._value
-		local username = data.params.param.value.username._value
+		local result = data.result
+		local username = data.username
 		if not result then
 			return
 		end

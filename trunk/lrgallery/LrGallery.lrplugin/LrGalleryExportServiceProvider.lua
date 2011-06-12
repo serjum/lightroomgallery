@@ -559,7 +559,7 @@ function exportServiceProvider.processRenderedPhotos(functionContext, exportCont
 			}
 			method = 'deletePhoto'
 			local data = LrGalleryAPI.callMethod(propertyTable, params, method)
-			local photoDeleted = data.params.param.value.result._value
+			local photoDeleted = data.result
 		end
 		
 		-- Upload photo
@@ -574,7 +574,7 @@ function exportServiceProvider.processRenderedPhotos(functionContext, exportCont
 		local data = LrGalleryAPI.callMethod(propertyTable, params, method)
 		
 		-- Save uploaded photo ID
-		lrgalleryPhotoId = data.params.param.value.photo_id._value
+		lrgalleryPhotoId = data.photo_id
 		rendition:recordPublishedPhotoId(lrgalleryPhotoId)
 		
 		-- Add this rendition to published now list
