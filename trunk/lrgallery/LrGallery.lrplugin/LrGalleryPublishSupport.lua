@@ -373,8 +373,10 @@ function publishServiceProvider.getRatingsFromPublishedCollection( publishSettin
 
 		-- Update rating
 		ratingCallback{publishedPhoto = photoInfo, rating = rating or 0}
-		photoInfo.photo.catalog:withWriteAccessDo('updatePhotoRating', function(context)
-			photoInfo.photo:setRawMetadata('rating', rating)
+		
+		local photo = photoInfo.photo
+		photo.catalog:withWriteAccessDo('updatePhotoRating', function(context)
+			photo:setRawMetadata('rating', rating)
 		end)		
 
 	end
