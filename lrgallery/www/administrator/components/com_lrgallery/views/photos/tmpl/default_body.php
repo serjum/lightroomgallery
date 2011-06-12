@@ -11,9 +11,6 @@
             <?php echo $item->user_name; ?>
         </td>
         <td>
-            <?php echo $item->name; ?>
-        </td>
-        <td>
             <?php echo $item->file_name; ?>
         </td>
         <td>
