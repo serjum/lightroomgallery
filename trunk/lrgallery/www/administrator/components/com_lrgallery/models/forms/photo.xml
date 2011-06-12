@@ -4,16 +4,7 @@
         <field
             name="id"
             type="hidden"
-        />
-        <field
-            name="name"
-            type="text"
-            label="Название"
-            description="Название фотографии"
-            size="40"
-            class="inputbox"
-            default=""
-        />
+        />        
         <field
             name="file_name"
             type="text"
