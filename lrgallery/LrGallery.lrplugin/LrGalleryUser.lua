@@ -16,7 +16,8 @@ of it requires the prior written permission of Adobe.
 
 ------------------------------------------------------------------------------]]
 
-	-- Lightroom SDK
+-- Lightroom SDK
+local LrApplication = import 'LrApplication'
 local LrDialogs = import 'LrDialogs'
 local LrFunctionContext = import 'LrFunctionContext'
 local LrTasks = import 'LrTasks'
@@ -125,7 +126,14 @@ function LrGalleryUser.createUser(propertyTable)
 			-- Save params
 			propertyTable.user_id = user_id
 			propertyTable.username = username			
-			propertyTable.foldername = foldername		
+			propertyTable.foldername = foldername
+			
+			-- Create new published collection
+			local catalog = LrApplication.activeCatalog()
+			local publishService = catalog:getPublishServices(_PLUGIN.id)[1]
+			catalog:withWriteAccessDo('createPublishedCollection', function() 				
+				publishService:createPublishedCollection(username)
+			end)
 			
 			-- Say about successfull creation
 			LrDialogs.message('Successfully created new user: ' .. username)
@@ -154,6 +162,19 @@ function LrGalleryUser.deleteUser(propertyTable)
 		if not result then
 			return
 		end
+		
+		-- Delete corresponding published collection
+		local catalog = LrApplication.activeCatalog()
+		local publishService = catalog:getPublishServices(_PLUGIN.id)[1]
+		local publishedCollections = publishService:getChildCollections()
+		for _, publishedCollection in pairs(publishedCollections) do
+			if publishedCollection:getName() == username then
+				catalog:withWriteAccessDo('deletePublishedCollection', function() 				
+					publishedCollection:delete()
+				end)
+				break
+			end
+		end		
 				
 		-- Say about successfull delete
 		LrDialogs.message('Successfully deleted user: ' .. username)		

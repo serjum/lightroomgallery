@@ -48,8 +48,12 @@ publishServiceProvider.titleForPublishedSmartCollection_standalone = LOC "$$$/Lr
 
 function publishServiceProvider.getCollectionBehaviorInfo( publishSettings )
 
-	return {
-		defaultCollectionName = LOC "$$$/LrGallery/DefaultCollectionName/Photostream=Default",
+	local loggedUsername = prefs.username
+	if not loggedUsername then
+		loggedUsername = "lr"
+	end
+	return {		
+		defaultCollectionName = LOC "$$$/LrGallery/DefaultCollectionName/Photostream=" .. loggedUsername,
 		defaultCollectionCanBeDeleted = false,
 		canAddCollection = true,
 		maxCollectionSetDepth = 0,
@@ -315,7 +319,7 @@ function publishServiceProvider.deletePublishedCollection( publishSettings, info
 end
 
 -- On Get Comments
-function publishServiceProvider.getCommentsFromPublishedCollection( publishSettings, arrayOfPhotoInfo, commentCallback )
+function publishServiceProvider.getCommentsFromPublishedCollection(publishSettings, arrayOfPhotoInfo, commentCallback)
 
 	for i, photoInfo in ipairs( arrayOfPhotoInfo ) do
 		
@@ -355,7 +359,7 @@ end
 publishServiceProvider.titleForPhotoRating = LOC "$$$/LrGallery/TitleForPhotoRating=Rating"
 
 -- On Get Rating
-function publishServiceProvider.getRatingsFromPublishedCollection( publishSettings, arrayOfPhotoInfo, ratingCallback )
+function publishServiceProvider.getRatingsFromPublishedCollection(publishSettings, arrayOfPhotoInfo, ratingCallback)
 
 	for i, photoInfo in ipairs(arrayOfPhotoInfo) do
 	
@@ -377,33 +381,21 @@ function publishServiceProvider.getRatingsFromPublishedCollection( publishSettin
 		local photo = photoInfo.photo
 		photo.catalog:withWriteAccessDo('updatePhotoRating', function(context)
 			photo:setRawMetadata('rating', rating)
-		end)		
+		end)
+		
+		-- TODO: update pick flag or smth like that
 
 	end
 	
 end
 
---------------------------------------------------------------------------------
---- (optional) This plug-in defined callback function is called whenever a
- -- published photo is selected in the Library module. Your implementation should
- -- return true if there is a viable connection to the publish service and
- -- comments can be added at this time. If this function is not implemented,
- -- the new comment section of the Comments panel in the Library is left enabled
- -- at all times for photos published by this service. If you implement this function,
- -- it allows you to disable the Comments panel temporarily if, for example,
- -- the connection to your server is down.
- -- <p>This is not a blocking call. It is called from within a task created
- -- using the <a href="LrTasks.html"><code>LrTasks</code></a> namespace. In most
- -- cases, you should not need to start your own task within this function.</p>
- -- <p>First supported in version 3.0 of the Lightroom SDK.</p>
-	-- @param publishSettings (table) The settings for this publish service, as specified
-		-- by the user in the Publish Manager dialog. Any changes that you make in
-		-- this table do not persist beyond the scope of this function call.
-	-- @return (Boolean) True if comments can be added at this time.
-
+-- Check if we can add comments
 function publishServiceProvider.canAddCommentsToService( publishSettings )
 
-	return LrGalleryAPI.testLrGalleryConnection( publishSettings )
+	--return LrGalleryAPI.testLrGalleryConnection( publishSettings )
+	-- TODO: add ability to write comments when to-gallery sync will be implemented
+	
+	return false	
 
 end
 

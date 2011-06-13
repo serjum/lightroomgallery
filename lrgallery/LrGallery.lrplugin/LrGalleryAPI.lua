@@ -423,7 +423,7 @@ function LrGalleryAPI.callXmlMethod(params)
 			value = tostring(#xmlString)
 		}
 	})
-	LrDialogs.message(response)
+	--LrDialogs.message(response)
 	
 	-- Transform result to table
 	local result = xml2table(response)
