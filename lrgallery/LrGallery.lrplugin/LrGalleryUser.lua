@@ -1,26 +1,9 @@
---[[----------------------------------------------------------------------------
-
-LrGalleryUser.lua
-LrGallery user account management
-
---------------------------------------------------------------------------------
-
-ADOBE SYSTEMS INCORPORATED
- Copyright 2007-2010 Adobe Systems Incorporated
- All Rights Reserved.
-
-NOTICE: Adobe permits you to use, modify, and distribute this file in accordance
-with the terms of the Adobe license agreement accompanying it. If you have received
-this file from a source other than Adobe, then your use, modification, or distribution
-of it requires the prior written permission of Adobe.
-
-------------------------------------------------------------------------------]]
-
 -- Lightroom SDK
 local LrApplication = import 'LrApplication'
 local LrDialogs = import 'LrDialogs'
 local LrFunctionContext = import 'LrFunctionContext'
 local LrTasks = import 'LrTasks'
+local prefs = import 'LrPrefs'.prefsForPlugin(_PLUGIN)
 
 local logger = import 'LrLogger'( 'LrGalleryAPI' )
 
@@ -62,25 +45,28 @@ end
 -- Login
 function LrGalleryUser.login(propertyTable)
 
+	propertyTable.loginButtonTitle = 'Logging in...'
+	propertyTable.loginButtonEnabled = false
+
 	-- Start async task
 	LrFunctionContext.postAsyncTaskWithContext( 'LrGallery login',
 		function(context)
-
-			-- Display process
-			propertyTable.accountStatus = LOC "$$$/LrGallery/AccountStatus/LoggingIn=Logging in..."
-			propertyTable.loginButtonEnabled = false	
 			
-			LrDialogs.attachErrorDialogToFunctionContext( context )
+			LrDialogs.attachErrorDialogToFunctionContext(context)
 			
 			-- Call login method
 			params = {}
 			method = 'login'
-			local data = LrGalleryAPI.callMethod(propertyTable, params, method)		
+			local data = LrGalleryAPI.callMethod(propertyTable, params, method)			
 			
 			-- Check result
 			local username = data.username
 			local token = data.token
-			if not token then
+			if token == nil or not token then
+				LrGalleryAPI.displayError(data)
+				propertyTable.accountStatus = "Log in failed"
+				propertyTable.loginButtonTitle = 'Log in'
+				propertyTable.loginButtonEnabled = true
 				return
 			end
 			
@@ -90,11 +76,36 @@ function LrGalleryUser.login(propertyTable)
 			propertyTable.token = token		
 			
 			-- Update labels
-			propertyTable.accountStatus = LOC "$$$/LrGallery/AccountStatus/WaitingForLrGallery=Logged in as " .. username
+			propertyTable.accountStatus = LOC "Logged in as " .. username
+			propertyTable.loginButtonTitle = "Change user"
+			propertyTable.loginButtonEnabled = true
 			propertyTable.LR_cantExportBecause = nil
 		end 
 	)
 
+end
+
+-- Check login
+function LrGalleryUser.checkLogin(propertyTable)	
+
+	-- Start async task
+	LrFunctionContext.postAsyncTaskWithContext( 'LrGallery login',
+		function(context)
+			-- Check if stored token is still valid
+			local params = {}
+			local method = 'checkLogin'
+			local data = LrGalleryAPI.callMethod(propertyTable, params, method)						
+			
+			if not data.result then
+				propertyTable.loginButtonTitle = 'Logging in...'
+				LrGalleryUser.login(propertyTable)
+			else
+				propertyTable.accountStatus = 'Logged in as ' .. prefs.username
+				propertyTable.loginButtonTitle = 'Change user'
+				propertyTable.loginButtonEnabled = true
+			end
+		end
+	)
 end
 
 -- Create new gallery user
@@ -202,50 +213,8 @@ local function getDisplayUserNameFromProperties( propertyTable )
 
 end
 
---------------------------------------------------------------------------------
-
-function LrGalleryUser.verifyLogin( propertyTable )
-
-	-- Observe changes to prefs and update status message accordingly.
-
-	local function updateStatus()
-	
-		logger:trace( "verifyLogin: updateStatus() was triggered." )
-		
-		LrTasks.startAsyncTask( function()
-			logger:trace( "verifyLogin: updateStatus() is executing." )
-			if storedCredentialsAreValid( propertyTable ) then
-			     
-				local displayUserName = getDisplayUserNameFromProperties( propertyTable )
-				
-				propertyTable.accountStatus = LOC( "$$$/LrGallery/AccountStatus/LoggedIn=Logged in as ^1", displayUserName )
-			
-				if propertyTable.LR_editingExistingPublishConnection then
-					propertyTable.loginButtonTitle = LOC "$$$/LrGallery/LoginButton/LogInAgain=Log In"
-					propertyTable.loginButtonEnabled = false
-					propertyTable.validAccount = true
-				else
-					propertyTable.loginButtonTitle = LOC "$$$/LrGallery/LoginButton/LoggedIn=Switch User?"
-					propertyTable.loginButtonEnabled = true
-					propertyTable.validAccount = true
-				end
-			else
-				notLoggedIn( propertyTable )
-			end
-	
-			LrGalleryUser.updateUserStatusTextBindings( propertyTable )
-		end )
-		
-	end
-
-	propertyTable:addObserver( 'auth_token', updateStatus )
-	updateStatus()
-	
-end
-
-
 -- UI labels text update
-function LrGalleryUser.updateUserStatusTextBindings( settings )
+function LrGalleryUser.updateUserStatusTextBindings(settings)
 
 	local nsid = settings.nsid
 	
@@ -260,9 +229,9 @@ function LrGalleryUser.updateUserStatusTextBindings( settings )
 
 				if settings.LR_editingExistingPublishConnection then
 				
-					local displayUserName = getDisplayUserNameFromProperties( settings )
+					local displayUserName = getDisplayUserNameFromProperties(settings)
 					
-					settings.accountStatus = LOC( "$$$/LrGallery/AccountStatus/LogInFailed=Log in failed, was logged in as ^1", displayUserName )
+					settings.accountStatus = LOC( "$$$/LrGallery/AccountStatus/LogInFailed=Log in failed, was logged in as ^1", displayUserName)
 
 					settings.loginButtonTitle = LOC "$$$/LrGallery/LoginButton/LogInAgain=Log In"
 					settings.loginButtonEnabled = true
