@@ -460,6 +460,19 @@ function LrGalleryAPI.login(propertyTable, params)
 	return result
 end
 
+-- Check login
+function LrGalleryAPI.checkLogin(propertyTable, params)
+		
+	-- Set request params
+	params.method = 'checkLogin'
+	
+	-- Call login method
+	local result, xmlResponse = LrGalleryAPI.callXmlMethod(params)
+		
+	-- Return result
+	return result
+end
+
 -- Create new gallery user
 function LrGalleryAPI.createUser(propertyTable, params)
 	
@@ -596,6 +609,11 @@ function LrGalleryAPI.callMethod(propertyTable, params, method)
 	-- Call the method needed and return result
 	local result = LrGalleryAPI[method](propertyTable, params)
 	return result
+end
+
+-- Display error
+function LrGalleryAPI.displayError(result)
+	LrDialogs.message(result.message)
 end
 
 function LrGalleryAPI.displayTable(t)

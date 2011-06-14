@@ -4,6 +4,7 @@ local LrDialogs = import 'LrDialogs'
 local LrFileUtils = import 'LrFileUtils'
 local LrPathUtils = import 'LrPathUtils'
 local LrView = import 'LrView'
+local LrTasks = import 'LrTasks'
 
 -- Common shortcuts
 local bind = LrView.bind
@@ -11,13 +12,14 @@ local share = LrView.share
 
 -- LrGallery plug-in
 require 'LrGalleryAPI'
+require 'LrGalleryUser'
 require 'LrGalleryPublishSupport'
 
 
 local exportServiceProvider = {}
 
 for name, value in pairs( LrGalleryPublishSupport ) do
-	exportServiceProvider[ name ] = value
+	exportServiceProvider[name] = value
 end
 
 --- (optional) Plug-in defined value declares whether this plug-in supports the Lightroom
@@ -78,15 +80,14 @@ exportServiceProvider.canExportVideo = false -- video is not supported through t
 
 -- LRGALLERY SPECIFIC: Helper functions and tables.
 
-local function updateCantExportBecause( propertyTable )
-
+local function updateCantExportBecause(propertyTable)
 	if not propertyTable.validAccount then
 		propertyTable.LR_cantExportBecause = LOC "$$$/LrGallery/ExportDialog/NoLogin=You haven't logged in to LrGallery yet."
-		return
+	else
+		propertyTable.LR_cantExportBecause = nil
 	end
 	
-	propertyTable.LR_cantExportBecause = nil
-
+	return
 end
 
 local displayNameForTitleChoice = {
@@ -101,28 +102,9 @@ local kSafetyTitles = {
 	restricted = LOC "$$$/LrGallery/ExportDialog/Safety/Restricted=Restricted",
 }
 
-local function booleanToNumber( value )
-
+local function booleanToNumber(value)
 	return value and 1 or 0
-
 end
-
-local privacyToNumber = {
-	private = 0,
-	public = 1,
-}
-
-local safetyToNumber = {
-	safe = 1,
-	moderate = 2,
-	restricted = 3,
-}
-
-local contentTypeToNumber = {
-	photo = 1,
-	screenshot = 2,
-	other = 3,
-}
 
 local function getLrGalleryTitle( photo, exportSettings, pathOrMessage )
 
@@ -148,41 +130,15 @@ local function getLrGalleryTitle( photo, exportSettings, pathOrMessage )
 
 end
 
---------------------------------------------------------------------------------
---- (optional) This plug-in defined callback function is called when the 
- -- user chooses this export service provider in the Export or Publish dialog, 
- -- or when the destination is already selected when the dialog is invoked, 
- -- (remembered from the previous export operation).
- -- <p>This is a blocking call. If you need to start a long-running task (such as
- -- network access), create a task using the <a href="LrTasks.html"><code>LrTasks</code></a>
- -- namespace.</p>
- -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
-	-- @param propertyTable (table) An observable table that contains the most
-		-- recent settings for your export or publish plug-in, including both
-		-- settings that you have defined and Lightroom-defined export settings
-	-- @name exportServiceProvider.startDialog
-	-- @class function
+-- On start dialog
+function exportServiceProvider.startDialog(propertyTable)
 
-function exportServiceProvider.startDialog( propertyTable )
+	-- Disable login button
+	propertyTable.loginButtonTitle = 'Checking login...'
+	propertyTable.loginButtonEnabled = false
 
-	-- Clear login if it's a new connection.
-	
-	if not propertyTable.LR_editingExistingPublishConnection then
-		propertyTable.username = nil
-		propertyTable.nsid = nil
-		propertyTable.auth_token = nil
-	end
-
-	-- Can't export until we've validated the login.
-
-	propertyTable:addObserver( 'validAccount', function() updateCantExportBecause( propertyTable ) end )
-	updateCantExportBecause( propertyTable )
-
-	-- Make sure we're logged in.
-
-	require 'LrGalleryUser'
-	LrGalleryUser.verifyLogin( propertyTable )
-
+	-- Check if login is valid
+	LrGalleryUser.checkLogin(propertyTable)
 end
 
 --- (optional) This plug-in defined callback function is called when the user 
@@ -227,7 +183,7 @@ function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
 					enabled = bind 'loginButtonEnabled',
 					action = function()
 						require 'LrGalleryUser'
-						LrGalleryUser.login( propertyTable )
+						LrGalleryUser.login(propertyTable)
 					end,
 				},
 
@@ -258,7 +214,7 @@ function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
 					--enabled = bind 'deleteUserButtonEnabled',
 					action = function()
 						require 'LrGalleryUser'
-						LrGalleryUser.deleteUser( propertyTable )
+						LrGalleryUser.deleteUser(propertyTable)
 					end,
 				},
 
