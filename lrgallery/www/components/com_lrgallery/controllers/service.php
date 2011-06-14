@@ -94,7 +94,7 @@
         /*
          * Проверка валидности токена
          */
-        private function checkLogin($token)
+        public function checkLogin($token)
         {
             $db = &JFactory::getDBO();
             $tokenQ = $db->quote($token);
@@ -112,7 +112,9 @@
             else if (strtotime($expireDate) < strtotime(date("Y-m-d h:m:s")))
                 return JError::raiseWarning(3, "Specified token is expired");
             else 
-                return true;
+                return array(
+                    'result' => true
+                );
         }
         
         public function createUserTest()
