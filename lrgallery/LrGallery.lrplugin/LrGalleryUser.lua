@@ -45,6 +45,8 @@ end
 -- Login
 function LrGalleryUser.login(propertyTable)
 
+	local loginButtonTitle = propertyTable.loginButtonTitle
+
 	propertyTable.loginButtonTitle = 'Logging in...'
 	propertyTable.loginButtonEnabled = false
 
@@ -52,7 +54,12 @@ function LrGalleryUser.login(propertyTable)
 	LrFunctionContext.postAsyncTaskWithContext( 'LrGallery login',
 		function(context)
 			
+			-- Context
 			LrDialogs.attachErrorDialogToFunctionContext(context)
+			context:addCleanupHandler(function()
+				propertyTable.loginButtonTitle = loginButtonTitle
+				propertyTable.loginButtonEnabled = true
+			end)
 			
 			-- Call login method
 			params = {}
@@ -96,13 +103,14 @@ function LrGalleryUser.checkLogin(propertyTable)
 			local method = 'checkLogin'
 			local data = LrGalleryAPI.callMethod(propertyTable, params, method)						
 			
+			propertyTable.loginButtonEnabled = true
 			if not data.result then
-				propertyTable.loginButtonTitle = 'Logging in...'
-				LrGalleryUser.login(propertyTable)
+				propertyTable.accountStatus = 'Not logged in'
+				propertyTable.loginButtonTitle = 'Log in'
+				--LrGalleryUser.login(propertyTable)
 			else
 				propertyTable.accountStatus = 'Logged in as ' .. prefs.username
-				propertyTable.loginButtonTitle = 'Change user'
-				propertyTable.loginButtonEnabled = true
+				propertyTable.loginButtonTitle = 'Change user'				
 			end
 		end
 	)
