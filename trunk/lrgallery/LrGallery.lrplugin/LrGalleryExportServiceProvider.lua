@@ -219,79 +219,7 @@ function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
 				},
 
 			},
-		},
-		
-	
-		{
-			title = LOC "$$$/LrGallery/ExportDialog/Title=LrGallery Title",
-			
-			synopsis = function( props )
-				if props.titleFirstChoice == 'title' then
-					return LOC( "$$$/LrGallery/ExportDialog/Synopsis/TitleWithFallback=IPTC Title or ^1", displayNameForTitleChoice[ props.titleSecondChoice ] )
-				else
-					return props.titleFirstChoice and displayNameForTitleChoice[ props.titleFirstChoice ] or ''
-				end
-			end,
-			
-			f:column {
-				spacing = f:control_spacing(),
-
-				f:row {
-					spacing = f:label_spacing(),
-	
-					f:static_text {
-						title = LOC "$$$/LrGallery/ExportDialog/ChooseTitleBy=Set LrGallery Title Using:",
-						alignment = 'right',
-						width = share 'lrgalleryTitleSectionLabel',
-					},
-					
-					f:popup_menu {
-						value = bind 'titleFirstChoice',
-						width = share 'lrgalleryTitleLeftPopup',
-						items = {
-							{ value = 'filename', title = displayNameForTitleChoice.filename },
-							{ value = 'title', title = displayNameForTitleChoice.title },
-							{ value = 'empty', title = displayNameForTitleChoice.empty },
-						},
-					},
-
-					f:spacer { width = 20 },
-	
-					f:static_text {
-						title = LOC "$$$/LrGallery/ExportDialog/ChooseTitleBySecondChoice=If Empty, Use:",
-						enabled = LrBinding.keyEquals( 'titleFirstChoice', 'title', propertyTable ),
-					},
-					
-					f:popup_menu {
-						value = bind 'titleSecondChoice',
-						enabled = LrBinding.keyEquals( 'titleFirstChoice', 'title', propertyTable ),
-						items = {
-							{ value = 'filename', title = displayNameForTitleChoice.filename },
-							{ value = 'empty', title = displayNameForTitleChoice.empty },
-						},
-					},
-				},
-				
-				f:row {
-					spacing = f:label_spacing(),
-					
-					f:static_text {
-						title = LOC "$$$/LrGallery/ExportDialog/OnUpdate=When Updating Photos:",
-						alignment = 'right',
-						width = share 'lrgalleryTitleSectionLabel',
-					},
-					
-					f:popup_menu {
-						value = bind 'titleRepublishBehavior',
-						width = share 'lrgalleryTitleLeftPopup',
-						items = {
-							{ value = 'replace', title = LOC "$$$/LrGallery/ExportDialog/ReplaceExistingTitle=Replace Existing Title" },
-							{ value = 'leaveAsIs', title = LOC "$$$/LrGallery/ExportDialog/LeaveAsIs=Leave Existing Title" },
-						},
-					},
-				},
-			},
-		},
+		},				
 	}
 
 end
@@ -314,152 +242,7 @@ end
 function exportServiceProvider.sectionsForBottomOfDialog( f, propertyTable )
 
 	return {
-	
-		{
-			title = LOC "$$$/LrGallery/ExportDialog/PrivacyAndSafety=Privacy and Safety",
-			synopsis = function( props )
-				
-				local summary = {}
-				
-				local function add( x )
-					if x then
-						summary[ #summary + 1 ] = x
-					end
-				end
-				
-				if props.privacy == 'private' then
-					add( LOC "$$$/LrGallery/ExportDialog/Private=Private" )
-					if props.privacy_family then
-						add( LOC "$$$/LrGallery/ExportDialog/Family=Family" )
-					end
-					if props.privacy_friends then
-						add( LOC "$$$/LrGallery/ExportDialog/Friends=Friends" )
-					end
-				else
-					add( LOC "$$$/LrGallery/ExportDialog/Public=Public" )
-				end
-				
-				local safetyStr = kSafetyTitles[ props.safety ]
-				if safetyStr then
-					add( safetyStr )
-				end
-				
-				return table.concat( summary, " / " )
-				
-			end,
 			
-			place = 'horizontal',
-
-			f:column {
-				spacing = f:control_spacing() / 2,
-				fill_horizontal = 1,
-
-				f:row {
-					f:static_text {
-						title = LOC "$$$/LrGallery/ExportDialog/Privacy=Privacy:",
-						alignment = 'right',
-						width = share 'labelWidth',
-					},
-	
-					f:radio_button {
-						title = LOC "$$$/LrGallery/ExportDialog/Private=Private",
-						checked_value = 'private',
-						value = bind 'privacy',
-					},
-				},
-
-				f:row {
-					f:spacer {
-						width = share 'labelWidth',
-					},
-	
-					f:column {
-						spacing = f:control_spacing() / 2,
-						margin_left = 15,
-						margin_bottom = f:control_spacing() / 2,
-		
-						f:checkbox {
-							title = LOC "$$$/LrGallery/ExportDialog/Family=Family",
-							value = bind 'privacy_family',
-							enabled = LrBinding.keyEquals( 'privacy', 'private' ),
-						},
-		
-						f:checkbox {
-							title = LOC "$$$/LrGallery/ExportDialog/Friends=Friends",
-							value = bind 'privacy_friends',
-							enabled = LrBinding.keyEquals( 'privacy', 'private' ),
-						},
-					},
-				},
-
-				f:row {
-					f:spacer {
-						width = share 'labelWidth',
-					},
-	
-					f:radio_button {
-						title = LOC "$$$/LrGallery/ExportDialog/Public=Public",
-						checked_value = 'public',
-						value = bind 'privacy',
-					},
-				},
-			},
-
-			f:column {
-				spacing = f:control_spacing() / 2,
-
-				fill_horizontal = 1,
-
-				f:row {
-					f:static_text {
-						title = LOC "$$$/LrGallery/ExportDialog/Safety=Safety:",
-						alignment = 'right',
-						width = share 'lrgallery_col2_label_width',
-					},
-	
-					f:popup_menu {
-						value = bind 'safety',
-						width = share 'lrgallery_col2_popup_width',
-						items = {
-							{ title = kSafetyTitles.safe, value = 'safe' },
-							{ title = kSafetyTitles.moderate, value = 'moderate' },
-							{ title = kSafetyTitles.restricted, value = 'restricted' },
-						},
-					},
-				},
-
-				f:row {
-					margin_bottom = f:control_spacing() / 2,
-					
-					f:spacer {
-						width = share 'lrgallery_col2_label_width',
-					},
-	
-					f:checkbox {
-						title = LOC "$$$/LrGallery/ExportDialog/HideFromPublicSite=Hide from public site areas",
-						value = bind 'hideFromPublic',
-					},
-				},
-
-				f:row {
-					f:static_text {
-						title = LOC "$$$/LrGallery/ExportDialog/Type=Type:",
-						alignment = 'right',
-						width = share 'lrgallery_col2_label_width',
-					},
-	
-					f:popup_menu {
-						width = share 'lrgallery_col2_popup_width',
-						value = bind 'type',
-						items = {
-							{ title = LOC "$$$/LrGallery/ExportDialog/Type/Photo=Photo", value = 'photo' },
-							{ title = LOC "$$$/LrGallery/ExportDialog/Type/Screenshot=Screenshot", value = 'screenshot' },
-							{ title = LOC "$$$/LrGallery/ExportDialog/Type/Other=Other", value = 'other' },
-						},
-					},
-				},
-			},
-		},
 	}
 
 end
@@ -499,6 +282,8 @@ function exportServiceProvider.processRenderedPhotos(functionContext, exportCont
 		-- Update progress indicator
 		progressScope:setPortionComplete((i - 1) / nPhotos)
 		
+		local success, renderedFile = rendition:waitForRender()
+		
 		-- Check if we already published the photo in this session
 		if (alreadyPublishedNow[rendition]) then
 			rendition:skipRender()
@@ -524,7 +309,8 @@ function exportServiceProvider.processRenderedPhotos(functionContext, exportCont
 			username = exportContext.publishedCollectionInfo.name,			
 			filename = rendition.photo:getFormattedMetadata('fileName'),
 			photoname = rendition.photo:getFormattedMetadata('fileName'),
-			photoFile = rendition.photo:getRawMetadata('path'),
+			--photoFile = rendition.photo:getRawMetadata('path'),
+			photoFile = renderedFile,
 		}		
 		method = 'uploadPhoto'
 		local data = LrGalleryAPI.callMethod(propertyTable, params, method)
