@@ -18,8 +18,17 @@ a:hover {
 }
 
 #header {
+    width: 100%;
+    max-height: 20%;
+}
 
-}	
+.caption_container {
+    margin: 0 auto;
+    width: 50%;
+    height: 5%;
+    text-align: center;
+}
+
 #caption_title {
     text-align: left;
     float: left;
@@ -34,7 +43,8 @@ a:hover {
 }
 
 #content {
-
+    width: 100%;
+    height: 80%;
 }
 .loader {
     width: 16px;
@@ -43,18 +53,32 @@ a:hover {
     visibility: hidden;
 }
 
+#image_container {
+    width: 90%;
+    height: 100%;
+    margin: 0 auto;
+    text-align: center;
+}
+
 #imagebox {
+    max-width: 75%;
+    height: 100%;
+    margin: 0 auto;
+    text-align: center;
     float: left;
-    width: 900px;
-    height: 675px;
 }		
 #imagebox img {
-    max-width: 900px;
-    max-height: 675px;
+    max-width: 100%;
+    max-height: 100%;
+    image-rendering: optimizequality;
+    float: right;
 }
 #metadata {
-    float: left;
-    margin: 0 0 0 20px;
+    margin: 0 0 0 10px;
+    max-width: 25%;
+    height: 100%;
+    position: relative;
+    float: right;
 }			
 .acceptbox_caption {
     margin: 0 0 4px 0;
@@ -151,8 +175,28 @@ a.minibutton_selected>span {
 }
 /*a.btn-download:hover .icon, a.btn-download:focus .icon {background-position:-40px -25px;}*/
 
+.rating_container {
+    float: left;
+    width: 100%;
+    max-height: 10%;
+    padding: 0 0 20px 0;
+}
+
+.accept_container {
+    float: left;
+    width: 100%;
+    max-height: 10%;
+    padding: 0 0 20px 0;
+}
+
+.comment_container {
+    position: relative;    
+    width: 100%;
+    max-height: 80%;
+}
+
 .ratingbox_caption {
-    margin: 20px 0 4px 0;
+    
 }
 #ratingbox {
     /*background: url('../images/rating_background.png') no-repeat;*/
@@ -185,10 +229,10 @@ a.minibutton_selected>span {
 }
 
 .commentbox_caption {
-    margin: 20px 0 4px 0;
+
 }	
 #commentbox {
-
+    float: left;
 }
 textarea {
     font-family: 'Segoe UI', Verdana, Tahoma; 
@@ -196,7 +240,7 @@ textarea {
 }
 
 #save {
-    margin:	10px 0 0 0;
+    margin: 5px 0;
     float: left;
 }
 a.btn-download .icon_save {
@@ -209,14 +253,16 @@ a.btn-download .icon_save {
 
 /* Подвал */
 #footer {
-    margin: 10px 0 0 0;
+    width: 100%;
+    max-height: 15%;
 }
 
 /* Навигация */ 
 #nav {
     width: 900px;
     height: 24px;
-    margin: 0 0 10px 0;
+    margin: 0 auto;
+    padding: 0 0 10px;
     text-align: center;
 }
 .nav_controls {
@@ -253,22 +299,24 @@ a.btn-download .icon_save {
 #thumbs_container {
     display: block;
     overflow: hidden;
-    width: 900px;
-    height: 90px;
+    margin: 0 auto;
+    padding: 10px 0;
+    height: 75px;
     position: relative;
 }
 #thumbs {
     display: block;
     position: relative;
+    margin: 0 auto;
 }
 .thumb {
     margin-right: 10px;
     float: left;
-    width: 120px;
-    height: 90px;
+    width: 100px;
+    height: 75px;
     cursor: pointer;
 }
 .thumb img {
-    max-width: 120px;
-    max-height: 90px;
+    max-width: 100px;
+    max-height: 75px;
 }
