@@ -63,8 +63,10 @@ foreach ($metadata as $md_item) {
                 // Подсветим флаг принятия
                 if ($('metadata_accepted') != null) {
                     var metadata_accepted = $('metadata_accepted').value;
-                    $$('a[id^=accept_]').removeClass('minibutton_selected');
-                    $('accept_' + metadata_accepted).addClass('minibutton_selected');
+                    if (metadata_accepted != null && metadata_accepted != "") {
+                        $$('a[id^=accept_]').removeClass('minibutton_selected');
+                        $('accept_' + metadata_accepted).addClass('minibutton_selected');
+                    }                    
                 }              
                 
                 // Установим обработчики звёзд рейтинга
@@ -391,7 +393,7 @@ foreach ($metadata as $md_item) {
             }                        
             
             /* Получение даты фотографии */
-            function getDateime() {
+            function getDatetime() {
                 var id = $('id').value;
                 if (id == '') {
                     alert('Пожалуйста, выберите фотографию!');
@@ -428,93 +430,6 @@ foreach ($metadata as $md_item) {
     </head>
     <body>
         <div id="header">
-            <div id="caption_title">
-                <? echo $currPhoto->metadata['name']; ?>
-            </div>
-            <div id="caption_date">
-                (<? echo $currPhoto->metadata['datetime']; ?>)
-            </div>
-        </div>
-        <div class="clear"></div>
-
-        <div id="content">
-            <div id="imagebox">
-                <img id="currPhoto" src="<? echo $currPhoto->base . "/" . $currPhoto->file_name; ?>" />
-            </div>
-            <div id="metadata">												
-                <div class="acceptbox_caption">					
-					Нравится?
-                </div>
-                <div class="clear"></div>
-                <div id="acceptbox">										
-                    <a id="accept_yes" href="javascript:;" class="minibutton btn-download">
-                    <span>
-                        <span class="icon icon_yes"></span>
-							Да
-                    </span>
-                    </a>
-                    <a id="accept_no" href="javascript:;" class="minibutton btn-download">
-                    <span>
-                        <span class="icon icon_no"></span>
-							Нет
-                    </span>
-                    </a>
-                    <a id="accept_none" href="javascript:;" class="minibutton btn-download">
-                    <span>
-                        <span class="icon icon_none"></span>
-							Не знаю
-                    </span>
-                    </a>
-                </div>
-                <div class="loader" id="accept_loader"></div>
-                <div class="clear"></div>
-
-                <div class="ratingbox_caption">
-					Ваша оценка:
-                </div>
-                <div class="clear"></div>
-                <div id="ratingbox">					
-                    <div class="star star_empty" id="star1"></div>
-                    <div class="star star_empty" id="star2"></div>
-                    <div class="star star_empty" id="star3"></div>
-                    <div class="star star_empty" id="star4"></div>
-                    <div class="star star_empty" id="star5"></div>
-                </div>
-                <div class="loader" id="rating_loader"></div>
-                <div class="clear"></div>
-
-                <div class="commentbox_caption">
-					Комментарии:
-                </div>
-                <div id="commentbox">
-                    <textarea id="comments" cols="20" rows="20"><? echo $currPhoto->metadata['comments']; ?></textarea>
-                </div>                
-                <div class="clear"></div>
-
-                <a id="save" href="javascript:;" class="minibutton btn-download">
-                <span>
-                    <span class="icon icon_save"></span>
-                    Сохранить
-                </span>
-                </a>
-                <div class="loader" id="comments_loader"></div>
-                <div class="clear"></div>
-            </div>
-        </div>
-        <div class="clear"></div>
-
-        <div id="footer">
-            <div id="nav">
-                <div class="nav_controls">
-                    <div class="nav_first" id="nav_first"></div>
-                    <div class="nav_prev" id="nav_prev"></div>
-                    <div class="nav_space"></div>
-                    <div class="nav_next" id="nav_next"></div>
-                    <div class="nav_last" id="nav_last"></div>
-                </div>
-            </div>
-            <div class="clear"></div>
-
             <div id="thumbs_container">
                 <div id="thumbs" style="width: <? echo 130 * count($photos); ?>;">
 <?
@@ -529,6 +444,106 @@ foreach ($metadata as $md_item) {
 ?>                                               
                 </div>
             </div>
+            <div class="clear"></div>
+            
+            <div id="nav">
+                <div class="nav_controls">
+                    <div class="nav_first" id="nav_first"></div>
+                    <div class="nav_prev" id="nav_prev"></div>
+                    <div class="nav_space"></div>
+                    <div class="nav_next" id="nav_next"></div>
+                    <div class="nav_last" id="nav_last"></div>
+                </div>
+            </div>
+            <div class="clear"></div>                        
+        </div>
+        <div class="clear"></div>
+
+        <div id="content">
+            <!--div class="caption_container">
+                <div id="caption_title">
+                    <? echo $currPhoto->metadata['name']; ?>
+                </div>
+                <div id="caption_date">
+                    (<? echo $currPhoto->metadata['datetime']; ?>)
+                </div>
+            </div>            
+            <div class="clear"></div-->
+            
+            <div id="image_container">
+                <div id="imagebox">
+                    <img id="currPhoto" src="<? echo $currPhoto->base . "/" . $currPhoto->file_name; ?>" />
+                </div>
+                
+                <div id="metadata">
+                    <div class="rating_container">
+                        <!--div class="ratingbox_caption">
+                            Ваша оценка:
+                        </div-->
+                        <div id="ratingbox">					
+                            <div class="star star_empty" id="star1"></div>
+                            <div class="star star_empty" id="star2"></div>
+                            <div class="star star_empty" id="star3"></div>
+                            <div class="star star_empty" id="star4"></div>
+                            <div class="star star_empty" id="star5"></div>
+                        </div>
+                        <div class="loader" id="rating_loader"></div>
+                    </div>
+                    <div class="clear"></div>
+
+                    <div class="accept_container">                    
+                        <!--div class="acceptbox_caption">					
+                                                Нравится?
+                        </div-->                    
+                        <div id="acceptbox">										
+                            <a id="accept_yes" href="javascript:;" class="minibutton btn-download">
+                            <span>
+                                <span class="icon icon_yes"></span>
+                                                                Да
+                            </span>
+                            </a>
+                            <a id="accept_no" href="javascript:;" class="minibutton btn-download">
+                            <span>
+                                <span class="icon icon_no"></span>
+                                                                Нет
+                            </span>
+                            </a>
+                            <a id="accept_none" href="javascript:;" class="minibutton btn-download">
+                            <span>
+                                <span class="icon icon_none"></span>
+                                                                Не знаю
+                            </span>
+                            </a>
+                        </div>
+                        <div class="loader" id="accept_loader"></div>
+                    </div>
+                    <div class="clear"></div>
+
+                    <div class="comment_container">
+                        <!--div class="commentbox_caption">
+                                                Комментарии:
+                        </div-->
+                        <div id="commentbox">
+                            <textarea id="comments" rows="10" cols="15"><? echo $currPhoto->metadata['comments']; ?></textarea>
+                        </div>
+                        <div class="clear"></div>
+                        <a id="save" href="javascript:;" class="minibutton btn-download">
+                            <span>
+                                <span class="icon icon_save"></span>
+                                Сохранить
+                            </span>
+                        </a>
+                        <div class="loader" id="comments_loader"></div>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+                <div class="clear"></div>
+            </div>                        
+        </div>
+        <div class="clear"></div>
+
+        <div id="footer">                                    
+            
         </div>
         <div class="clear"></div>
 
