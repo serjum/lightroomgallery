@@ -370,23 +370,35 @@ function publishServiceProvider.getRatingsFromPublishedCollection(publishSetting
 		}		
 		method = 'getPhotoInfo'
 		local data = LrGalleryAPI.callMethod(propertyTable, params, method)
+		
 		local rating = data.rating
 		if type(rating) == 'string' then 
 			rating = tonumber(rating) 
 		end
-
+		local flag = data.accepted
+		local color = ''
+		if (flag == 'yes') then
+			color = 'green'
+		elseif (flag == 'no') then
+			color = 'red'
+		elseif (flag  == 'none') then
+			color = 'yellow'
+		else
+			color = 'none'
+		end
+		
 		-- Update rating
 		ratingCallback{publishedPhoto = photoInfo, rating = rating or 0}
 		
-		local photo = photoInfo.photo
+		local photo = photoInfo.photo				
 		photo.catalog:withWriteAccessDo('updatePhotoRating', function(context)
-			photo:setRawMetadata('rating', rating)
-		end)
+			photo:setRawMetadata('rating', rating)			
+			if color ~= '' then
+				photo:setRawMetadata('label', color)
+			end
+		end)			
 		
-		-- TODO: update pick flag or smth like that
-
-	end
-	
+	end	
 end
 
 -- Check if we can add comments
