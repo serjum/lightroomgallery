@@ -75,7 +75,7 @@ exportServiceProvider.hideSections = { 'exportLocation' }
 
 exportServiceProvider.allowFileFormats = { 'JPEG' }
 exportServiceProvider.allowColorSpaces = { 'sRGB' }
-exportServiceProvider.hidePrintResolution = true
+exportServiceProvider.hidePrintResolution = false
 exportServiceProvider.canExportVideo = false -- video is not supported through this sample plug-in
 
 -- LRGALLERY SPECIFIC: Helper functions and tables.
