@@ -281,37 +281,40 @@ end
 	  -- <li><b>remoteUrl</b>: (optional, string) The URL, if any, that was recorded for the published collection via
 	  -- <a href="LrExportSession.html#exportSession:recordRemoteCollectionUrl"><code>exportSession:recordRemoteCollectionUrl</code></a>.</li>
 	 -- </ul>
-
+-- On delete photoset	
 function publishServiceProvider.deletePublishedCollection( publishSettings, info )
-
+	
 	import 'LrFunctionContext'.callWithContext( 'publishServiceProvider.deletePublishedCollection', function( context )
 	
 		local progressScope = LrDialogs.showModalProgressDialog {
 							title = LOC( "$$$/LrGallery/DeletingCollectionAndContents=Deleting photoset ^[^1^]", info.name ),
 							functionContext = context }
 	
-		if info and info.photoIds then
+		--[[if info and info.photoIds then
 		
 			for i, photoId in ipairs( info.photoIds ) do
 			
 				if progressScope:isCanceled() then break end
 			
 				progressScope:setPortionComplete( i - 1, #info.photoIds )
-				LrGalleryAPI.deletePhoto( publishSettings, { photoId = photoId } )
-			
-			end
-		
-		end
+				
+				params = {}	
+				params.params = {
+					photoid = photoId,
+				}
+				method = 'deletePhoto'
+				local data = LrGalleryAPI.callMethod(propertyTable, params, method)
+				LrDialogs.message(data.result)
+			end		
+		end--]]
 	
-		if info and info.remoteId then
-	
-			LrGalleryAPI.deletePhotoset( publishSettings, {
-								photosetId = info.remoteId,
-								suppressError = true,
-									-- LrGallery has probably already deleted the photoset
-									-- when the last photo was deleted.
-							} )
-	
+		if info and info.name then	
+			params = {}	
+			params.params = {
+				username = info.name,
+			}
+			method = 'deleteUser'
+			local data = LrGalleryAPI.callMethod(propertyTable, params, method)	
 		end
 			
 	end )

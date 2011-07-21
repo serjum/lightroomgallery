@@ -459,7 +459,7 @@
             // Удалим его папку из файловой системы
             $folderToDelete = $this->userFolders . DS . $userFolder;
             if (JFolder::exists($folderToDelete)) {
-                foreach (JFolder::files($folderToDelete, '*', true, true) as $file) {
+                foreach (JFolder::files($folderToDelete, '.', true, true) as $file) {
                     JFile::delete($file);
                 }
                 JFolder::delete($folderToDelete);
