@@ -413,7 +413,8 @@ function LrGalleryAPI.callXmlMethod(params)
 	-- Construct XML message
 	--LrGalleryAPI.displayTable(params.params)
 	local xmlString = "lrgalleryxml=" .. constructXml(params)
-		
+	--LrDialogs.message(xmlString)
+	
 	-- Send message and get response		
 	local response, headers = LrHttp.post(serviceUrl, xmlString, {{
 			field = 'Content-Type',
@@ -515,8 +516,14 @@ end
 -- Delete gallery user
 function LrGalleryAPI.deleteUser(propertyTable, params)
 	
-	-- Get new user params
-	local username = LrGalleryAPI.getDeleteUserName(propertyTable)
+	-- Get username for delete
+	local username
+	if (type(params.params) == 'table') then	
+		username = params.params.username
+	end
+	if type(username) ~= 'string' then
+		username = LrGalleryAPI.getDeleteUserName(propertyTable)
+	end
 	
 	-- Set request params
 	local callParams = {
@@ -524,9 +531,10 @@ function LrGalleryAPI.deleteUser(propertyTable, params)
 		token = prefs.token,
 	}
 	params.params = callParams
+	--LrGalleryAPI.displayTable(params.params)
 	params.method = 'deleteUser'
 	
-	-- Call login method
+	-- Call delete User method
 	local result, xmlResponse = LrGalleryAPI.callXmlMethod(params)
 		
 	-- Include deleted username in the result	
