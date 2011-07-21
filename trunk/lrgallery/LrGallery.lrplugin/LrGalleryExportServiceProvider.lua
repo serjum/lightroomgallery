@@ -9,6 +9,7 @@ local LrTasks = import 'LrTasks'
 -- Common shortcuts
 local bind = LrView.bind
 local share = LrView.share
+local prefs = import 'LrPrefs'.prefsForPlugin(_PLUGIN)
 
 -- LrGallery plug-in
 require 'LrGalleryAPI'
@@ -50,7 +51,8 @@ exportServiceProvider.supportsIncrementalPublish = 'only'
  -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
 exportServiceProvider.exportPresetFields = {
 	{ key = 'username', default = "" },
-	{ key = 'password', default = "" },	
+	{ key = 'password', default = "" },
+	{ key = 'serviceUrl', default = "" },
 }
 
 --- (optional) Plug-in defined value suppresses the display of the named sections in
@@ -141,6 +143,11 @@ function exportServiceProvider.startDialog(propertyTable)
 	LrGalleryUser.checkLogin(propertyTable)
 end
 
+-- On end dialog
+function exportServiceProvider.endDialog(propertyTable)
+	prefs.serviceUrl = propertyTable.serviceUrl
+end
+
 --- (optional) This plug-in defined callback function is called when the user 
  -- chooses this export service provider in the Export or Publish dialog. 
  -- It can create new sections that appear above all of the built-in sections 
@@ -161,6 +168,9 @@ end
 	-- @name exportServiceProvider.sectionsForTopOfDialog
 function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
 
+	-- Fill prefs
+	propertyTable.serviceUrl = prefs.serviceUrl
+
 	return {
 	
 		{
@@ -170,7 +180,20 @@ function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
 
 			f:row {
 				spacing = f:control_spacing(),
+				
+				f:static_text {
+					title = 'Service URL:',
+					alignment = 'left',
+					fill_horizontal = 1,
+				},
 
+				f:edit_field { 
+					fill_horizonal = 1,
+					width_in_chars = 25, 
+					alignment = 'left',
+					value = bind 'serviceUrl',
+				},
+				
 				f:static_text {
 					title = bind 'accountStatus',
 					alignment = 'right',
