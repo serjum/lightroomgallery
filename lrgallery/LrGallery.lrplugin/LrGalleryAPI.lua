@@ -40,7 +40,8 @@ local logger = import 'LrLogger'('LrGalleryAPI')
 LrGalleryAPI = {}
 
 local appearsAlive
-local serviceUrl = "http://XN--H1AFILGCK.XN--P1AI/service/publish/"
+local serviceUrl = prefs.serviceUrl
+--local serviceUrl = "http://XN--H1AFILGCK.XN--P1AI/service/publish/"
 --local serviceUrl = "http://lrgallery/service/publish/"
 local token = nil
 
