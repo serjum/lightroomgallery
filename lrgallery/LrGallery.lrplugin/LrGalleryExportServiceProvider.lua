@@ -208,7 +208,7 @@ function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
 					end,
 				},
 				
-				f:push_button {
+				--[[f:push_button {
 					width = tonumber( LOC "$$$/locale_metric/LrGallery/ExportDialog/LoginButton/Width=90" ),
 					title = LOC "$$$/locale_metric/LrGallery/ExportDialog/UserManagement/Delete=Delete user...",
 					--enabled = bind 'deleteUserButtonEnabled',
@@ -216,7 +216,7 @@ function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
 						require 'LrGalleryUser'
 						LrGalleryUser.deleteUser(propertyTable)
 					end,
-				},
+				}]]--,
 
 			},
 		},				
