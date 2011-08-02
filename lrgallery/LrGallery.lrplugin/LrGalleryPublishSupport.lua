@@ -65,7 +65,8 @@ end
 --- When set to the string "disable", the "Go to Published Collection" context-menu item
  -- is disabled (dimmed) for this publish service.
  -- <p>First supported in version 3.0 of the Lightroom SDK.</p>
-publishServiceProvider.titleForGoToPublishedCollection = LOC "$$$/LrGallery/TitleForGoToPublishedCollection=Show in LrGallery"
+--publishServiceProvider.titleForGoToPublishedCollection = LOC "$$$/LrGallery/TitleForGoToPublishedCollection=Show in LrGallery"
+publishServiceProvider.titleForGoToPublishedCollection = "disable"
 
 -- On Delete photo
 function publishServiceProvider.deletePhotosFromPublishedCollection( publishSettings, arrayOfPhotoIds, deletedCallback )
@@ -402,6 +403,8 @@ function publishServiceProvider.getRatingsFromPublishedCollection(publishSetting
 		end)			
 		
 	end	
+	
+	LrDialogs.message('Sync completed', 'Comments and ratings were succesufullty synchronized', 'info')
 end
 
 -- Check if we can add comments
