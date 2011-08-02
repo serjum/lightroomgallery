@@ -325,7 +325,7 @@ function exportServiceProvider.processRenderedPhotos(functionContext, exportCont
 			local data = LrGalleryAPI.callMethod(propertyTable, params, method)
 			local photoDeleted = data.result
 		end
-		
+		 
 		-- Upload photo
 		params = {}
 		params.params = {
@@ -348,6 +348,7 @@ function exportServiceProvider.processRenderedPhotos(functionContext, exportCont
 	
 	-- End process
 	progressScope:done()
+	LrDialogs.message('Publish completed', 'Succesufullty published ' .. nPhotos .. ' photo(s)', 'info')
 end
 
 return exportServiceProvider
