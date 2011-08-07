@@ -126,20 +126,16 @@ foreach ($metadata as $md_item) {
                 
                 // Добавим обработчик навигационных кнопок
                 $('nav_first').addEvent('click', function(){
-                    slider.cancel();
-                    slider.toLeft()
+                    switchPhoto('first');                    
                 });
                 $('nav_prev').addEvent('click', function(){
-                    slider.cancel;
-                    slider.start(slider.element.scrollLeft - 130, 0);
+                    switchPhoto('prev');                    
                 });
                 $('nav_next').addEvent('click', function(){
-                    slider.cancel;
-                    slider.start(slider.element.scrollLeft + 130, 0);
+                    switchPhoto('next');
                 });
                 $('nav_last').addEvent('click', function(){
-                    slider.cancel();
-                    slider.toRight();
+                    switchPhoto('last');
                 });
                 
                 // Эффект плавного появления фотографии
@@ -468,6 +464,79 @@ foreach ($metadata as $md_item) {
                 if ($('darken_' + id) != null) {
                     $('darken_' + id).tween('opacity', '0');
                 }                
+            }
+            
+            /* Переключение на следующую/предыдущую/первую/последнюю фотографию */
+            function switchPhoto(where) {
+                
+                // Переберем ID всех превью
+                var ids = [];
+                $$('div[id^=thumb_]').forEach(function(thumb) {
+                    var photoId = thumb.id.substr('thumb_'.length, thumb.id.length - 'thumb_'.length);
+                    ids.push(photoId);
+                });
+                
+                // Опеределим текущий и следующий ID
+                slider.cancel();
+                var currId = $('id').value;
+                var switchId = currId;                
+                switch (where) {
+                    case 'first':
+                        switchId = ids[0];
+                        slider.toLeft();
+                        break
+                    case 'prev':
+                        switchId = ids[ids.indexOf(currId) - 1];
+                        if (($('thumb_' + switchId).offsetParent.clientWidth - $('thumb_' + switchId).offsetLeft) > screen.width/2) {
+                            slider.start(slider.element.scrollLeft - 105, 0);
+                        }
+                        break;
+                    case 'next':
+                        switchId = ids[ids.indexOf(currId) + 1];
+                        if ($('thumb_' + switchId).offsetLeft > screen.width/2) {
+                            slider.start(slider.element.scrollLeft + 105, 0);
+                        }
+                        break;
+                    case 'last':
+                        switchId = ids[ids.length - 1];
+                        slider.toRight();
+                        break;
+                    default:
+                        break;
+                }
+                
+                
+                // Переключим текущую фотографию
+                setCurrPhoto(switchId);
+                
+                // При необходимости прокрутим слайдер                
+                //slider.cancel();
+                //
+            }
+            
+            var bottomBarHeight = window.outerHeight - window.innerHeight;
+            var topNavigationHeight = window.outerHeight - window.innerHeight - bottomBarHeight;
+            
+            function findScreenPos(obj) {
+                // Calculate the total screen offset
+                screenTopOffset = window.screenY
+                    + topNavigationHeight;
+                screenLeftOffset = window.screenX;
+                pagePosition = findPos(obj);
+                return [screenLeftOffset+pagePosition[0],
+                    screenTopOffset+pagePosition[1]];
+            }
+
+            // Gotten from http://www.quirksmode.org/js/findpos.html
+            function findPos(obj) {
+                var curleft = curtop = 0;
+                if (obj && obj.offsetParent) {
+                    do {
+                        curleft += obj.offsetLeft;
+                        curtop += obj.offsetTop;
+                    } while (obj = obj.offsetParent);
+                }
+                return [curleft,curtop];
             }
         </script>
 
