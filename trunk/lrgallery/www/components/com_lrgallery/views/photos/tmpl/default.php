@@ -41,6 +41,7 @@ foreach ($metadata as $md_item) {
             
             var slider;
             var currThumb;
+            var photoFx;
             
             /* Удаление лишних пробелов и др. из строки */
             function trimStr (s) {
@@ -113,6 +114,9 @@ foreach ($metadata as $md_item) {
                     thumb.addEvent('click', setCurrPhoto.pass(photoId));
                 });
                 
+                // Подсветим текущую фотографию
+                highlightThumb($(id).value);
+                
                 // Добавим слайдер
                 currThumb = $('thumb_' + $('currPhoto').value);
                 slider = new Fx.Scroll('thumbs_container', {
@@ -136,6 +140,14 @@ foreach ($metadata as $md_item) {
                 $('nav_last').addEvent('click', function(){
                     slider.cancel();
                     slider.toRight();
+                });
+                
+                // Эффект плавного появления фотографии
+                photoFx = new Fx.Tween('currPhoto', {
+                    duration: 'short',
+                    transition: 'quad:out',
+                    link: 'chain',
+                    property: 'opacity'
                 });
             });
             
@@ -417,13 +429,45 @@ foreach ($metadata as $md_item) {
             /* Устанавливает текущую фотографию */
             function setCurrPhoto(id) {
                 var photoSrc = $('photoBase').value + "/" + $('thumb_' + id).getAttribute('rel');
-                $('currPhoto').src = photoSrc;
+                
+                var m = $('main');
+                var fx = new Fx.Tween(m,{
+                    duration: 1500,
+                    onComplete: function(){ 
+                            m.setStyle('background-image','url(' + pBackground + ')');
+                            m.fade('in');
+                    }
+                });
+                fx.start('opacity',1,0);
+                
+                photoFx.start('1', '0');
+                window.setTimeout(function(){ $('currPhoto').src = photoSrc; }, 250); 
+                photoFx.start('0.3', '1');
+                
+                prevId = $('id').value;
                 $('id').value = id;
+                
+                // Уберем затемнение с текущей фотографии
+                highlightThumb(id, prevId);
+                
                 getName();
                 getDatetime();
                 getAcceptedFlag();
                 getRating();
                 getComments();
+                
+            }
+            
+            /* Подсвечивает выбранную фотографию и затемняет предыдущую */
+            function highlightThumb(id, prevId, opacity) {
+                if (opacity == null)
+                    opacity = 0.85;
+                if ($('darken_' + prevId) != null) {
+                    $('darken_' + prevId).tween('opacity', opacity.toString());
+                }
+                if ($('darken_' + id) != null) {
+                    $('darken_' + id).tween('opacity', '0');
+                }                
             }
         </script>
 
@@ -438,6 +482,7 @@ foreach ($metadata as $md_item) {
 ?>
                         <div class="thumb" id ="thumb_<? echo $photo->id; ?>" rel="<? echo $photo->file_name; ?>">
                             <img src="<? echo $photo->base . "/" . $photo->file_name; ?>" />
+                            <img id="darken_<? echo $photo->id; ?>" src="media/lrgallery/images/darken_small.png" class="darken_small"/>
                         </div>
 <?
                     }
