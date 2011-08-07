@@ -121,7 +121,7 @@ foreach ($metadata as $md_item) {
                 currThumb = $('thumb_' + $('currPhoto').value);
                 slider = new Fx.Scroll('thumbs_container', {
                     duration:   700,
-                    transition: Fx.Transitions.Quad.easeInOut
+                    transition: Fx.Transitions.Back.easeOut
                 });
                 
                 // Добавим обработчик навигационных кнопок
@@ -144,7 +144,7 @@ foreach ($metadata as $md_item) {
                 
                 // Эффект плавного появления фотографии
                 photoFx = new Fx.Tween('currPhoto', {
-                    duration: 'short',
+                    duration: 125,
                     transition: 'quad:out',
                     link: 'chain',
                     property: 'opacity'
@@ -430,19 +430,19 @@ foreach ($metadata as $md_item) {
             function setCurrPhoto(id) {
                 var photoSrc = $('photoBase').value + "/" + $('thumb_' + id).getAttribute('rel');
                 
-                var m = $('main');
-                var fx = new Fx.Tween(m,{
-                    duration: 1500,
-                    onComplete: function(){ 
-                            m.setStyle('background-image','url(' + pBackground + ')');
-                            m.fade('in');
-                    }
-                });
-                fx.start('opacity',1,0);
-                
-                photoFx.start('1', '0');
-                window.setTimeout(function(){ $('currPhoto').src = photoSrc; }, 250); 
-                photoFx.start('0.3', '1');
+                // Плавно сменим фотографию
+                photoFx.onComplete = function(){
+                    $('currPhoto').src = photoSrc;
+                    var upFx = new Fx.Tween('currPhoto', {
+                        duration: 125,
+                        transition: 'quad:in',
+                        link: 'chain',
+                        property: 'opacity'
+                    });
+                    upFx.start(0, 1);
+                    //$('currPhoto').fade('in');
+                }
+                photoFx.start(1, 0);
                 
                 prevId = $('id').value;
                 $('id').value = id;
