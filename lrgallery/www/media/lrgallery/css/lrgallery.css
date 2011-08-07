@@ -317,3 +317,7 @@ a.btn-download .icon_save {
     max-width: 100px;
     max-height: 75px;
 }
+.darken_small {
+    margin: -75px 0 0 0;
+    opacity: 0.85;
+}
