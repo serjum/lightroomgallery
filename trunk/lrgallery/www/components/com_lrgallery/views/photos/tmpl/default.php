@@ -448,11 +448,32 @@ foreach ($metadata as $md_item) {
             
             <div id="nav">
                 <div class="nav_controls">
-                    <div class="nav_first" id="nav_first"></div>
+                    <!--div class="nav_first" id="nav_first"></div>
                     <div class="nav_prev" id="nav_prev"></div>
                     <div class="nav_space"></div>
                     <div class="nav_next" id="nav_next"></div>
-                    <div class="nav_last" id="nav_last"></div>
+                    <div class="nav_last" id="nav_last"></div-->
+                    <a id="nav_first" href="javascript:;" class="minibutton">
+                        <span class="nav_arrow">
+                            &#8676;
+                        </span>                        
+                    </a>
+                    <a id="nav_prev" href="javascript:;" class="minibutton">
+                        <span class="nav_arrow">
+                            &larr;
+                        </span>                        
+                    </a>
+                    <div class="nav_space"></div>
+                    <a id="nav_next" href="javascript:;" class="minibutton">
+                        <span class="nav_arrow">
+                            &rarr;
+                        </span>                        
+                    </a>
+                    <a id="nav_last" href="javascript:;" class="minibutton">
+                        <span class="nav_arrow">
+                            &#8677;
+                        </span>                        
+                    </a>
                 </div>
             </div>
             <div class="clear"></div>                        
