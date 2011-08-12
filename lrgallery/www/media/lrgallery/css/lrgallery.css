@@ -321,3 +321,26 @@ a.btn-download .icon_save {
     margin: -75px 0 0 0;
     opacity: 0.85;
 }
+
+/* Сохранить и отправить */
+.ready_button_container {
+    position: absolute;
+    bottom: 0;
+}
+
+#ready_button {
+    float: left;
+}
+
+#ready_button span {
+    font-weight: bold;
+}
+
+a.btn-download .icon_ready {
+    background: url(../images/ready.png) 0 0 no-repeat;
+}
+
+#ready_loader {
+    float: left;
+    margin: 6px 0 0 6px;
+}
