@@ -157,6 +157,11 @@ foreach ($metadata as $md_item) {
                     link: 'chain',
                     property: 'opacity'
                 });
+                
+                // Добавим обработчик кнопки готовности
+                $('ready_button').addEvent('click', function(){
+                    notifyReady();
+                });
             });
             
             /* Отображение анимации прогресса сохранения, либо отметки успешного сохранения */ 
@@ -547,29 +552,26 @@ foreach ($metadata as $md_item) {
                 setCurrPhoto(switchId);               
             }
             
-            var bottomBarHeight = window.outerHeight - window.innerHeight;
-            var topNavigationHeight = window.outerHeight - window.innerHeight - bottomBarHeight;
-            
-            function findScreenPos(obj) {
-                // Calculate the total screen offset
-                screenTopOffset = window.screenY
-                    + topNavigationHeight;
-                screenLeftOffset = window.screenX;
-                pagePosition = findPos(obj);
-                return [screenLeftOffset+pagePosition[0],
-                    screenTopOffset+pagePosition[1]];
-            }
-
-            // Gotten from http://www.quirksmode.org/js/findpos.html
-            function findPos(obj) {
-                var curleft = curtop = 0;
-                if (obj && obj.offsetParent) {
-                    do {
-                        curleft += obj.offsetLeft;
-                        curtop += obj.offsetTop;
-                    } while (obj = obj.offsetParent);
-                }
-                return [curleft,curtop];
+            /* Оповещение о готовности пользователя */
+            function notifyReady() {
+                var req = new Request({
+                    url: 'index.php?option=com_lrgallery&task=photos.notifyReady&format=json',
+                    onRequest: function(){
+                        displayLoader('ready_loader', 'progress');
+                    },                    
+                    onSuccess: function(result) {
+                        displayLoader('ready_loader', 'saved');
+                        var response = JSON.decode(result);
+                        if (!response.error) {
+                            alert('Фотограф оповещён о вашей готовности');
+                        }
+                        else {
+                            alert('Во процессе оповещения фотографа возникла ошибка:\n' + response.message + 
+                                 '\n Пожалуйста, обратитесь к администратору');
+                        }
+                            
+                    }
+                }).send();
             }
         </script>
 
@@ -704,6 +706,18 @@ foreach ($metadata as $md_item) {
                         <div class="loader" id="comments_loader"></div>
                     </div>
                     <div class="clear"></div>
+                    
+                    <div class="ready_button_container">
+                        <div class="ready_button">
+                            <a id="ready_button" href="javascript:;" class="minibutton btn-download">
+                            <span>
+                                <span class="icon icon_ready"></span>
+                                Фотограф, готово!
+                            </span>
+                            </a>                            
+                        </div>
+                        <div class="loader" id="ready_loader"></div>
+                    </div>
                 </div>
                 <div class="clear"></div>
             </div>                        

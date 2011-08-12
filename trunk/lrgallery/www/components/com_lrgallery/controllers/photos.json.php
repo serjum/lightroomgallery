@@ -146,5 +146,35 @@
             $response = Array('Error' => !$result, 'Message' => $db->stderr());
             $this->echoResponse($response, $result);
         }
+        
+        /*
+         * Оповещение о том, что пользователь окончил работу
+         */
+        public function notifyReady()
+        {
+            $user =& JFactory::getUser();
+            
+            // TODO: Добавить email для отсылки в параметры компонента
+            $emailUser =& JFactory::getUser('lr');
+            $email = $emailUser->email;
+            
+            // Отошлём уведомление
+            $mailer =& JFactory::getMailer();
+            $config =& JFactory::getConfig();
+            $sender = array( 
+                $config->getValue( 'config.mailfrom' ),
+                $config->getValue( 'config.fromname' ) );
+            $mailer->setSender($sender);
+            $mailer->addRecipient($email);
+            
+            // TODO: добавить тему и шаблон сообщения в параметры 
+            $body = "Пользователь $user->name окончил просмотр и редактирование фотографий на сайте софтлит.рф";
+            $mailer->setSubject("Пользователь $user->name готов");
+            $mailer->setBody($body);
+            
+            $send =& $mailer->Send();
+            $response = Array('Error' => !$send, 'Message' => $send->message);
+            $this->echoResponse($response, $result);            
+        }
     }
 ?>    
