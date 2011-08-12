@@ -117,6 +117,18 @@ foreach ($metadata as $md_item) {
                 // Подсветим текущую фотографию
                 highlightThumb($(id).value);
                 
+                // Подсветка превью при наведении
+                $$('div[id^=thumb_]').forEach(function(thumb) {
+                    var thumbId = thumb.id.toString();
+                    var photoId = thumbId.substr('thumb_'.length, thumbId.length - 'thumb_'.length);
+                    thumb.addEvent('mouseover', function(){
+                        highlightThumb(photoId, null);
+                    });
+                    thumb.addEvent('mouseleave', function(){
+                        highlightThumb(null, photoId);
+                    });
+                });                
+                
                 // Добавим слайдер
                 currThumb = $('thumb_' + $('currPhoto').value);
                 slider = new Fx.Scroll('thumbs_container', {
@@ -507,11 +519,7 @@ foreach ($metadata as $md_item) {
                 
                 
                 // Переключим текущую фотографию
-                setCurrPhoto(switchId);
-                
-                // При необходимости прокрутим слайдер                
-                //slider.cancel();
-                //
+                setCurrPhoto(switchId);               
             }
             
             var bottomBarHeight = window.outerHeight - window.innerHeight;
