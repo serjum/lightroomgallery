@@ -127,7 +127,7 @@ foreach ($metadata as $md_item) {
                     thumb.addEvent('mouseleave', function(){
                         highlightThumb(null, photoId);
                     });
-                });                
+                });
                 
                 // Добавим слайдер
                 currThumb = $('thumb_' + $('currPhoto').value);
@@ -158,6 +158,31 @@ foreach ($metadata as $md_item) {
                     property: 'opacity'
                 });
             });
+            
+            /* Отображение анимации прогресса сохранения, либо отметки успешного сохранения */ 
+            function displayLoader(id, mode){
+                var loader = $(id);
+                if (loader == null)
+                    return;
+                
+                switch (mode) {
+                    case 'progress':
+                        loader.setStyle('visibility', 'visible');
+                        loader.setStyle('background', "url('/media/lrgallery/images/loader.gif')");
+                        loader.title = 'Идёт сохранение...';
+                        break;
+                    case 'saved':
+                        loader.setStyle('visibility', 'visible');
+                        loader.setStyle('background', "url('/media/lrgallery/images/saved.png') no-repeat");
+                        loader.title = 'Сохранено';
+                        break;
+                    case 'none':                    
+                    default:
+                        loader.setStyle('visibility', 'hidden');
+                        loader.title = '';
+                        break;
+                }
+            }
             
             /* Получение значения поля метаданных фотографии */
             function getMetadata(id, meta, loader, callback) {
@@ -235,11 +260,11 @@ foreach ($metadata as $md_item) {
                 setMetadata(id, 'accepted', flag, 
                 function(){
                     // Во время обработки запроса покажем анимацию
-                    $('accept_loader').setStyle('visibility', 'visible');
+                    displayLoader('accept_loader', 'progress');
                 },
                 function(response) {
-                    // Скроем анимацию
-                    $('accept_loader').setStyle('visibility', 'hidden');
+                    // Отобразим ОК
+                    displayLoader('accept_loader', 'saved');
                         
                     if (!response.error) {
                         // Если всё ок, подсветим выбранную кнопку
@@ -320,11 +345,11 @@ foreach ($metadata as $md_item) {
                 setMetadata(id, 'rating', rating, 
                 function(){
                     // Во время обработки запроса покажем анимацию
-                    $('rating_loader').setStyle('visibility', 'visible');
+                    displayLoader('rating_loader', 'progress');
                 },
                 function(response) {
-                    // Скроем анимацию
-                    $('rating_loader').setStyle('visibility', 'hidden');
+                    // Отобразим ОК
+                    displayLoader('rating_loader', 'saved');
                         
                     if (!response.error) {
                         // Если всё ок, заполним звёзды
@@ -372,11 +397,11 @@ foreach ($metadata as $md_item) {
                 setMetadata(id, 'comments', comments, 
                     function(){
                         // Во время обработки запроса покажем анимацию
-                        $('comments_loader').setStyle('visibility', 'visible');
+                        displayLoader('comments_loader', 'progress');
                     },
                     function(response) {
-                        // Скроем анимацию
-                        $('comments_loader').setStyle('visibility', 'hidden');
+                        // Отобразим ОК
+                        displayLoader('comments_loader', 'saved');
 
                         // Разберем ответ в формате JSON
                         var response = JSON.decode(result);
